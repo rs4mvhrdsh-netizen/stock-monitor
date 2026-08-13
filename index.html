@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>米国株 売買ライン監視(ローカル版)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #17181a;
+    --card: #232427;
+    --card-border: #34363a;
+    --accent: #e8b84b;
+    --text: #f2f2f0;
+    --muted: #8c8d92;
+    --up: #4caf7d;
+    --down: #e6685f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    row-gap: 8px;
+  }
+  header h1 { font-size: 15px; margin: 0; font-weight: 700; letter-spacing: .01em; white-space: nowrap; }
+  header .app-version { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  header .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  header button.icon-btn {
+    background: none; border: 1px solid var(--card-border); color: var(--muted);
+    border-radius: 8px; padding: 5px 8px; font-size: 10.5px; cursor: pointer; white-space: nowrap;
+  }
+  header button.icon-btn:hover { color: var(--text); border-color: var(--accent); }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--card-border);
+    overflow-x: auto;
+    background: #1c1d20;
+  }
+  .tab {
+    flex: 1; min-width: 62px; text-align: center; padding: 10px 3px;
+    font-size: 11px; color: var(--muted); cursor: pointer; white-space: nowrap;
+    border-bottom: 2px solid transparent;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
+
+  .panel { display: none; padding: 10px; max-width: 640px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  .stock-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px 14px;
+    margin-bottom: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .stock-card:hover { border-color: var(--accent); }
+  .select-update-checkbox {
+    width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer;
+    vertical-align: middle; margin-right: 8px; margin-top: -2px;
+  }
+  .stock-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .card-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .card-bottom-row {
+    display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap;
+    gap: 8px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--card-border);
+  }
+  .stock-main { display: flex; flex-direction: column; gap: 3px; }
+  .ticker { font-weight: 700; font-size: 15px; letter-spacing: .02em; }
+  .company { font-size: 11.5px; color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .theme-tag {
+    display: inline-block; font-size: 10px; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 20px; padding: 1px 8px;
+  }
+  .theme-label { font-size: 11.5px; color: var(--muted); font-weight: 400; }
+  .tags-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+  .analysis-tag {
+    display: inline-block; font-size: 9px; color: var(--accent); opacity: 0.85;
+    border: 1px solid var(--accent); border-radius: 20px; padding: 1px 6px; cursor: pointer; white-space: nowrap;
+  }
+  .analysis-tag:hover { opacity: 1; }
+
+  .rank-overall-row { margin-bottom: 4px; }
+  .rank-metrics-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; }
+  .rank-badge { font-size: 10.5px; color: var(--muted); }
+  .rank-badge b { font-size: 11.5px; font-weight: 800; margin-left: 2px; }
+  .rank-badge.overall { font-size: 11px; font-weight: 700; }
+  .rank-badge.overall b { font-size: 21px; margin-left: 4px; }
+  .rank-badge b.rank-S { color: #FFD700; text-shadow: 0 0 6px rgba(255,215,0,0.75); }
+  .rank-badge b.rank-A { color: #FF8C1A; }
+  .rank-badge b.rank-B { color: #E53935; }
+  .rank-badge b.rank-C { color: #43A047; }
+  .rank-badge b.rank-D { color: #29B6F6; }
+  .rank-badge b.rank-E { color: #AB47BC; }
+  .rank-badge b.rank-F { color: #8D6E63; }
+  .rank-badge b.rank-G { color: #9E9E9E; }
+
+  .section-title { font-size: 12.5px; font-weight: 700; color: var(--accent); margin: 18px 0 8px; }
+
+  table.metric-table { border-collapse: collapse; width: 100%; font-size: 11.5px; }
+  table.metric-table th, table.metric-table td {
+    border: 1px solid var(--card-border); padding: 3px 4px; text-align: left; vertical-align: middle;
+  }
+  table.metric-table th { color: var(--accent); font-weight: 700; font-size: 10.5px; white-space: nowrap; }
+  table.metric-table td.metric-label-cell { white-space: nowrap; color: var(--text); }
+  .manual-only-badge { font-size: 9px; color: var(--muted); font-weight: 400; }
+  table.metric-table input.metric-value {
+    width: 58px; padding: 3px 4px; border-radius: 5px; border: 1px solid var(--card-border);
+    background: #1c1d20; color: var(--text); font-size: 11.5px;
+    -moz-appearance: textfield; appearance: textfield;
+  }
+  table.metric-table input.metric-value::-webkit-outer-spin-button,
+  table.metric-table input.metric-value::-webkit-inner-spin-button {
+    -webkit-appearance: none; margin: 0;
+  }
+  table.metric-table select.metric-rank {
+    width: 42px; padding: 3px 1px; border-radius: 5px; border: 1px solid var(--card-border);
+    background: #1c1d20; color: var(--accent); font-size: 11.5px; font-weight: 700; text-align: center;
+  }
+  table.metric-table input.metric-reason {
+    width: 100%; min-width: 82px; padding: 3px 4px; border-radius: 5px; border: 1px solid var(--card-border);
+    background: #1c1d20; color: var(--text); font-size: 11.5px;
+  }
+  table.metric-table input.criteria-input {
+    width: 46px; padding: 3px 3px; border-radius: 5px; border: 1px solid var(--card-border);
+    background: #1c1d20; color: var(--text); font-size: 11px; text-align: center;
+    -moz-appearance: textfield; appearance: textfield;
+  }
+  table.metric-table input.criteria-input::-webkit-outer-spin-button,
+  table.metric-table input.criteria-input::-webkit-inner-spin-button {
+    -webkit-appearance: none; margin: 0;
+  }
+
+  table.single-rank-table td.cat-cell {
+    font-weight: 700; color: var(--accent); text-align: center; white-space: nowrap;
+    background: #1c1d20;
+  }
+  table.single-rank-table td.cat-rank-cell,
+  table.single-rank-table td.overall-rank-cell {
+    text-align: center; background: #1c1d20;
+  }
+  table.single-rank-table select.cat-rank-select {
+    width: 42px; padding: 3px 1px; border-radius: 5px; border: 1px solid var(--accent);
+    background: #17181a; font-size: 11.5px; font-weight: 700; text-align: center;
+  }
+  table.single-rank-table select.overall-rank-select {
+    width: 44px; padding: 3px 1px; border-radius: 5px; border: 1px solid var(--accent);
+    background: #17181a; font-size: 14px; font-weight: 800; text-align: center;
+  }
+
+  .lines { font-size: 11px; color: var(--muted); margin-top: 5px; }
+  .line-row { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .line-row .line-value { color: var(--text); font-weight: 600; }
+  .line-row .dist-text { font-weight: 700; }
+  .line-row.close .dist-text { color: #FFC107; }
+  .line-row.near .dist-text { color: #FF8C1A; font-weight: 800; }
+  .line-row.reached { color: var(--text); }
+  .line-row.reached.buy-line .dist-text { color: var(--down); font-weight: 800; }
+  .line-row.reached.sell-line .dist-text { color: var(--up); font-weight: 800; }
+  .price-block { display: flex; flex-direction: column; align-items: flex-end; }
+  .price { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .price.up { color: var(--up); }
+  .price.down { color: var(--down); }
+  .updated { font-size: 10px; color: var(--muted); margin-top: 2px; text-align: right; }
+
+  .empty { text-align: center; color: var(--muted); padding: 50px 0; font-size: 13px; }
+
+  .toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
+  .toolbar button {
+    flex: 1; padding: 9px; border-radius: 8px; border: 1px solid var(--card-border);
+    background: var(--card); color: var(--text); font-size: 12.5px; cursor: pointer;
+  }
+  .toolbar button:hover { border-color: var(--accent); }
+  .toolbar button:disabled { opacity: 0.5; cursor: not-allowed; border-color: var(--card-border); }
+
+  .fab {
+    position: fixed; right: 20px; bottom: 20px; width: 52px; height: 52px;
+    border-radius: 50%; background: var(--accent); color: #17181a; font-size: 24px;
+    border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.45); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0; line-height: 1;
+  }
+
+  .modal-bg {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+    align-items: center; justify-content: center; z-index: 20; padding: 16px;
+  }
+  .modal-bg.active { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--card-border);
+    width: 100%; max-width: 420px; border-radius: 14px; padding: 20px;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal h3 { margin: 0 0 14px; font-size: 15px; }
+  .field { margin-bottom: 11px; }
+  .field label { display: block; font-size: 11.5px; color: var(--text); font-weight: 600; margin-bottom: 4px; }
+  .field input, .field select {
+    width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--card-border);
+    background: #1c1d20; color: var(--text); font-size: 14px;
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
+  .field.checkbox { display: flex; align-items: center; gap: 8px; }
+  .field.checkbox input { width: auto; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .btn { flex: 1; padding: 11px; border-radius: 8px; border: none; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+  .btn-primary { background: var(--accent); color: #17181a; }
+  .btn-secondary { background: #34363a; color: var(--text); }
+  .btn-danger { background: var(--down); color: #fff; }
+
+  .hint { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+  .status-msg { font-size: 11.5px; color: var(--muted); text-align: center; padding: 6px 0; }
+
+  .change { font-size: 11px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .change.up { color: var(--up); }
+  .change.down { color: var(--down); }
+
+  .updated.stale { color: var(--down); font-weight: 700; }
+
+  .card-delete-btn {
+    background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer;
+    padding: 2px 5px; margin-bottom: 4px;
+  }
+  .card-delete-btn:hover { color: var(--down); }
+
+  .card-actions { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .watch-toggle-btn {
+    font-size: 10px; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--card-border);
+    background: #1c1d20; color: var(--muted); cursor: pointer; white-space: nowrap;
+  }
+  .watch-toggle-btn.on { border-color: var(--accent); color: var(--accent); }
+
+  .field textarea {
+    width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--card-border);
+    background: #1c1d20; color: var(--text); font-size: 14px; font-family: inherit; resize: vertical;
+  }
+  .field textarea:focus { outline: none; border-color: var(--accent); }
+
+  .toolbar-controls { margin-bottom: 12px; }
+  .toolbar-controls input[type="text"] {
+    width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--card-border);
+    background: var(--card); color: var(--text); font-size: 13px; margin-bottom: 8px;
+  }
+  .toolbar-row-2 { display: flex; gap: 8px; margin-bottom: 8px; }
+  .toolbar-row-2 select {
+    flex: 1; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--card-border);
+    background: var(--card); color: var(--text); font-size: 12.5px;
+  }
+
+  .theme-manage-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .theme-manage-item {
+    display: flex; align-items: center; gap: 4px; font-size: 12px;
+    padding: 5px 6px 5px 12px; border-radius: 20px; border: 1px solid var(--card-border); background: #1c1d20;
+  }
+  .theme-manage-item button {
+    background: none; border: none; color: var(--down); cursor: pointer; font-size: 13px; padding: 2px 5px;
+  }
+
+  .theme-alloc-box {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 10px;
+    padding: 13px 14px; margin-top: 8px;
+  }
+  .pie-chart-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .pie-chart { width: 130px; height: 130px; border-radius: 50%; flex-shrink: 0; }
+  .pie-legend { flex: 1; min-width: 160px; }
+  .pie-legend-row { display: flex; align-items: center; gap: 7px; font-size: 11.5px; margin-bottom: 6px; }
+  .pie-legend-swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .pie-legend-label { flex: 1; color: var(--text); }
+  .pie-legend-value { color: var(--muted); white-space: nowrap; }
+
+  .theme-alloc-bars { margin-top: 14px; }
+  .theme-alloc-row { margin-bottom: 9px; }
+  .theme-alloc-row:last-child { margin-bottom: 0; }
+  .theme-alloc-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+  .theme-alloc-bar-bg { background: #34363a; border-radius: 6px; height: 7px; overflow: hidden; }
+  .theme-alloc-bar-fill { height: 100%; }
+
+  .shares-group-header {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    margin: 8px 0 3px; padding-bottom: 2px; border-bottom: 1px solid var(--card-border);
+  }
+  .shares-group-header:first-child { margin-top: 0; }
+  .shares-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 2px; border-bottom: 1px solid var(--card-border);
+  }
+  .shares-row-name { font-size: 12px; }
+  .shares-row-company { color: var(--muted); font-size: 10.5px; margin-left: 4px; }
+  .shares-input {
+    width: 64px; padding: 3px 6px; border-radius: 5px; border: 1px solid var(--card-border);
+    background: #1c1d20; color: var(--text); font-size: 12px; text-align: right;
+  }
+  .shares-input:focus { outline: none; border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>米国株 売買ライン監視</h1>
+    <div class="app-version">v2.17.0</div>
+  </div>
+  <div class="actions">
+    <button class="icon-btn" id="helpBtn">使い方・免責事項</button>
+    <button class="icon-btn" id="connectionBtn">接続設定</button>
+    <button class="icon-btn" id="dataMgmtBtn">データ管理</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="edit">銘柄編集</div>
+  <div class="tab" data-tab="nonhold">非保有注目</div>
+  <div class="tab" data-tab="hold">保有注目</div>
+  <div class="tab" data-tab="watch">監視リスト</div>
+  <div class="tab" data-tab="themes">テーマ別</div>
+</div>
+
+<div id="panel-edit" class="panel active">
+  <div class="toolbar-controls">
+    <input type="text" id="searchInput" placeholder="ティッカー・会社名で検索">
+    <div class="toolbar-row-2">
+      <select id="sortSelect">
+        <option value="ticker">ティッカー順</option>
+        <option value="change">値動き順</option>
+        <option value="theme">テーマ順</option>
+        <option value="buyNear">買いが近い順</option>
+        <option value="sellNear">売りが近い順</option>
+      </select>
+      <select id="themeFilterSelect"><option value="">すべてのテーマ</option></select>
+    </div>
+    <div class="toolbar">
+      <button id="refreshAllBtn">全銘柄の現在値を更新</button>
+      <button id="refreshSelectedBtn">チェックした銘柄だけ更新</button>
+    </div>
+    <div class="toolbar">
+      <button id="badgeModeToggleBtn">指標をランクで表示中(タップで数値表示に切替)</button>
+    </div>
+    <div id="watchCountWarning" class="hint" style="margin-top:8px; display:none;"></div>
+    <div id="registeredCountHint" class="hint" style="margin-top:8px; display:none;"></div>
+    <div id="editStatusMsg" class="status-msg"></div>
+  </div>
+  <div id="editCardList"></div>
+</div>
+<div id="panel-nonhold" class="panel"></div>
+<div id="panel-hold" class="panel"></div>
+<div id="panel-watch" class="panel"></div>
+<div id="panel-themes" class="panel">
+  <p class="section-title" style="margin-top:0;">■ 保有株数の編集(テーマ別)</p>
+  <div class="hint" style="margin-top:0;">
+    ここでテーマごとに保有株数をまとめて入力できます。使わない場合は触らなくても問題ありません。
+  </div>
+  <div id="sharesByThemeBox" style="margin-top:6px;"></div>
+
+  <p class="section-title">■ 保有株のテーマ別割合</p>
+  <div id="themeAllocBox" class="theme-alloc-box"></div>
+
+  <p class="section-title">■ 財務指標の数値比較</p>
+  <div class="hint" style="margin-top:0;">
+    「📈 財務ランク」に入力した数値を、銘柄横並びで比較できます(ランクではなく実際の数値です)。
+  </div>
+  <div id="metricCompareBox" style="margin-top:10px; overflow-x:auto;"></div>
+</div>
+
+<button class="fab" id="addBtn">+</button>
+
+<!-- 銘柄 編集モーダル -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">銘柄を追加</h3>
+    <input type="hidden" id="f_id">
+    <div class="field"><label>ティッカー</label><input id="f_ticker" placeholder="例: AAPL"></div>
+    <div class="field"><label>会社名</label><input id="f_company" placeholder="例: Apple Inc."></div>
+    <div class="field">
+      <label>テーマ</label>
+      <select id="f_theme"></select>
+      <div style="display:flex; gap:6px; margin-top:8px;">
+        <input id="themeNewInput" placeholder="新しいテーマ名を入力して追加">
+        <button type="button" class="btn btn-secondary" id="themeAddBtn" style="width:auto; flex:none; padding:9px 14px; margin-top:0;">追加</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>保有ステータス</label>
+      <select id="f_status"><option value="非保有">非保有</option><option value="保有">保有</option></select>
+    </div>
+    <div class="field"><label>買いライン</label><input id="f_buy" type="number" step="0.01"></div>
+    <div class="field"><label>売りライン</label><input id="f_sell" type="number" step="0.01"></div>
+    <div class="field checkbox">
+      <input type="checkbox" id="f_watch" checked>
+      <label for="f_watch" style="margin:0;">ウォッチ対象にする</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="deleteBtn" style="display:none;">削除</button>
+      <button class="btn btn-secondary" id="cancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="saveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 設定モーダル -->
+<!-- 接続設定モーダル(バックエンドURL・アクセストークン) -->
+<div class="modal-bg" id="connectionModalBg">
+  <div class="modal">
+    <h3>接続設定</h3>
+    <div class="field">
+      <label>バックエンドURL(価格取得プロキシのApps ScriptのWebアプリURL)</label>
+      <input id="backendUrlInput" placeholder="https://script.google.com/macros/s/xxxx/exec">
+    </div>
+    <div class="field">
+      <label>アクセストークン</label>
+      <input id="accessTokenInput" placeholder="プロキシ側で設定したトークン">
+    </div>
+    <div class="field">
+      <label>アプリを開いた時の動き</label>
+      <select id="autoRefreshModeSelect">
+        <option value="manual">選択モード(自動更新しない。手動で更新した銘柄だけ反映)</option>
+        <option value="auto">自動取得モード(開くたびに全ウォッチ銘柄を自動更新)</option>
+      </select>
+    </div>
+    <div class="hint">
+      株価の取得は、ご自身で用意したApps Scriptのバックエンド(価格取得プロキシ)経由で行います。<br>
+      Alpha VantageのAPIキー自体はこの画面やブラウザには一切入力・保存されません(プロキシ側のスクリプトプロパティにのみ保存されます)。<br>
+      入力したバックエンドURLとトークンはこのブラウザのlocalStorageに保存されます。<br>
+      デフォルトは「選択モード」です。開いた時は前回取得した値のまま表示され、「全銘柄の現在値を更新」ボタンやカードのタップで更新した時だけ最新値になります。「自動取得モード」に切り替えると、開くたびに自動で更新されますが、銘柄数が多いと起動時に待ち時間が発生します。
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="connectionCancelBtn">閉じる</button>
+      <button class="btn btn-primary" id="connectionSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- データ管理モーダル(テーマの管理・バックアップ) -->
+<div class="modal-bg" id="dataMgmtModalBg">
+  <div class="modal">
+    <h3>データ管理</h3>
+
+    <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:0 0 6px;">■ テーマの管理</p>
+    <div class="hint" style="margin-top:0; margin-bottom:8px;">
+      不要になったテーマは削除できます(既にそのテーマが設定されている銘柄の表示自体は消えません。選択肢から消えるだけです)。
+    </div>
+    <div id="themeManageList" class="theme-manage-list"></div>
+
+    <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:18px 0 6px;">■ データのバックアップ</p>
+    <div class="hint" style="margin-top:0; margin-bottom:10px;">
+      登録した銘柄データはこの端末のブラウザにだけ保存されています。他の端末に移したり、消えた時に備えたい場合は、ここからファイルに書き出し・読み込みができます。<br>
+      書き出す際にパスワードで暗号化されるため、ファイル単体を見ても中身は読めません(パスワードを忘れると復元できないのでご注意ください)。
+    </div>
+    <div class="modal-actions" style="margin-top:0;">
+      <button class="btn btn-secondary" id="exportBtn">エクスポート(保存)</button>
+      <button class="btn btn-secondary" id="importBtn">インポート(読込)</button>
+    </div>
+    <input type="file" id="importFileInput" accept="application/json" style="display:none;">
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="dataMgmtCloseBtn">閉じる</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- 投資判断 モーダル -->
+<div class="modal-bg" id="analysisModalBg">
+  <div class="modal" style="max-width:480px;">
+    <h3 id="analysisModalTitle">投資判断</h3>
+    <input type="hidden" id="an_id">
+
+    <div class="field">
+      <label>評価</label>
+      <select id="an_stance">
+        <option value="">未設定</option>
+        <option value="強気">強気</option>
+        <option value="中立">中立</option>
+        <option value="弱気">弱気</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>投資理由(自由記述。複数ある場合は改行で区切ってください)</label>
+      <textarea id="an_reasons" rows="3" placeholder="例: AIネットワーク需要の拡大&#10;利益率の維持&#10;売上成長率の高さ"></textarea>
+    </div>
+    <div class="field">
+      <label>最大のリスク(自由記述。複数ある場合は改行で区切ってください)</label>
+      <textarea id="an_risks" rows="3" placeholder="例: 大型顧客への依存&#10;競合の技術進歩"></textarea>
+    </div>
+    <div class="field">
+      <label>売却・撤退条件</label>
+      <textarea id="an_exit" rows="2" placeholder="例: 投資シナリオが崩れたら撤退。PERが60倍を超えたら一部利確"></textarea>
+    </div>
+    <div class="field"><label>想定保有期間</label><input id="an_holdperiod" placeholder="例: 6ヶ月〜1年"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="analysisCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="analysisSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 財務指標ランク モーダル -->
+<div class="modal-bg" id="rankModalBg">
+  <div class="modal" style="max-width:640px;">
+    <h3 id="rankModalTitle">財務指標ランク</h3>
+    <input type="hidden" id="rk_id">
+
+    <div class="hint" style="margin-top:0;">
+      数値を入力すると、「ランク基準」に沿ってS〜Gが自動入力されます(手動で選び直すこともできます)。カテゴリ評価・総合評価は、指標のランクから自動計算されます(平均を四捨五入。例: SとBなら間を取ってA)。<br>
+      このうちPER・売上成長率・EPS成長率・営業利益率・ROEは、一覧のカード上にも抜粋表示されます。<br>
+      「手動入力」の指標(ROIC・Net Debt/EBITDA・自己資本比率)はAlpha Vantageから直接取得できないため、これまで通りご自身で数値を入力してください。それ以外の数値は下のボタンでまとめて取得できます。
+    </div>
+
+    <div class="toolbar-row-2" style="margin-top:10px;">
+      <button type="button" class="btn btn-secondary" id="fetchFundamentalsBtn" style="margin-top:0;">📥 数値を自動取得</button>
+      <button type="button" class="btn btn-secondary" id="openRankCriteriaBtn" style="margin-top:0;">⚙ ランク基準を設定</button>
+    </div>
+    <div id="fundamentalsStatusMsg" class="status-msg"></div>
+    <div id="fundamentalsPeriodMsg" class="hint" style="margin-top:4px; display:none;"></div>
+
+    <div id="rankGroupsContainer" style="margin-top:10px;"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="rankCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="rankSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ランク基準の設定 モーダル -->
+<div class="modal-bg" id="rankCriteriaModalBg">
+  <div class="modal" style="max-width:640px;">
+    <h3>ランク基準の設定</h3>
+    <div class="field checkbox">
+      <input type="checkbox" id="autoRankEnabledCheckbox">
+      <label for="autoRankEnabledCheckbox" style="margin:0;">数値からランクを自動判定する</label>
+    </div>
+    <div class="hint" style="margin-top:6px;">
+      オフにすると、数値を入力・自動取得してもランクは自動入力されず、これまで通り手動で選ぶ形になります(下の基準値自体は保存されたままです)。
+    </div>
+    <div class="hint">
+      各指標の数値から、ランク(S〜G)を自動判定するための基準です。業界や個別銘柄によって適切な水準は異なりますが、まずは共通の目安として設定しています。「以上」は数値が高いほど良い指標、「以下」は低いほど良い指標に使われます。空欄にした場合は初期値が使われます。
+    </div>
+    <div style="overflow-x:auto; margin-top:10px;">
+      <table class="metric-table" id="rankCriteriaTable">
+        <thead><tr><th>指標</th><th>S</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th></tr></thead>
+        <tbody id="rankCriteriaRows"></tbody>
+      </table>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="rankCriteriaResetBtn">初期値に戻す</button>
+      <button class="btn btn-secondary" id="rankCriteriaCancelBtn">閉じる</button>
+      <button class="btn btn-primary" id="rankCriteriaSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 使い方・免責事項モーダル -->
+<div class="modal-bg" id="helpModalBg">
+  <div class="modal" style="max-width:480px;">
+    <h3>使い方・免責事項</h3>
+
+
+    <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:14px 0 4px;">■ 使い方</p>
+    <div class="hint" style="margin-top:0;">
+      ・「銘柄編集」タブでティッカー・会社名・テーマ・保有ステータス・買いライン/売りラインを登録します。<br>
+      ・保有株数は「テーマ別」タブでテーマごとにまとめて入力・編集します(使わない場合は0のままで問題ありません)。同じタブ内で、財務指標の数値を銘柄横並びで比較できる表も確認できます。<br>
+      ・右上の「接続設定」からバックエンドURL・アクセストークンを登録すると、現在値を取得できるようになります(<strong>価格取得プロキシの用意方法は別紙の手順書をご覧ください</strong>)。<br>
+      ・アプリを開くと、ウォッチ対象の銘柄の現在値を自動で取得します(未設定の場合は取得されません)。「全銘柄の現在値を更新」ボタンでいつでも手動更新もできます。<br>
+      ・「銘柄編集」タブの各カードにあるチェックボックスにチェックを入れると、「チェックした銘柄だけ更新」ボタンでその銘柄だけをまとめて更新できます。<br>
+      ・デフォルトは「選択モード」で、開いた時に自動更新は行われません(前回取得した値のまま表示され、手動で更新した銘柄だけ最新になります)。「接続設定」で「自動取得モード」に切り替えると、開くたびにウォッチ対象銘柄を自動更新しますが、銘柄数が多いと起動時に待ち時間が発生します。<br>
+      ・登録した銘柄データはこのブラウザ内(localStorage)に保存されます。ファイルを開き直しても同じ場所・同じファイル名であればデータは残ります。<br>
+      ・「データ管理」内の「データのバックアップ」から、登録データをパスワード付きで暗号化してファイルに書き出したり、別の端末で読み込んだりできます。テーマの整理も同じ画面から行えます。<br>
+      ・各カードの「📊 判断」から、投資理由・リスクなどの投資判断を記録できます。強気なら緑、弱気なら赤にタグの色が変わります(タグの文字数は常に一定にしているので、入力の有無でレイアウトが崩れません)。「📈 ランク」では、財務指標(PER・ROICなど8項目)を成長性/収益性/財務健全性/その他(バリュエーション)の4カテゴリに分けて表示し、数値を入力すると「ランク基準」に沿ってS〜Gが自動入力されます(必要なら手動で選び直せます)。基準は「⚙ ランク基準を設定」から指標ごとに調整でき、このボタン自体に今ON/OFFどちらの状態かが表示されます。数値の自動取得後は、そのデータがいつ時点のものか(例: 2026年3月期)も表示されます。各カテゴリの評価・総合評価は、指標のランクから自動計算されます。カード上には自動取得できる5指標(PER・売上成長率・EPS成長率・営業利益率・ROE)が抜粋表示され、銘柄間の比較がしやすくなっています。「銘柄編集」タブ上部のボタンで、この抜粋表示をランク/数値どちらで見るか、まとめて切り替えられます。<br>
+      ・買い/売りラインの下に、現在値からの距離(%)を表示します。5%以内で黄色、1%以内でオレンジ強調、到達すると🔔マークになります。<br>
+      ・各カードの「🤖 AI相談用」から、投資判断・財務ランク・狙い値までの距離などをまとめたテキストをクリップボードにコピーできます。ChatGPTやGeminiなど、お好きなAIサービスに貼り付けて相談にご利用ください(この機能自体はAPIを消費しません)。
+    </div>
+
+    <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ 保有注目とは</p>
+    <div class="hint" style="margin-top:0;">
+      保有中の銘柄のうち、現在値が「買いライン以下」または「売りライン以上」になったものだけを表示するリストです。損切りや利益確定のタイミングを見逃さないためのものです。
+    </div>
+
+    <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ 非保有注目とは</p>
+    <div class="hint" style="margin-top:0;">
+      保有していない銘柄のうち、現在値が「買いライン以下」になったものだけを表示するリストです。新規の買い時シグナルを知らせるためのものです。
+    </div>
+
+    <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:18px 0 4px;">■ 免責事項</p>
+    <div class="hint" style="margin-top:0;">
+      ・本アプリで表示する株価情報はAlpha Vantage社のAPIから取得したものであり、正確性・最新性を保証するものではありません。<br>
+      ・本アプリの情報は投資助言を目的としたものではありません。投資の最終判断はご自身の責任で行ってください。<br>
+      ・本アプリの利用により生じたいかなる損害についても、作成者は責任を負いません。
+    </div>
+
+    <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ データについて</p>
+    <div class="hint" style="margin-top:0;">
+      ・株価データはAlpha Vantage APIの無料枠を、自分で用意したApps Scriptバックエンド経由で利用しているため、取得タイミングによっては数分〜数十分の遅延が発生する場合があります。<br>
+      ・登録した銘柄データ・バックエンドURL・アクセストークンは、すべてお使いのブラウザ内にのみ保存されます。Alpha Vantageの本物のAPIキーはブラウザには一切保存されず、バックエンド側だけが保持しています。
+    </div>
+
+    <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ 利用上の注意</p>
+    <div class="hint" style="margin-top:0;">
+      ・アクセストークンは第三者と共有しないでください(Alpha Vantageの本物のキーは含みませんが、バックエンドの利用枠を消費されてしまいます)。<br>
+      ・現在値の取得元にはTwelve Dataを使用しています(無料枠: 1分8回・1日800回)。財務指標の自動取得はAlpha Vantage(1分5回・1日25回程度)のままです。登録銘柄数が多いと更新に時間がかかったり、一部取得できない場合があります。<br>
+      ・ウォッチ対象(自動更新の対象)は15件程度までを推奨しています。それを超えると、アプリ内に更新にかかる目安時間が表示されます。あまり見ない銘柄は「ウォッチ対象にする」のチェックを外しておくと快適です。
+    </div>
+
+    <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ バージョン</p>
+    <div class="hint" style="margin-top:0;">
+      v2.17.0
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="helpCloseBtn">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'stockapp_stocks_v1';
+  const BACKEND_URL_STORAGE = 'stockapp_backend_url';
+  const ACCESS_TOKEN_STORAGE = 'stockapp_access_token';
+
+  function loadStocks() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch (e) { return []; }
+  }
+  function saveStocks(stocks) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stocks));
+  }
+  function getBackendUrl() { return (localStorage.getItem(BACKEND_URL_STORAGE) || '').trim(); }
+  function setBackendUrl(v) { localStorage.setItem(BACKEND_URL_STORAGE, (v || '').trim()); }
+  function getAccessToken() { return (localStorage.getItem(ACCESS_TOKEN_STORAGE) || '').trim(); }
+  function setAccessToken(v) { localStorage.setItem(ACCESS_TOKEN_STORAGE, v || ''); }
+  function isBackendConfigured() { return !!(getBackendUrl() && getAccessToken()); }
+
+  // プロキシへのAPI呼び出しURLを組み立てる。URLの形式がおかしい場合はここで気づけるようにする
+  function buildProxyUrl(params) {
+    const base = getBackendUrl();
+    if (!/^https?:\/\//i.test(base)) {
+      throw new Error('バックエンドURLの形式が正しくありません(「https://」から始まっているか、「接続設定」を確認してください)。');
+    }
+    const qs = Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join('&');
+    return `${base}${base.includes('?') ? '&' : '?'}${qs}`;
+  }
+
+  // 通信が一時的に不安定な時のために、失敗したら1.5秒待って1回だけ自動で再試行する
+  async function fetchJsonWithRetry(url, retriesLeft) {
+    if (retriesLeft === undefined) retriesLeft = 1;
+    try {
+      const res = await fetch(url);
+      return await res.json();
+    } catch (e) {
+      if (retriesLeft > 0) {
+        await new Promise(r => setTimeout(r, 1500));
+        return fetchJsonWithRetry(url, retriesLeft - 1);
+      }
+      throw e;
+    }
+  }
+
+  const AUTO_REFRESH_STORAGE = 'stockapp_auto_refresh_mode';
+  function getAutoRefreshMode() { return localStorage.getItem(AUTO_REFRESH_STORAGE) || 'manual'; }
+  function setAutoRefreshMode(v) { localStorage.setItem(AUTO_REFRESH_STORAGE, v === 'manual' ? 'manual' : 'auto'); }
+
+  // --- テーマ一覧の管理 ---
+  const THEMES_STORAGE = 'stockapp_themes';
+  const DEFAULT_THEMES = [
+    '半導体', '電力', '通信', '運送', 'セキュリティ', '銀行', '暗号資産',
+    '量子コンピュータ', 'データセンター', '材料', 'ロボット', 'AI', 'ヘルスケア', '小売'
+  ];
+  function getThemes() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(THEMES_STORAGE));
+      if (Array.isArray(stored) && stored.length) return stored;
+    } catch (e) { /* fallthrough */ }
+    return DEFAULT_THEMES.slice();
+  }
+  function setThemes(list) {
+    localStorage.setItem(THEMES_STORAGE, JSON.stringify(list));
+  }
+  function addTheme(name) {
+    const themes = getThemes();
+    if (name && !themes.includes(name)) {
+      themes.push(name);
+      setThemes(themes);
+    }
+  }
+
+  let allStocks = loadStocks();
+  const selectedForUpdate = new Set(); // 「チェックした銘柄だけ更新」で使う選択状態(セッション中のみ保持)
+
+  // --- 検索・並び替え・テーマ絞り込みの状態 ---
+  let searchQuery = '';
+  let sortMode = 'ticker';
+  let themeFilterValue = '';
+  const STALE_THRESHOLD_MS = 3 * 60 * 60 * 1000; // 3時間
+  const RECOMMENDED_MAX_WATCH = 25; // ウォッチ対象の推奨上限(Twelve Data無料枠: 1分8回ペースでの目安)
+  const REGISTERED_HINT_THRESHOLD = 100; // 登録数がこれを超えたら検索・絞り込みの利用をヒント表示
+  const UPDATE_INTERVAL_SEC = 8; // Twelve Data無料枠(1分8回)に合わせた間隔
+
+  function uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  // 非保有注目: 非保有 かつ ウォッチ対象 かつ 現在値が買いライン以下(買い時シグナル)
+  function isNonHoldAlert(s) {
+    return s.watch && s.status !== '保有' && s.price != null && s.buyLine != null && s.price <= s.buyLine;
+  }
+  // 保有注目: 保有 かつ ウォッチ対象 かつ (現在値が買いライン以下 または 売りライン以上)
+  function isHoldAlert(s) {
+    if (!(s.watch && s.status === '保有' && s.price != null)) return false;
+    const hitBuy = s.buyLine != null && s.price <= s.buyLine;
+    const hitSell = s.sellLine != null && s.price >= s.sellLine;
+    return hitBuy || hitSell;
+  }
+
+  function changePct(s) {
+    return s.dayChangePercent != null ? s.dayChangePercent : null;
+  }
+
+  function getComparator(mode) {
+    if (mode === 'change') {
+      return (a, b) => Math.abs(changePct(b) || 0) - Math.abs(changePct(a) || 0);
+    }
+    if (mode === 'theme') {
+      return (a, b) => (a.theme || '').localeCompare(b.theme || '', 'ja') || a.ticker.localeCompare(b.ticker);
+    }
+    if (mode === 'buyNear') {
+      return (a, b) => lineDistanceSortValue(a.price, a.buyLine) - lineDistanceSortValue(b.price, b.buyLine);
+    }
+    if (mode === 'sellNear') {
+      return (a, b) => lineDistanceSortValue(a.price, a.sellLine) - lineDistanceSortValue(b.price, b.sellLine);
+    }
+    return (a, b) => a.ticker.localeCompare(b.ticker);
+  }
+
+  // ライン距離での並び替え用: 距離が近いほど小さい値を返す(現在値・ライン未設定の銘柄は最後尾へ)
+  function lineDistanceSortValue(price, line) {
+    const pct = lineDistancePct(price, line);
+    return pct == null ? Infinity : Math.abs(pct);
+  }
+
+  // 検索・テーマ絞り込み・並び替えをまとめて適用する
+  function applyViewControls(stocks) {
+    let result = stocks;
+    if (themeFilterValue) result = result.filter(s => s.theme === themeFilterValue);
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(s => (s.ticker || '').toLowerCase().includes(q) || (s.company || '').toLowerCase().includes(q));
+    }
+    return result.slice().sort(getComparator(sortMode));
+  }
+
+  // 保有株をテーマ別に集計する(評価額 = 保有株数 × 現在値。テーマ未設定は「テーマ未設定」としてまとめる)
+  function computeThemeAllocation() {
+    const held = allStocks.filter(s => s.status === '保有' && Number(s.shares) > 0 && s.price != null);
+    const groups = {};
+    let total = 0;
+    let missingPrice = allStocks.some(s => s.status === '保有' && Number(s.shares) > 0 && s.price == null);
+    held.forEach(s => {
+      const value = Number(s.shares) * s.price;
+      const theme = s.theme || 'テーマ未設定';
+      groups[theme] = (groups[theme] || 0) + value;
+      total += value;
+    });
+    return { groups, total, hasHeld: held.length > 0, missingPrice };
+  }
+
+  // テーマ別にグルーピングした保有株数の一括編集テーブル
+  function renderSharesByTheme() {
+    const box = document.getElementById('sharesByThemeBox');
+    if (!box) return;
+    if (!allStocks.length) {
+      box.innerHTML = '<div class="hint" style="margin-top:0;">銘柄がまだ登録されていません。</div>';
+      return;
+    }
+
+    const groups = {};
+    allStocks.forEach(s => {
+      const theme = s.theme || 'テーマ未設定';
+      (groups[theme] = groups[theme] || []).push(s);
+    });
+
+    const themeOrder = Object.keys(groups).sort((a, b) => {
+      if (a === 'テーマ未設定') return 1;
+      if (b === 'テーマ未設定') return -1;
+      return a.localeCompare(b, 'ja');
+    });
+
+    box.innerHTML = themeOrder.map(theme => {
+      const rows = groups[theme]
+        .slice()
+        .sort((a, b) => a.ticker.localeCompare(b.ticker))
+        .map(s => `
+          <div class="shares-row" data-id="${s.id}">
+            <span class="shares-row-name">${s.ticker}<span class="shares-row-company">${s.company || ''}</span></span>
+            <input type="number" class="shares-input" data-id="${s.id}" value="${s.shares || 0}" min="0">
+          </div>`).join('');
+      return `<div class="shares-group-header">${theme}</div>${rows}`;
+    }).join('');
+
+    box.querySelectorAll('.shares-input').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const s = allStocks.find(x => x.id === inp.dataset.id);
+        if (!s) return;
+        s.shares = Number(inp.value) || 0;
+        saveStocks(allStocks);
+        renderThemeAllocation();
+      });
+    });
+  }
+
+  const PIE_COLORS = ['#e8b84b', '#4caf7d', '#e6685f', '#29B6F6', '#AB47BC', '#FF8C1A', '#8D6E63', '#9E9E9E', '#66BB6A', '#EC407A'];
+
+  function renderThemeAllocation() {
+    const box = document.getElementById('themeAllocBox');
+    if (!box) return;
+
+    const { groups, total, hasHeld, missingPrice } = computeThemeAllocation();
+    if (!hasHeld) {
+      box.innerHTML = '<div class="hint" style="margin-top:0;">保有ステータスかつ現在値が取得済みの銘柄がありません。</div>';
+      return;
+    }
+
+    const entries = Object.entries(groups).sort((a, b) => b[1] - a[1]);
+
+    // 円グラフ(色つきの角度を計算)
+    let cumulative = 0;
+    const gradientStops = entries.map(([theme, value], i) => {
+      const pct = total ? (value / total * 100) : 0;
+      const start = cumulative;
+      cumulative += pct;
+      const color = PIE_COLORS[i % PIE_COLORS.length];
+      return `${color} ${start}% ${cumulative}%`;
+    }).join(', ');
+
+    const legendHtml = entries.map(([theme], i) => {
+      const color = PIE_COLORS[i % PIE_COLORS.length];
+      return `<div class="pie-legend-row">
+        <span class="pie-legend-swatch" style="background:${color};"></span>
+        <span class="pie-legend-label">${theme}</span>
+      </div>`;
+    }).join('');
+
+    // 棒グラフ(金額・割合の詳細つき。円グラフと同じ配色)
+    const barsHtml = entries.map(([theme, value], i) => {
+      const pct = total ? (value / total * 100) : 0;
+      const color = PIE_COLORS[i % PIE_COLORS.length];
+      return `<div class="theme-alloc-row">
+        <div class="theme-alloc-top"><span>${theme}</span><span>$${value.toFixed(2)}(${pct.toFixed(1)}%)</span></div>
+        <div class="theme-alloc-bar-bg"><div class="theme-alloc-bar-fill" style="width:${Math.min(pct, 100)}%; background:${color};"></div></div>
+      </div>`;
+    }).join('');
+
+    box.innerHTML = `
+      <div class="pie-chart-row">
+        <div class="pie-chart" style="background: conic-gradient(${gradientStops});"></div>
+        <div class="pie-legend">${legendHtml}</div>
+      </div>
+      <div class="theme-alloc-bars">${barsHtml}</div>
+      ${missingPrice ? '<div class="hint" style="margin-top:10px; margin-bottom:0;">※ 現在値が未取得の保有銘柄は集計に含まれていません。「全銘柄の現在値を更新」を試してください。</div>' : ''}`;
+  }
+
+  // カード表示指標の「数値」を、成長性→収益性→財務健全性→バリュエーションの順で横並び比較する
+  function renderMetricCompare() {
+    const box = document.getElementById('metricCompareBox');
+    if (!box) return;
+
+    const compareMetrics = METRIC_DEFS.filter(m => EXCERPT_METRIC_KEYS.includes(m.key));
+    const rows = allStocks.filter(s => {
+      const metrics = s.analysis && s.analysis.metrics;
+      return metrics && compareMetrics.some(m => metrics[m.key] && metrics[m.key].value != null);
+    });
+
+    if (!rows.length) {
+      box.innerHTML = '<div class="hint" style="margin-top:0;">まだ財務指標の数値が入力された銘柄がありません。カードの「📈 財務ランク」から入力できます。</div>';
+      return;
+    }
+
+    const sortedRows = rows.slice().sort((a, b) => a.ticker.localeCompare(b.ticker));
+
+    let html = '<table class="metric-table"><thead><tr><th>ティッカー</th>';
+    compareMetrics.forEach(m => { html += `<th>${m.label}<br>(${m.unit})</th>`; });
+    html += '</tr></thead><tbody>';
+    sortedRows.forEach(s => {
+      html += `<tr><td class="metric-label-cell">${s.ticker}${s.theme ? `<br><span class="theme-label" style="font-size:10px;">【${s.theme}】</span>` : ''}</td>`;
+      compareMetrics.forEach(m => {
+        const data = s.analysis.metrics[m.key];
+        const val = data && data.value != null ? data.value : null;
+        html += `<td>${val != null ? val : '-'}</td>`;
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    box.innerHTML = html;
+  }
+
+  function renderWatchCountWarning() {
+    const el = document.getElementById('watchCountWarning');
+    if (!el) return;
+    const count = allStocks.filter(s => s.watch).length;
+    if (count <= RECOMMENDED_MAX_WATCH) { el.style.display = 'none'; return; }
+    const estSec = Math.max(0, count - 1) * UPDATE_INTERVAL_SEC;
+    const estMin = Math.round(estSec / 60 * 10) / 10;
+    el.innerHTML = `⚠ ウォッチ対象が${count}件あります(推奨は${RECOMMENDED_MAX_WATCH}件程度まで)。無料枠のペース上、全銘柄の更新に約${estMin}分かかります。あまり見ない銘柄は「ウォッチ対象にする」のチェックを外すことをおすすめします。`;
+    el.style.display = 'block';
+  }
+
+  function renderRegisteredCountHint() {
+    const el = document.getElementById('registeredCountHint');
+    if (!el) return;
+    if (allStocks.length <= REGISTERED_HINT_THRESHOLD) { el.style.display = 'none'; return; }
+    el.innerHTML = `登録銘柄が${allStocks.length}件あります。検索ボックスやテーマ絞り込みを使うと、お目当ての銘柄を探しやすくなります。`;
+    el.style.display = 'block';
+  }
+
+  function renderAll() {
+    renderEdit(applyViewControls(allStocks));
+    renderAlertTabs();
+  }
+
+  // 「銘柄編集」の全件リストは含めない、軽量な再描画(価格取得ループの途中経過表示などに使う)
+  function renderAlertTabs() {
+    renderList('panel-nonhold', applyViewControls(allStocks.filter(isNonHoldAlert)), true);
+    renderList('panel-hold', applyViewControls(allStocks.filter(isHoldAlert)), true);
+    renderList('panel-watch', applyViewControls(allStocks.filter(s => s.watch)), false);
+    renderSharesByTheme();
+    renderThemeAllocation();
+    renderMetricCompare();
+    renderWatchCountWarning();
+    renderRegisteredCountHint();
+  }
+
+  function priceClass(s) {
+    if (s.price == null) return '';
+    if (s.sellLine && s.price >= s.sellLine) return 'up';
+    if (s.buyLine && s.price <= s.buyLine) return 'down';
+    return '';
+  }
+
+  function signalLabel(s) {
+    const hitBuy = s.price != null && s.buyLine != null && s.price <= s.buyLine;
+    const hitSell = s.price != null && s.sellLine != null && s.price >= s.sellLine;
+    if (hitSell) return '<span class="theme-tag" style="color:var(--up);border-color:var(--up);">売りシグナル</span>';
+    if (hitBuy) return '<span class="theme-tag" style="color:var(--down);border-color:var(--down);">買いシグナル</span>';
+    return '';
+  }
+
+  function changeHtml(s) {
+    if (s.dayChange == null || s.dayChangePercent == null) return '';
+    if (s.dayChange === 0) return `<div class="change">前日比 → $0.00 (0.00%)</div>`;
+    const cls = s.dayChange > 0 ? 'up' : 'down';
+    const arrow = s.dayChange > 0 ? '▲' : '▼';
+    return `<div class="change ${cls}">前日比 ${arrow} $${Math.abs(s.dayChange).toFixed(2)} (${Math.abs(s.dayChangePercent).toFixed(2)}%)</div>`;
+  }
+
+  function updatedHtml(s) {
+    if (!s.updatedAt) return '';
+    const d = new Date(s.updatedAt);
+    const stale = (Date.now() - d.getTime()) > STALE_THRESHOLD_MS;
+    return `<div class="updated ${stale ? 'stale' : ''}">${stale ? '⚠ ' : ''}更新: ${d.toLocaleString('ja-JP')}</div>`;
+  }
+
+  function analysisTagLabel() {
+    return '📊 判断'; // 文言は常に固定にして、幅がブレないようにする(状態は色で示す)
+  }
+
+  function analysisTagStyle(s) {
+    const stance = s.analysis && s.analysis.stance;
+    if (stance === '強気') return `color:${'#4caf7d'};border-color:${'#4caf7d'};`;
+    if (stance === '弱気') return `color:${'#e6685f'};border-color:${'#e6685f'};`;
+    return '';
+  }
+
+  function rankTagLabel() {
+    return '📈 ランク'; // 文言は常に固定にして、幅がブレないようにする(状態は色で示す)
+  }
+
+  function rankTagStyle(s) {
+    const overall = s.analysis && s.analysis.categoryRanks && s.analysis.categoryRanks.overall;
+    const color = overall && RANK_COLOR_MAP[overall];
+    return color ? `color:${color};border-color:${color};` : '';
+  }
+
+  // カード上に抜粋表示する指標(自動取得できる指標のみ。スクロール削減のため手動入力専用の指標は除外)
+  const EXCERPT_METRICS = [
+    { key: 'revenueGrowth', label: '売上成長' },
+    { key: 'epsGrowth', label: 'EPS成長' },
+    { key: 'operatingMargin', label: '営業利益率' },
+    { key: 'roe', label: 'ROE' },
+    { key: 'per', label: 'PER' }
+  ];
+  const EXCERPT_METRIC_KEYS = EXCERPT_METRICS.map(m => m.key);
+
+  function rankBadgeClass(rank) {
+    return rank ? `rank-${rank}` : '';
+  }
+
+  // --- カード上の指標表示: ランク/数値の一括切替 ---
+  const BADGE_MODE_STORAGE = 'stockapp_badge_display_mode';
+  function getBadgeMode() {
+    const v = localStorage.getItem(BADGE_MODE_STORAGE);
+    return v === 'value' ? 'value' : 'rank';
+  }
+  function setBadgeMode(mode) {
+    localStorage.setItem(BADGE_MODE_STORAGE, mode === 'value' ? 'value' : 'rank');
+  }
+
+  function rankBadgesHtml(s) {
+    const metrics = (s.analysis && s.analysis.metrics) || {};
+    const overall = (s.analysis && s.analysis.categoryRanks && s.analysis.categoryRanks.overall) || '';
+    const mode = getBadgeMode();
+    const overallHtml = `<span class="rank-badge overall">総合<b class="${rankBadgeClass(overall)}">${overall || '-'}</b></span>`;
+    const metricsHtml = EXCERPT_METRICS.map(m => {
+      const data = metrics[m.key] || {};
+      const rank = data.rank || '';
+      let displayText;
+      if (mode === 'value') {
+        const def = METRIC_DEFS.find(d => d.key === m.key);
+        const unit = def ? def.unit : '';
+        displayText = data.value != null ? `${data.value}${unit}` : '-';
+      } else {
+        displayText = rank || '-';
+      }
+      return `<span class="rank-badge">${m.label} <b class="${rankBadgeClass(rank)}">${displayText}</b></span>`;
+    }).join('');
+    return `<div class="rank-badges">
+      <div class="rank-overall-row">${overallHtml}</div>
+      <div class="rank-metrics-row">${metricsHtml}</div>
+    </div>`;
+  }
+
+  // ラインまでの距離(%): (ライン - 現在値) / 現在値 * 100。買いは通常マイナス、売りは通常プラスになる
+  function lineDistancePct(price, line) {
+    if (price == null || line == null || !price) return null;
+    return (line - price) / price * 100;
+  }
+
+  function lineDistanceTier(pct) {
+    if (pct == null) return '';
+    const abs = Math.abs(pct);
+    if (abs <= 1) return 'near';
+    if (abs <= 5) return 'close';
+    return '';
+  }
+
+  function linesHtml(s) {
+    const buyPct = lineDistancePct(s.price, s.buyLine);
+    const sellPct = lineDistancePct(s.price, s.sellLine);
+    const buyReached = s.price != null && s.buyLine != null && s.price <= s.buyLine;
+    const sellReached = s.price != null && s.sellLine != null && s.price >= s.sellLine;
+
+    const fmtPct = (pct) => (pct == null ? '' : `まであと ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`);
+
+    const buyTier = buyReached ? 'reached' : lineDistanceTier(buyPct);
+    const sellTier = sellReached ? 'reached' : lineDistanceTier(sellPct);
+
+    const buyLineText = s.buyLine != null
+      ? `買い <span class="line-value">$${s.buyLine}</span>${buyPct != null ? ` <span class="dist-text">${buyReached ? '🔔 到達' : fmtPct(buyPct)}</span>` : ''}`
+      : '買い -';
+    const sellLineText = s.sellLine != null
+      ? `売り <span class="line-value">$${s.sellLine}</span>${sellPct != null ? ` <span class="dist-text">${sellReached ? '🔔 到達' : fmtPct(sellPct)}</span>` : ''}`
+      : '売り -';
+
+    return `
+      <div class="line-row buy-line ${buyTier}">${buyLineText}</div>
+      <div class="line-row sell-line ${sellTier}">${sellLineText}</div>`;
+  }
+
+  function cardHtml(s, showSignal, showManageControls) {
+    const priceTxt = s.price != null ? '$' + Number(s.price).toFixed(2) : '未取得';
+    const checkboxHtml = showManageControls
+      ? `<input type="checkbox" class="select-update-checkbox" data-id="${s.id}" title="チェックした銘柄だけ更新する対象に含める" ${selectedForUpdate.has(s.id) ? 'checked' : ''}>`
+      : '';
+    return `
+      <div class="stock-card" data-id="${s.id}">
+        <div class="stock-card-body">
+          <div class="card-top-row">
+            <div class="stock-main">
+              <div class="ticker">${checkboxHtml}${s.ticker}<span class="company">${s.company || ''}</span>${s.theme ? ` <span class="theme-label">【${s.theme}】</span>` : ''}</div>
+              ${linesHtml(s)}
+              <div class="tags-row">${showSignal ? signalLabel(s) : ''}<span class="analysis-tag" data-id="${s.id}" title="投資判断ノートを開く" style="${analysisTagStyle(s)}">${analysisTagLabel()}</span><span class="analysis-tag rank-tag" data-id="${s.id}" title="財務指標ランクを開く" style="${rankTagStyle(s)}">${rankTagLabel()}</span><span class="analysis-tag ai-copy-tag" data-id="${s.id}" title="AI相談用にコピー">🤖 AI相談</span></div>
+            </div>
+            <div class="price-block">
+              ${showManageControls ? `
+                <div class="card-actions">
+                  <button type="button" class="watch-toggle-btn ${s.watch ? 'on' : 'off'}" data-id="${s.id}" title="ウォッチ対象の切替">${s.watch ? 'ウォッチ中' : 'ウォッチ外'}</button>
+                  <button type="button" class="card-delete-btn" data-id="${s.id}" title="削除">✕</button>
+                </div>` : ''}
+              <div class="price ${priceClass(s)}">${priceTxt}</div>
+              ${changeHtml(s)}
+              ${updatedHtml(s)}
+            </div>
+          </div>
+          <div class="card-bottom-row">
+            ${rankBadgesHtml(s)}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function deleteStockById(id) {
+    const s = allStocks.find(x => x.id === id);
+    if (!s) return;
+    if (!confirm(`${s.ticker} を削除しますか?`)) return;
+    allStocks = allStocks.filter(x => x.id !== id);
+    saveStocks(allStocks);
+    renderAll();
+  }
+
+  function toggleWatchById(id) {
+    const s = allStocks.find(x => x.id === id);
+    if (!s) return;
+    s.watch = !s.watch;
+    saveStocks(allStocks);
+    renderAll();
+  }
+
+  function attachNoteTagEvents(scope) {
+    scope.querySelectorAll('.analysis-tag').forEach(tag => {
+      tag.onclick = (e) => { e.stopPropagation(); openAnalysisModal(tag.dataset.id); };
+    });
+    scope.querySelectorAll('.rank-tag').forEach(tag => {
+      tag.onclick = (e) => { e.stopPropagation(); openRankModal(tag.dataset.id); };
+    });
+    scope.querySelectorAll('.ai-copy-tag').forEach(tag => {
+      tag.onclick = (e) => { e.stopPropagation(); copyAiPrompt(tag.dataset.id); };
+    });
+  }
+
+  function attachEditCardEvents(scope) {
+    scope.querySelectorAll('.watch-toggle-btn').forEach(btn => {
+      btn.onclick = (e) => { e.stopPropagation(); toggleWatchById(btn.dataset.id); };
+    });
+    scope.querySelectorAll('.card-delete-btn').forEach(btn => {
+      btn.onclick = (e) => { e.stopPropagation(); deleteStockById(btn.dataset.id); };
+    });
+    scope.querySelectorAll('.select-update-checkbox').forEach(cb => {
+      cb.onclick = (e) => e.stopPropagation();
+      cb.onchange = () => {
+        if (cb.checked) selectedForUpdate.add(cb.dataset.id);
+        else selectedForUpdate.delete(cb.dataset.id);
+      };
+    });
+    // scope自体が.stock-cardの場合(1枚だけ差し替えた時)は、querySelectorAllが自分自身を拾えないため個別に対応する
+    const cardEls = (scope.classList && scope.classList.contains('stock-card'))
+      ? [scope, ...scope.querySelectorAll('.stock-card')]
+      : scope.querySelectorAll('.stock-card');
+    cardEls.forEach(card => {
+      card.onclick = () => openEditModal(card.dataset.id);
+    });
+    attachNoteTagEvents(scope);
+  }
+
+  function renderEdit(stocks) {
+    const el = document.getElementById('editCardList');
+    if (!allStocks.length) {
+      el.innerHTML = '<div class="empty">銘柄がまだ登録されていません。右下の「+」から追加してください</div>';
+    } else if (!stocks.length) {
+      el.innerHTML = '<div class="empty">検索・絞り込み条件に一致する銘柄がありません</div>';
+    } else {
+      el.innerHTML = stocks.map(s => cardHtml(s, false, true)).join('');
+    }
+    attachEditCardEvents(el);
+  }
+
+  // 一覧を丸ごと作り直さず、対象の1枚のカードだけを差し替える(登録数が多い時の負荷対策)
+  function updateSingleEditCard(s) {
+    const el = document.getElementById('editCardList');
+    const existing = el.querySelector(`.stock-card[data-id="${s.id}"]`);
+    if (!existing) return false; // 検索・絞り込みで現在表示されていない場合は何もしない
+    const temp = document.createElement('div');
+    temp.innerHTML = cardHtml(s, false, true).trim();
+    const newCard = temp.firstElementChild;
+    existing.replaceWith(newCard);
+    attachEditCardEvents(newCard);
+    return true;
+  }
+
+  function renderList(panelId, stocks, showSignal) {
+    const el = document.getElementById(panelId);
+    if (!stocks.length) { el.innerHTML = '<div class="empty">現在ライン条件に該当する銘柄はありません</div>'; return; }
+    el.innerHTML = stocks.map(s => cardHtml(s, showSignal, false)).join('');
+    el.querySelectorAll('.stock-card').forEach(card => {
+      card.addEventListener('click', () => refreshOne(card.dataset.id));
+    });
+    attachNoteTagEvents(el);
+  }
+
+  // --- 企業分析ノート(投資判断・財務指標ランク) ---
+  const RANKS = ['', 'S', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
+  const RANK_ORDER = ['S', 'A', 'B', 'C', 'D', 'E', 'F', 'G']; // 序列(良い→悪い)。平均計算に使う
+  const METRIC_DEFS = [
+    { key: 'revenueGrowth', label: '売上成長率', unit: '%', category: 'growth', autoFillable: true },
+    { key: 'epsGrowth', label: 'EPS成長率', unit: '%', category: 'growth', autoFillable: true },
+    { key: 'operatingMargin', label: '営業利益率', unit: '%', category: 'profitability', autoFillable: true },
+    { key: 'roic', label: 'ROIC', unit: '%', category: 'profitability', autoFillable: false },
+    { key: 'roe', label: 'ROE', unit: '%', category: 'profitability', autoFillable: true },
+    { key: 'equityRatio', label: '自己資本比率', unit: '%', category: 'financial', autoFillable: false },
+    { key: 'netDebtEbitda', label: 'Net Debt/EBITDA', unit: '倍', category: 'financial', autoFillable: false },
+    { key: 'per', label: 'PER', unit: '倍', category: 'valuation', autoFillable: true }
+  ];
+  const CATEGORY_DEFS = [
+    { key: 'growth', label: '成長性' },
+    { key: 'profitability', label: '収益性' },
+    { key: 'financial', label: '財務健全性' },
+    { key: 'valuation', label: 'その他' }
+  ];
+
+  // --- ランク基準(数値からランクを自動判定するための閾値) ---
+  // true: 数値が高いほど良い指標(「以上」で判定) / false: 数値が低いほど良い指標(「以下」で判定)
+  const RANK_CRITERIA_DIRECTIONS = {
+    revenueGrowth: true, epsGrowth: true, operatingMargin: true, roic: true, roe: true,
+    equityRatio: true, netDebtEbitda: false, per: false
+  };
+  // S・A・B・C・D・E・Fの7段階の境界値(これを下回る/満たさない場合はG)
+  const DEFAULT_RANK_CRITERIA = {
+    revenueGrowth: [30, 20, 10, 5, 0, -5, -15],
+    epsGrowth: [30, 20, 10, 5, 0, -5, -15],
+    operatingMargin: [30, 20, 15, 10, 5, 0, -10],
+    roic: [20, 15, 10, 7, 4, 0, -5],
+    roe: [25, 18, 12, 8, 4, 0, -10],
+    equityRatio: [70, 50, 40, 30, 20, 10, 0],
+    netDebtEbitda: [0, 1, 2, 3, 4, 5, 7],
+    per: [10, 15, 20, 25, 30, 40, 60]
+  };
+  const RANK_CRITERIA_STORAGE = 'stockapp_rank_criteria';
+  const RANK_CRITERIA_LETTERS = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
+
+  function getRankCriteria() {
+    let stored = {};
+    try { stored = JSON.parse(localStorage.getItem(RANK_CRITERIA_STORAGE)) || {}; } catch (e) { stored = {}; }
+    const merged = {};
+    Object.keys(DEFAULT_RANK_CRITERIA).forEach(key => {
+      merged[key] = Array.isArray(stored[key]) && stored[key].length === 7 ? stored[key] : DEFAULT_RANK_CRITERIA[key].slice();
+    });
+    return merged;
+  }
+  function setRankCriteria(criteria) {
+    localStorage.setItem(RANK_CRITERIA_STORAGE, JSON.stringify(criteria));
+  }
+
+  const AUTO_RANK_ENABLED_STORAGE = 'stockapp_auto_rank_enabled';
+  function isAutoRankEnabled() {
+    const v = localStorage.getItem(AUTO_RANK_ENABLED_STORAGE);
+    return v === null ? true : v === 'true'; // 初期値はON
+  }
+  function setAutoRankEnabled(enabled) {
+    localStorage.setItem(AUTO_RANK_ENABLED_STORAGE, enabled ? 'true' : 'false');
+  }
+
+  // 数値と基準値から、自動判定したランク(S〜G)を返す。該当なしは空文字
+  function computeRankFromValue(key, value) {
+    if (value == null || value === '' || isNaN(value)) return '';
+    const thresholds = getRankCriteria()[key];
+    if (!thresholds) return '';
+    const higherBetter = RANK_CRITERIA_DIRECTIONS[key];
+    for (let i = 0; i < thresholds.length; i++) {
+      if (higherBetter ? Number(value) >= thresholds[i] : Number(value) <= thresholds[i]) {
+        return RANK_CRITERIA_LETTERS[i];
+      }
+    }
+    return 'G';
+  }
+
+  function rankOptionsHtml(selected) {
+    return RANKS.map(r => `<option value="${r}" ${r === selected ? 'selected' : ''}>${r || '-'}</option>`).join('');
+  }
+
+  // ランクの平均を計算して四捨五入する(例: SとBなら間を取ってA)。有効なランクが無ければ空文字
+  function averageRanks(ranks) {
+    const nums = ranks.map(r => RANK_ORDER.indexOf(r)).filter(n => n >= 0);
+    if (!nums.length) return '';
+    const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+    const idx = Math.max(0, Math.min(RANK_ORDER.length - 1, Math.round(avg)));
+    return RANK_ORDER[idx];
+  }
+
+  const RANK_COLOR_MAP = { S: '#FFD700', A: '#FF8C1A', B: '#E53935', C: '#43A047', D: '#29B6F6', E: '#AB47BC', F: '#8D6E63', G: '#9E9E9E' };
+  function colorizeRankSelects(scope) {
+    scope.querySelectorAll('select.rank-select, select.metric-rank').forEach(sel => {
+      const apply = () => { sel.style.color = RANK_COLOR_MAP[sel.value] || ''; };
+      apply();
+      sel.onchange = apply;
+    });
+  }
+
+  function emptyAnalysis() {
+    const metrics = {};
+    METRIC_DEFS.forEach(m => { metrics[m.key] = { value: null, rank: '', reason: '' }; });
+    return {
+      stance: '', reasons: '', risks: '', fairValue: null, targetBuyPrice: null,
+      exitCondition: '', holdingPeriod: '', metrics,
+      categoryRanks: { growth: '', profitability: '', financial: '', valuation: '', overall: '' },
+      fundamentalsAsOf: null,
+      updatedAt: null
+    };
+  }
+
+  function getOrInitAnalysis(s) {
+    if (!s.analysis) s.analysis = emptyAnalysis();
+    if (!s.analysis.metrics) {
+      const metrics = {};
+      METRIC_DEFS.forEach(m => { metrics[m.key] = { value: null, rank: '', reason: '' }; });
+      s.analysis.metrics = metrics;
+    }
+    if (!s.analysis.categoryRanks) s.analysis.categoryRanks = { growth: '', profitability: '', financial: '', valuation: '', overall: '' };
+    return s.analysis;
+  }
+
+  // --- 投資判断モーダル ---
+  const analysisModalBg = document.getElementById('analysisModalBg');
+
+  function openAnalysisModal(id) {
+    const s = allStocks.find(x => x.id === id);
+    if (!s) return;
+    const a = s.analysis || emptyAnalysis();
+
+    document.getElementById('analysisModalTitle').textContent = `${s.ticker} の投資判断`;
+    document.getElementById('an_id').value = s.id;
+    document.getElementById('an_stance').value = a.stance || '';
+    document.getElementById('an_reasons').value = a.reasons || '';
+    document.getElementById('an_risks').value = a.risks || '';
+    document.getElementById('an_exit').value = a.exitCondition || '';
+    document.getElementById('an_holdperiod').value = a.holdingPeriod || '';
+
+    analysisModalBg.classList.add('active');
+  }
+
+  document.getElementById('analysisCancelBtn').addEventListener('click', () => analysisModalBg.classList.remove('active'));
+
+  document.getElementById('analysisSaveBtn').addEventListener('click', () => {
+    const id = document.getElementById('an_id').value;
+    const s = allStocks.find(x => x.id === id);
+    if (!s) return;
+    const a = getOrInitAnalysis(s);
+
+    a.stance = document.getElementById('an_stance').value;
+    a.reasons = document.getElementById('an_reasons').value.trim();
+    a.risks = document.getElementById('an_risks').value.trim();
+    a.exitCondition = document.getElementById('an_exit').value.trim();
+    a.holdingPeriod = document.getElementById('an_holdperiod').value.trim();
+    a.updatedAt = new Date().toISOString();
+
+    saveStocks(allStocks);
+    analysisModalBg.classList.remove('active');
+    updateSingleEditCard(s);
+    renderAlertTabs();
+  });
+
+  // --- 財務指標ランクモーダル ---
+  const rankModalBg = document.getElementById('rankModalBg');
+
+  function recalcCategoryRank(catKey) {
+    const metricKeys = METRIC_DEFS.filter(m => m.category === catKey).map(m => m.key);
+    const ranks = metricKeys.map(k => {
+      const sel = document.querySelector(`.metric-rank[data-key="${k}"]`);
+      return sel ? sel.value : '';
+    });
+    const avg = averageRanks(ranks);
+    const catSelect = document.querySelector(`.cat-rank-select[data-cat="${catKey}"]`);
+    if (catSelect) {
+      catSelect.value = avg;
+      catSelect.style.color = RANK_COLOR_MAP[avg] || '';
+    }
+    recalcOverallRank();
+  }
+
+  function recalcOverallRank() {
+    const catRanks = CATEGORY_DEFS.map(c => {
+      const sel = document.querySelector(`.cat-rank-select[data-cat="${c.key}"]`);
+      return sel ? sel.value : '';
+    });
+    const avg = averageRanks(catRanks);
+    const overallSelect = document.getElementById('rk_cat_overall');
+    if (overallSelect) {
+      overallSelect.value = avg;
+      overallSelect.style.color = RANK_COLOR_MAP[avg] || '';
+    }
+  }
+
+  function renderRankGroups(metrics, categoryRanks) {
+    const el = document.getElementById('rankGroupsContainer');
+    const totalRowCount = METRIC_DEFS.length;
+    let isFirstRowOverall = true;
+
+    const bodyRows = CATEGORY_DEFS.map(cat => {
+      const catMetrics = METRIC_DEFS.filter(m => m.category === cat.key);
+      return catMetrics.map((m, idx) => {
+        const data = (metrics && metrics[m.key]) || { value: null, rank: '', reason: '' };
+
+        const catCell = idx === 0
+          ? `<td class="cat-cell" rowspan="${catMetrics.length}">${cat.label}</td>`
+          : '';
+        const catRankCell = idx === 0
+          ? `<td class="cat-rank-cell" rowspan="${catMetrics.length}"><select class="rank-select cat-rank-select" data-cat="${cat.key}">${rankOptionsHtml((categoryRanks && categoryRanks[cat.key]) || '')}</select></td>`
+          : '';
+        let overallCell = '';
+        if (isFirstRowOverall) {
+          overallCell = `<td class="overall-rank-cell" rowspan="${totalRowCount}"><select id="rk_cat_overall" class="rank-select overall-rank-select">${rankOptionsHtml((categoryRanks && categoryRanks.overall) || '')}</select></td>`;
+          isFirstRowOverall = false;
+        }
+
+        return `
+          <tr data-key="${m.key}">
+            ${catCell}
+            <td class="metric-label-cell">${m.label}(${m.unit})${m.autoFillable ? '' : '<br><span class="manual-only-badge">手動入力</span>'}</td>
+            <td><input type="number" step="0.01" class="metric-value" data-key="${m.key}" value="${data.value != null ? data.value : ''}"></td>
+            <td><select class="metric-rank" data-key="${m.key}" data-cat="${cat.key}">${rankOptionsHtml(data.rank)}</select></td>
+            <td><input type="text" class="metric-reason" data-key="${m.key}" value="${data.reason ? data.reason.replace(/"/g, '&quot;') : ''}"></td>
+            ${catRankCell}
+            ${overallCell}
+          </tr>`;
+      }).join('');
+    }).join('');
+
+    el.innerHTML = `
+      <div style="overflow-x:auto;">
+        <table class="metric-table single-rank-table">
+          <thead>
+            <tr><th>カテゴリ</th><th>指標</th><th>数値</th><th>ランク</th><th>評価理由</th><th>カテゴリ評価</th><th>総合評価</th></tr>
+          </thead>
+          <tbody>${bodyRows}</tbody>
+        </table>
+      </div>`;
+
+    // 指標のランクを変えたら、その指標が属するカテゴリの評価を自動計算する
+    el.querySelectorAll('.metric-rank').forEach(sel => {
+      sel.addEventListener('change', () => recalcCategoryRank(sel.dataset.cat));
+    });
+
+    // 数値を入力/変更したら、ランク基準に沿ってランクを自動入力する
+    el.querySelectorAll('.metric-value').forEach(inp => {
+      inp.addEventListener('change', () => autoFillRankFromValue(inp.dataset.key));
+    });
+  }
+
+  // 数値欄からランク基準に沿ってランクを自動入力し、色・カテゴリ評価も更新する
+  function autoFillRankFromValue(key) {
+    if (!isAutoRankEnabled()) return; // OFFの場合は何もしない(手動選択のまま)
+    const valueInput = document.querySelector(`.metric-value[data-key="${key}"]`);
+    const rankSelect = document.querySelector(`.metric-rank[data-key="${key}"]`);
+    if (!valueInput || !rankSelect) return;
+    const value = valueInput.value !== '' ? Number(valueInput.value) : null;
+    const rank = computeRankFromValue(key, value);
+    if (!rank) return;
+    rankSelect.value = rank;
+    rankSelect.style.color = RANK_COLOR_MAP[rank] || '';
+    recalcCategoryRank(rankSelect.dataset.cat);
+  }
+
+  // "2026-03-31" のような日付を「2026年3月期」の形に整形する
+  function formatFiscalPeriod(dateStr) {
+    if (!dateStr) return null;
+    const m = String(dateStr).match(/^(\d{4})-(\d{2})-\d{2}/);
+    if (!m) return dateStr;
+    return `${m[1]}年${Number(m[2])}月期`;
+  }
+
+  function updateRankCriteriaBtnText() {
+    const btn = document.getElementById('openRankCriteriaBtn');
+    if (!btn) return;
+    btn.textContent = isAutoRankEnabled() ? '⚙ ランク基準を設定(自動判定: ON)' : '⚙ ランク基準を設定(自動判定: OFF)';
+  }
+
+  function renderFundamentalsPeriodMsg(asOf) {
+    const el = document.getElementById('fundamentalsPeriodMsg');
+    if (!el) return;
+    if (!asOf) { el.style.display = 'none'; return; }
+    el.textContent = `📅 直近の自動取得データの基準日: ${formatFiscalPeriod(asOf)}(${asOf})`;
+    el.style.display = 'block';
+  }
+
+  function openRankModal(id) {
+    const s = allStocks.find(x => x.id === id);
+    if (!s) return;
+    const a = s.analysis || emptyAnalysis();
+
+    document.getElementById('rankModalTitle').textContent = `${s.ticker} の財務指標ランク`;
+    document.getElementById('rk_id').value = s.id;
+
+    const cats = a.categoryRanks || {};
+    renderRankGroups(a.metrics, cats);
+    renderFundamentalsPeriodMsg(a.fundamentalsAsOf);
+    updateRankCriteriaBtnText();
+
+    colorizeRankSelects(rankModalBg);
+    rankModalBg.classList.add('active');
+  }
+
+  document.getElementById('rankCancelBtn').addEventListener('click', () => rankModalBg.classList.remove('active'));
+
+  // --- ランク基準の設定モーダル ---
+  const rankCriteriaModalBg = document.getElementById('rankCriteriaModalBg');
+
+  function renderRankCriteriaRows() {
+    const criteria = getRankCriteria();
+    const el = document.getElementById('rankCriteriaRows');
+    el.innerHTML = METRIC_DEFS.map(m => {
+      const dirLabel = RANK_CRITERIA_DIRECTIONS[m.key] ? '以上' : '以下';
+      const vals = criteria[m.key];
+      const cells = vals.map((v, i) => `<td><input type="number" step="0.01" class="criteria-input" data-key="${m.key}" data-idx="${i}" value="${v}"></td>`).join('');
+      return `<tr><td class="metric-label-cell">${m.label}<br><span class="manual-only-badge">${dirLabel}(${m.unit})</span></td>${cells}</tr>`;
+    }).join('');
+  }
+
+  document.getElementById('openRankCriteriaBtn').addEventListener('click', () => {
+    document.getElementById('autoRankEnabledCheckbox').checked = isAutoRankEnabled();
+    renderRankCriteriaRows();
+    rankCriteriaModalBg.classList.add('active');
+  });
+  document.getElementById('rankCriteriaCancelBtn').addEventListener('click', () => rankCriteriaModalBg.classList.remove('active'));
+  document.getElementById('rankCriteriaResetBtn').addEventListener('click', () => {
+    if (!confirm('ランク基準を初期値に戻しますか?')) return;
+    setRankCriteria(JSON.parse(JSON.stringify(DEFAULT_RANK_CRITERIA)));
+    renderRankCriteriaRows();
+  });
+  document.getElementById('rankCriteriaSaveBtn').addEventListener('click', () => {
+    const criteria = getRankCriteria();
+    document.querySelectorAll('.criteria-input').forEach(inp => {
+      const key = inp.dataset.key;
+      const idx = Number(inp.dataset.idx);
+      criteria[key][idx] = inp.value !== '' ? Number(inp.value) : DEFAULT_RANK_CRITERIA[key][idx];
+    });
+    setRankCriteria(criteria);
+    setAutoRankEnabled(document.getElementById('autoRankEnabledCheckbox').checked);
+    updateRankCriteriaBtnText();
+    rankCriteriaModalBg.classList.remove('active');
+    alert('ランク基準を保存しました。次に数値を入力・取得した時から反映されます。');
+  });
+
+  // --- 財務指標の数値を自動取得(ランク・理由は対象外) ---
+  async function fetchFundamentals(ticker) {
+    if (!isBackendConfigured()) {
+      alert('先に「接続設定」からバックエンドURLとアクセストークンを登録してください');
+      return null;
+    }
+    try {
+      const url = buildProxyUrl({ action: 'fundamentals', ticker, token: getAccessToken() });
+      const json = await fetchJsonWithRetry(url);
+      if (json.error) {
+        alert('財務指標の取得に失敗しました: ' + json.error);
+        return null;
+      }
+      return json;
+    } catch (e) {
+      alert('通信エラーが発生しました: ' + e.message);
+      return null;
+    }
+  }
+
+  document.getElementById('fetchFundamentalsBtn').addEventListener('click', async () => {
+    const id = document.getElementById('rk_id').value;
+    const s = allStocks.find(x => x.id === id);
+    if (!s) return;
+
+    const btn = document.getElementById('fetchFundamentalsBtn');
+    const statusEl = document.getElementById('fundamentalsStatusMsg');
+    btn.disabled = true;
+    statusEl.textContent = `${s.ticker} の財務指標を取得中...(API消費: 1回)`;
+
+    const result = await fetchFundamentals(s.ticker);
+
+    btn.disabled = false;
+    statusEl.textContent = '';
+    if (!result) return;
+
+    let filled = 0;
+    METRIC_DEFS.forEach(m => {
+      if (!m.autoFillable) return; // 手動入力の指標(ROIC・Net Debt/EBITDA・自己資本比率)は対象外
+      const val = result[m.key];
+      if (val == null) return;
+      const input = document.querySelector(`.metric-value[data-key="${m.key}"]`);
+      if (input) {
+        input.value = val;
+        autoFillRankFromValue(m.key);
+        filled++;
+      }
+    });
+
+    const a = getOrInitAnalysis(s);
+    a.fundamentalsAsOf = result.latestQuarter || null;
+    renderFundamentalsPeriodMsg(a.fundamentalsAsOf);
+    const periodTxt = result.latestQuarter ? `(データ基準日: ${formatFiscalPeriod(result.latestQuarter)})` : '(データ基準日は取得できませんでした)';
+
+    if (filled === 0) {
+      alert('取得できた数値がありませんでした(この銘柄のデータが無いか、非対応の可能性があります)。');
+    } else {
+      alert(`${filled}件の数値を反映し、ランク基準に沿ってランクも自動入力しました${periodTxt}。内容を確認の上、保存を忘れずに押してください。`);
+    }
+  });
+
+  document.getElementById('rankSaveBtn').addEventListener('click', () => {
+    const id = document.getElementById('rk_id').value;
+    const s = allStocks.find(x => x.id === id);
+    if (!s) return;
+    const a = getOrInitAnalysis(s);
+
+    const metrics = {};
+    METRIC_DEFS.forEach(m => {
+      const valueInput = document.querySelector(`.metric-value[data-key="${m.key}"]`);
+      const rankSelect = document.querySelector(`.metric-rank[data-key="${m.key}"]`);
+      const reasonInput = document.querySelector(`.metric-reason[data-key="${m.key}"]`);
+      metrics[m.key] = {
+        value: valueInput.value ? Number(valueInput.value) : null,
+        rank: rankSelect.value,
+        reason: reasonInput.value.trim()
+      };
+    });
+    a.metrics = metrics;
+
+    const categoryRanks = { overall: document.getElementById('rk_cat_overall').value };
+    CATEGORY_DEFS.forEach(cat => {
+      const sel = document.querySelector(`.cat-rank-select[data-cat="${cat.key}"]`);
+      categoryRanks[cat.key] = sel ? sel.value : '';
+    });
+    a.categoryRanks = categoryRanks;
+    a.updatedAt = new Date().toISOString();
+
+    saveStocks(allStocks);
+    rankModalBg.classList.remove('active');
+    updateSingleEditCard(s);
+    renderAlertTabs();
+  });
+
+  // --- AI相談用にコピー ---
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise((resolve, reject) => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  function generateAiPrompt(s) {
+    const a = s.analysis || {};
+    const metrics = a.metrics || {};
+    const cats = a.categoryRanks || {};
+    const buyPct = lineDistancePct(s.price, s.buyLine);
+    const sellPct = lineDistancePct(s.price, s.sellLine);
+    const fmtPct = (pct) => (pct == null ? '不明' : `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`);
+
+    const metricLines = METRIC_DEFS.map(m => {
+      const d = metrics[m.key] || {};
+      const valTxt = d.value != null ? `${d.value}${m.unit}` : '未入力';
+      const rankTxt = d.rank || '未評価';
+      return `${m.label}: ${rankTxt}(値: ${valTxt})`;
+    }).join('\n');
+
+    return `銘柄: ${s.ticker}${s.company ? '(' + s.company + ')' : ''}
+現在株価: ${s.price != null ? '$' + s.price : '未取得'}
+
+【狙い値】
+買いライン: ${s.buyLine != null ? '$' + s.buyLine : '未設定'}(現在値からの距離: ${fmtPct(buyPct)})
+売りライン: ${s.sellLine != null ? '$' + s.sellLine : '未設定'}(現在値からの距離: ${fmtPct(sellPct)})
+
+【投資判断】
+評価: ${a.stance || '未設定'}
+財務総合評価: ${cats.overall || '未評価'}
+想定保有期間: ${a.holdingPeriod || '未設定'}
+
+【財務評価】(※以下のランクは私自身の主観評価です。客観的な格付けではありません)
+${metricLines}
+
+【投資仮説】
+投資理由: ${a.reasons || '未記入'}
+最大のリスク: ${a.risks || '未記入'}
+撤退条件: ${a.exitCondition || '未記入'}
+
+---
+この投資判断について、最新の公開情報も確認した上でレビューしてください。
+入力されている財務ランクは私自身の主観評価です。数値が未入力または不自然な場合は推測で補完せず、その旨を指摘してください。
+
+1. 入力データの不足・矛盾・異常値
+2. 投資仮説の妥当性と矛盾
+3. 見落としているリスク
+4. 買いライン・売りラインの妥当性
+5. 次回決算で確認すべき項目
+6. 強気・中立・弱気シナリオ
+7. このレビューを踏まえ、アプリ上で見直す候補項目だけを最後にまとめてください`;
+  }
+
+  function copyAiPrompt(id) {
+    const s = allStocks.find(x => x.id === id);
+    if (!s) return;
+    const text = generateAiPrompt(s);
+    copyToClipboard(text)
+      .then(() => alert(`${s.ticker} の情報をコピーしました。ChatGPTやGeminiなどに貼り付けてご利用ください。`))
+      .catch(() => alert('コピーに失敗しました。お使いのブラウザがクリップボード機能に対応していない可能性があります。'));
+  }
+
+
+  // --- 検索・並び替え・テーマ絞り込みツールバー(静的DOM。一度だけイベント登録) ---
+  function refreshThemeFilterOptions() {
+    const el = document.getElementById('themeFilterSelect');
+    if (!el) return;
+    const current = themeFilterValue;
+    const themes = getThemes();
+    el.innerHTML = '<option value="">すべてのテーマ</option>' + themes.map(t => `<option value="${t}">${t}</option>`).join('');
+    el.value = themes.includes(current) ? current : '';
+    themeFilterValue = el.value;
+  }
+  refreshThemeFilterOptions();
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderAll();
+  });
+  document.getElementById('sortSelect').addEventListener('change', (e) => {
+    sortMode = e.target.value;
+    renderAll();
+  });
+  document.getElementById('themeFilterSelect').addEventListener('change', (e) => {
+    themeFilterValue = e.target.value;
+    renderAll();
+  });
+  document.getElementById('refreshAllBtn').addEventListener('click', () => refreshAllPrices(false));
+  document.getElementById('refreshSelectedBtn').addEventListener('click', () => refreshSelectedPrices());
+
+  function updateBadgeModeToggleBtnText() {
+    const btn = document.getElementById('badgeModeToggleBtn');
+    if (!btn) return;
+    btn.textContent = getBadgeMode() === 'value'
+      ? '指標を数値で表示中(タップでランク表示に切替)'
+      : '指標をランクで表示中(タップで数値表示に切替)';
+  }
+  updateBadgeModeToggleBtnText();
+  document.getElementById('badgeModeToggleBtn').addEventListener('click', () => {
+    setBadgeMode(getBadgeMode() === 'value' ? 'rank' : 'value');
+    updateBadgeModeToggleBtnText();
+    renderAll();
+  });
+
+  // --- タブ切り替え ---
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      // 「銘柄編集」タブの時だけ + ボタンを表示する
+      document.getElementById('addBtn').style.display = (tab.dataset.tab === 'edit') ? 'flex' : 'none';
+    });
+  });
+
+  // --- 編集モーダル ---
+  const modalBg = document.getElementById('modalBg');
+  document.getElementById('addBtn').addEventListener('click', () => openEditModal(null));
+  document.getElementById('cancelBtn').addEventListener('click', () => modalBg.classList.remove('active'));
+
+  function renderThemeSelect() {
+    const themes = getThemes();
+    const el = document.getElementById('f_theme');
+    const current = el.value;
+    el.innerHTML = '<option value="">(未選択)</option>' + themes.map(t => `<option value="${t}">${t}</option>`).join('');
+    el.value = current;
+  }
+
+  function commitNewTheme() {
+    const input = document.getElementById('themeNewInput');
+    const val = input.value.trim();
+    if (!val) return;
+    addTheme(val);
+    renderThemeSelect();
+    refreshThemeFilterOptions();
+    document.getElementById('f_theme').value = val;
+    input.value = '';
+  }
+  document.getElementById('themeAddBtn').addEventListener('click', commitNewTheme);
+  document.getElementById('themeNewInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); commitNewTheme(); }
+  });
+
+  function openEditModal(id) {
+    const s = id ? allStocks.find(x => x.id === id) : null;
+    document.getElementById('modalTitle').textContent = s ? '銘柄を編集' : '銘柄を追加';
+    document.getElementById('f_id').value = s ? s.id : '';
+    document.getElementById('f_ticker').value = s ? s.ticker : '';
+    document.getElementById('f_company').value = s ? s.company : '';
+    const themeVal = s ? (s.theme || '') : '';
+    if (themeVal) addTheme(themeVal); // 過去の自由入力テーマも選択肢に残す
+    renderThemeSelect();
+    document.getElementById('f_theme').value = themeVal;
+    document.getElementById('themeNewInput').value = '';
+    document.getElementById('f_status').value = s ? s.status : '非保有';
+    document.getElementById('f_buy').value = s && s.buyLine != null ? s.buyLine : '';
+    document.getElementById('f_sell').value = s && s.sellLine != null ? s.sellLine : '';
+    document.getElementById('f_watch').checked = s ? !!s.watch : true;
+    document.getElementById('deleteBtn').style.display = s ? 'block' : 'none';
+    modalBg.classList.add('active');
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const id = document.getElementById('f_id').value;
+    const ticker = document.getElementById('f_ticker').value.trim().toUpperCase();
+    if (!ticker) { alert('ティッカーを入力してください'); return; }
+
+    const data = {
+      ticker,
+      company: document.getElementById('f_company').value.trim(),
+      theme: document.getElementById('f_theme').value.trim(),
+      status: document.getElementById('f_status').value,
+      buyLine: document.getElementById('f_buy').value ? Number(document.getElementById('f_buy').value) : null,
+      sellLine: document.getElementById('f_sell').value ? Number(document.getElementById('f_sell').value) : null,
+      watch: document.getElementById('f_watch').checked
+    };
+
+    if (id) {
+      const idx = allStocks.findIndex(x => x.id === id);
+      allStocks[idx] = { ...allStocks[idx], ...data };
+    } else {
+      allStocks.push({ id: uuid(), price: null, updatedAt: null, shares: 0, ...data });
+    }
+    saveStocks(allStocks);
+    modalBg.classList.remove('active');
+    renderAll();
+  });
+
+  document.getElementById('deleteBtn').addEventListener('click', () => {
+    const id = document.getElementById('f_id').value;
+    if (!confirm('この銘柄を削除しますか?')) return;
+    allStocks = allStocks.filter(x => x.id !== id);
+    saveStocks(allStocks);
+    modalBg.classList.remove('active');
+    renderAll();
+  });
+
+  // --- 使い方・免責事項モーダル ---
+  const helpBg = document.getElementById('helpModalBg');
+  document.getElementById('helpBtn').addEventListener('click', () => helpBg.classList.add('active'));
+  document.getElementById('helpCloseBtn').addEventListener('click', () => helpBg.classList.remove('active'));
+
+  // --- 接続設定モーダル ---
+  const connectionBg = document.getElementById('connectionModalBg');
+  document.getElementById('connectionBtn').addEventListener('click', () => {
+    document.getElementById('backendUrlInput').value = getBackendUrl();
+    document.getElementById('accessTokenInput').value = getAccessToken();
+    document.getElementById('autoRefreshModeSelect').value = getAutoRefreshMode();
+    connectionBg.classList.add('active');
+  });
+  document.getElementById('connectionCancelBtn').addEventListener('click', () => connectionBg.classList.remove('active'));
+  document.getElementById('connectionSaveBtn').addEventListener('click', () => {
+    setBackendUrl(document.getElementById('backendUrlInput').value);
+    setAccessToken(document.getElementById('accessTokenInput').value.trim());
+    setAutoRefreshMode(document.getElementById('autoRefreshModeSelect').value);
+    connectionBg.classList.remove('active');
+  });
+
+  // --- データ管理モーダル(テーマの管理・バックアップ) ---
+  const dataMgmtBg = document.getElementById('dataMgmtModalBg');
+
+  function renderThemeManageList() {
+    const el = document.getElementById('themeManageList');
+    if (!el) return;
+    const themes = getThemes();
+    if (!themes.length) { el.innerHTML = '<div class="hint" style="margin-top:0;">テーマがまだありません</div>'; return; }
+    el.innerHTML = themes.map(t => {
+      const count = allStocks.filter(s => s.theme === t).length;
+      return `<span class="theme-manage-item">${t}${count ? ` (${count})` : ''}<button type="button" data-theme="${t}" title="削除">✕</button></span>`;
+    }).join('');
+    el.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const t = btn.dataset.theme;
+        const count = allStocks.filter(s => s.theme === t).length;
+        const msg = count
+          ? `「${t}」は${count}件の銘柄で使われています。削除すると選択肢からは消えますが、銘柄側のテーマ表示はそのまま残ります。削除しますか?`
+          : `「${t}」を削除しますか?`;
+        if (!confirm(msg)) return;
+        setThemes(getThemes().filter(x => x !== t));
+        renderThemeManageList();
+        refreshThemeFilterOptions();
+        renderAll();
+      });
+    });
+  }
+
+  document.getElementById('dataMgmtBtn').addEventListener('click', () => {
+    renderThemeManageList();
+    dataMgmtBg.classList.add('active');
+  });
+  document.getElementById('dataMgmtCloseBtn').addEventListener('click', () => dataMgmtBg.classList.remove('active'));
+
+  // --- 暗号化ユーティリティ (Web Crypto API: AES-GCM + PBKDF2) ---
+  function cryptoAvailable() {
+    return !!(window.crypto && window.crypto.subtle);
+  }
+  function bufToBase64(buf) {
+    return btoa(String.fromCharCode(...new Uint8Array(buf)));
+  }
+  function base64ToBuf(b64) {
+    return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  }
+  async function deriveKey(password, saltBytes) {
+    const enc = new TextEncoder();
+    const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: saltBytes, iterations: 150000, hash: 'SHA-256' },
+      baseKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  }
+  async function encryptJson(obj, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const enc = new TextEncoder();
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj)));
+    return { alg: 'AES-GCM-256-PBKDF2', salt: bufToBase64(salt), iv: bufToBase64(iv), data: bufToBase64(ciphertext) };
+  }
+  async function decryptJson(envelope, password) {
+    const salt = base64ToBuf(envelope.salt);
+    const iv = base64ToBuf(envelope.iv);
+    const key = await deriveKey(password, salt);
+    const data = base64ToBuf(envelope.data);
+    const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+    return JSON.parse(new TextDecoder().decode(plainBuf));
+  }
+
+  // --- データのエクスポート/インポート(パスワードで暗号化) ---
+  document.getElementById('exportBtn').addEventListener('click', async () => {
+    if (!cryptoAvailable()) {
+      alert('暗号化にはHTTPS環境が必要です(file://で直接開いている場合は動作しません。Netlifyなどでホストした状態で開いてください)。');
+      return;
+    }
+    const password = prompt('バックアップを暗号化するパスワードを入力してください(復元時にも必要です。忘れると復元できませんのでご注意ください)');
+    if (!password) return;
+
+    try {
+      const envelope = await encryptJson(allStocks, password);
+      const json = JSON.stringify(envelope, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const today = new Date().toISOString().slice(0, 10);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `stock-app-backup-${today}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('暗号化に失敗しました: ' + err.message);
+    }
+  });
+
+  document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('importFileInput').click();
+  });
+
+  document.getElementById('importFileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      let parsed;
+      try {
+        parsed = JSON.parse(reader.result);
+      } catch (err) {
+        alert('ファイルの読み込みに失敗しました。正しいバックアップファイルか確認してください。');
+        return;
+      }
+
+      let imported;
+      if (Array.isArray(parsed)) {
+        // 旧形式(暗号化なしのバックアップ)。互換性のため読み込みは可能にしています。
+        imported = parsed;
+      } else if (parsed && parsed.alg && parsed.salt && parsed.iv && parsed.data) {
+        if (!cryptoAvailable()) {
+          alert('このファイルは暗号化されていますが、復号にはHTTPS環境が必要です(file://では動作しません)。');
+          return;
+        }
+        const password = prompt('このバックアップは暗号化されています。パスワードを入力してください');
+        if (!password) return;
+        try {
+          imported = await decryptJson(parsed, password);
+        } catch (err) {
+          alert('復号に失敗しました。パスワードが間違っているか、ファイルが破損している可能性があります。');
+          return;
+        }
+        if (!Array.isArray(imported)) {
+          alert('復号したデータの形式が正しくありません。');
+          return;
+        }
+      } else {
+        alert('このファイルは対応した形式ではありません。');
+        return;
+      }
+
+      const mode = confirm(
+        `${imported.length}件の銘柄データが見つかりました。\n\n` +
+        `[OK] 今のデータに追加・上書きマージする\n` +
+        `[キャンセル] 今のデータを全て消してこのファイルの内容に置き換える`
+      );
+
+      if (mode) {
+        imported.forEach(item => {
+          const idx = allStocks.findIndex(s => s.id === item.id);
+          if (idx >= 0) allStocks[idx] = item; else allStocks.push(item);
+        });
+      } else {
+        allStocks = imported;
+      }
+
+      saveStocks(allStocks);
+      renderAll();
+      alert('データを読み込みました。');
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // --- 株価取得(価格取得プロキシ経由。Alpha VantageのAPIキーはここでは扱わない) ---
+  async function fetchQuote(ticker, silent) {
+    if (!isBackendConfigured()) {
+      if (!silent) alert('先に「接続設定」からバックエンドURLとアクセストークンを登録してください');
+      return null;
+    }
+    try {
+      const url = buildProxyUrl({ action: 'quote', ticker, token: getAccessToken() });
+      const json = await fetchJsonWithRetry(url);
+      if (json.error || json.price == null) {
+        if (!silent) alert(ticker + ' の価格取得に失敗しました: ' + (json.error || '不明なエラー'));
+        return null;
+      }
+      return {
+        price: Number(json.price),
+        dayChange: json.change != null ? Number(json.change) : null,
+        dayChangePercent: json.changePercent != null ? Number(json.changePercent) : null
+      };
+    } catch (e) {
+      if (!silent) alert('通信エラーが発生しました: ' + e.message);
+      return null;
+    }
+  }
+
+  async function refreshOne(id) {
+    const s = allStocks.find(x => x.id === id);
+    if (!s) return;
+    const result = await fetchQuote(s.ticker);
+    if (result == null) return;
+    s.price = result.price;
+    s.dayChange = result.dayChange;
+    s.dayChangePercent = result.dayChangePercent;
+    s.updatedAt = new Date().toISOString();
+    saveStocks(allStocks);
+    // 「銘柄編集」タブはこの1件だけを差し替え、他タブは通常通り再計算する(登録数が多くても軽い)
+    updateSingleEditCard(s);
+    renderAlertTabs();
+  }
+
+  function showEditStatus(text) {
+    const el = document.getElementById('editStatusMsg');
+    if (el) el.textContent = text;
+  }
+
+  let isRefreshingAll = false;
+
+  async function runPriceRefreshLoop(targets, silent, activeBtnId) {
+    if (isRefreshingAll) {
+      if (!silent) alert('現在、更新処理を実行中です。完了までお待ちください。');
+      return;
+    }
+    if (!targets.length) { if (!silent) alert('更新対象の銘柄がありません'); return; }
+    if (!isBackendConfigured()) { if (!silent) alert('先に「接続設定」からバックエンドURLとアクセストークンを登録してください'); return; }
+
+    isRefreshingAll = true;
+    const allBtn = document.getElementById('refreshAllBtn');
+    const selBtn = document.getElementById('refreshSelectedBtn');
+    const activeBtn = document.getElementById(activeBtnId);
+    if (allBtn) allBtn.disabled = true;
+    if (selBtn) selBtn.disabled = true;
+    if (activeBtn) activeBtn.textContent = '現在値を更新中...';
+
+    try {
+      for (let i = 0; i < targets.length; i++) {
+        showEditStatus(`現在値を取得中... (${i + 1}/${targets.length}) ${targets[i].ticker}`);
+        const result = await fetchQuote(targets[i].ticker, silent);
+        if (result != null) {
+          targets[i].price = result.price;
+          targets[i].dayChange = result.dayChange;
+          targets[i].dayChangePercent = result.dayChangePercent;
+          targets[i].updatedAt = new Date().toISOString();
+          saveStocks(allStocks);
+          // 登録数が多くても重くならないよう、「銘柄編集」は該当の1枚だけ差し替える
+          updateSingleEditCard(targets[i]);
+          renderAlertTabs();
+        }
+        // Twelve Data無料枠(1分8回)の制限対策として、銘柄ごとに間隔を空ける
+        if (i < targets.length - 1) await new Promise(r => setTimeout(r, 8000));
+      }
+    } finally {
+      isRefreshingAll = false;
+      if (allBtn) { allBtn.disabled = false; allBtn.textContent = '全銘柄の現在値を更新'; }
+      if (selBtn) { selBtn.disabled = false; selBtn.textContent = 'チェックした銘柄だけ更新'; }
+      showEditStatus('');
+      renderAll();
+    }
+  }
+
+  async function refreshAllPrices(silent) {
+    const targets = allStocks.filter(s => s.watch);
+    await runPriceRefreshLoop(targets, silent, 'refreshAllBtn');
+  }
+
+  async function refreshSelectedPrices() {
+    const targets = allStocks.filter(s => selectedForUpdate.has(s.id));
+    if (!targets.length) { alert('更新したい銘柄のチェックボックスを入れてください'); return; }
+    await runPriceRefreshLoop(targets, false, 'refreshSelectedBtn');
+  }
+
+  renderAll();
+  // アプリを開いた時にウォッチ対象銘柄の現在値を自動取得(バックエンド未設定・選択モードの場合は何もしない)
+  if (isBackendConfigured() && getAutoRefreshMode() === 'auto') {
+    refreshAllPrices(true);
+  }
+</script>
+</body>
+</html>
