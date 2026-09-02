@@ -41,23 +41,37 @@
   }
   header button.icon-btn:hover { color: var(--text); border-color: var(--accent); }
 
-  .tabs {
+  /* --- トップタブ(銘柄/注目/テーマ) --- */
+  .top-tabs {
     display: flex;
     border-bottom: 1px solid var(--card-border);
     overflow-x: auto;
     background: #1c1d20;
   }
-  .tab {
-    flex: 1; min-width: 62px; text-align: center; padding: 10px 3px;
-    font-size: 11px; color: var(--muted); cursor: pointer; white-space: nowrap;
+  .top-tab {
+    flex: 1; min-width: 62px; text-align: center; padding: 11px 3px;
+    font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap;
     border-bottom: 2px solid transparent;
   }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
+  .top-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
   .tab-badge {
     display: inline-block; background: var(--down); color: #fff; font-weight: 700;
     font-size: 10px; min-width: 15px; height: 15px; line-height: 15px; border-radius: 8px;
     padding: 0 4px; margin-left: 3px; vertical-align: top;
   }
+  /* --- サブタブ(トップタブより一段控えめ。各トップタブ内で対象を切り替える) --- */
+  .sub-tabs {
+    display: flex; gap: 2px;
+    border-bottom: 1px solid var(--card-border);
+    overflow-x: auto;
+    background: #17181a;
+  }
+  .sub-tabs .tab {
+    flex: 1; min-width: 56px; text-align: center; padding: 7px 3px;
+    font-size: 11.5px; color: var(--muted); cursor: pointer; white-space: nowrap;
+    border-bottom: 2px solid transparent;
+  }
+  .sub-tabs .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
 
   .panel { display: none; padding: 10px; max-width: 640px; margin: 0 auto; }
   .panel.active { display: block; }
@@ -223,6 +237,19 @@
   .modal h3 { margin: 0 0 14px; font-size: 15px; }
   .modal-title-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 14px; }
   .modal-title-row #analysisFullViewBtn { flex-shrink: 0; padding: 5px 9px; font-size: 10.5px; margin-top: 0; }
+  /* --- 各画面タイトル横の「?」ヘルプアイコン(タップで仕組み・用語の説明モーダルを開く。hover前提にしない) --- */
+  .modal-title-with-help { display: flex; align-items: center; gap: 6px; }
+  .help-icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    background: transparent; border: 1px solid var(--muted); color: var(--muted);
+    font-size: 12px; font-weight: 700; line-height: 1; cursor: pointer; padding: 0;
+  }
+  .help-icon-btn:hover, .help-icon-btn:active { color: var(--accent); border-color: var(--accent); }
+  #miniHelpModalBg .modal { max-width: 480px; }
+  #miniHelpModalBody { font-size: 12.5px; line-height: 1.7; }
+  #miniHelpModalBody p { margin: 0 0 10px; }
+  #miniHelpModalBody p:last-child { margin-bottom: 0; }
   #analysisModalBg textarea.full-text { font-size: 16px; }
   .field { margin-bottom: 11px; }
   .field label { display: block; font-size: 11.5px; color: var(--text); font-weight: 600; margin-bottom: 4px; }
@@ -266,6 +293,85 @@
     background: #1c1d20; color: var(--muted); cursor: pointer; white-space: nowrap;
   }
   .watch-toggle-btn.on { border-color: var(--accent); color: var(--accent); }
+
+  /* カード表示: 現在値の横に置く単体更新ボタン(ウォッチ中/削除や分析タグとは別の列にする) */
+  .price-row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+  .card-refresh-btn {
+    flex-shrink: 0; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; border: 1px solid var(--card-border); background: #1c1d20; color: var(--text);
+    font-size: 14px; line-height: 1; cursor: pointer; padding: 0;
+  }
+  .card-refresh-btn:hover { border-color: var(--accent); }
+  .card-refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .spin-icon { display: inline-block; }
+  .is-loading .spin-icon { animation: single-refresh-spin 0.8s linear infinite; }
+  @keyframes single-refresh-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* --- 「銘柄編集」一覧表示(カード表示に加えて追加。銘柄数が多い時に横スクロールなしで
+     監視・単体更新しやすくするための表示方式。列構成はスマホ幅(360px前後)を最優先に固定している) --- */
+  .stock-list-header, .stock-list-row {
+    display: grid;
+    grid-template-columns: 17px 1fr 50px 38px 42px 42px 27px 33px;
+    align-items: center;
+    gap: 1px;
+    padding: 7px 3px;
+  }
+  .stock-list-header {
+    font-size: 10px; color: var(--muted); font-weight: 700; white-space: nowrap;
+    border-bottom: 1px solid var(--card-border); margin-bottom: 6px; padding-bottom: 6px;
+  }
+  /* 一覧表示のチェックボックスは、カード表示用の余白(margin-right/margin-top)を打ち消してグリッド列に収める */
+  .stock-list-row .select-update-checkbox { margin: 0; width: 15px; height: 15px; }
+  .stock-list-header span:nth-child(3),
+  .stock-list-header span:nth-child(4),
+  .stock-list-header span:nth-child(5),
+  .stock-list-header span:nth-child(6) { text-align: right; overflow: hidden; text-overflow: ellipsis; }
+  .stock-list-row {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 8px;
+    margin-bottom: 6px; cursor: pointer; transition: border-color .15s;
+  }
+  .stock-list-row:hover { border-color: var(--accent); }
+  /* 銘柄+テーマを1つのセルにまとめ、行の高さを増やさずティッカーの右側にテーマを併記する。
+     ティッカーは常に全文表示(flex-shrink:0)、テーマは残り幅だけを使い、収まらない分は…で省略する(テーマの保存データ自体には触れない) */
+  .stock-list-cell-ticker {
+    min-width: 0; overflow: hidden; display: flex; align-items: baseline; gap: 4px;
+  }
+  .stock-list-ticker {
+    flex: 0 0 auto; font-weight: 700; font-size: 12.5px; white-space: nowrap;
+  }
+  .stock-list-theme {
+    flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 10px; font-weight: 500; color: var(--muted);
+  }
+  .stock-list-num {
+    font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; color: var(--text);
+  }
+  .stock-list-num.muted { color: var(--muted); }
+  .stock-list-num.up { color: var(--up); }
+  .stock-list-num.down { color: var(--down); }
+  /* 買い差/売り差の色分けは、既存のカード表示(.line-row系)と同じ配色・同じ判定関数(lineDistanceTier)を流用している */
+  .stock-list-num.tier-close { color: #FFC107; font-weight: 700; }
+  .stock-list-num.tier-near { color: #FF8C1A; font-weight: 800; }
+  .stock-list-num.tier-reached-buy { color: var(--down); font-weight: 800; }
+  .stock-list-num.tier-reached-sell { color: var(--up); font-weight: 800; }
+  .list-refresh-btn, .list-analysis-btn {
+    align-self: stretch; min-height: 30px; border-radius: 6px; border: 1px solid var(--card-border);
+    background: #1c1d20; color: var(--text); cursor: pointer; padding: 0; font-size: 13px; line-height: 1;
+  }
+  .list-refresh-btn:hover, .list-analysis-btn:hover { border-color: var(--accent); }
+  .list-refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .list-analysis-btn { font-size: 11px; font-weight: 700; color: var(--accent); border-color: var(--accent); }
+
+  .list-analysis-menu {
+    position: fixed; z-index: 60; min-width: 148px; background: #1c1d20; border: 1px solid var(--card-border);
+    border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,0.45); overflow: hidden;
+  }
+  .list-analysis-menu button {
+    display: block; width: 100%; text-align: left; padding: 10px 12px; background: none; border: none;
+    border-bottom: 1px solid var(--card-border); color: var(--text); font-size: 13px; cursor: pointer;
+  }
+  .list-analysis-menu button:last-child { border-bottom: none; }
+  .list-analysis-menu button:hover, .list-analysis-menu button:active { background: #26282c; }
 
   .field textarea {
     width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--card-border);
@@ -399,6 +505,10 @@
     flex-shrink: 0; font-size: 13px; font-weight: 500; color: #b5b6bb; line-height: 1; white-space: nowrap;
     -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
   }
+  /* 「表示」行内で、カード表示専用の設定(財務:表示/ランク表示)と一覧/カード切り替えを区切る仕切り */
+  .toolbar-row-sep { flex-shrink: 0; color: var(--card-border); font-size: 13px; line-height: 1; }
+  /* 一覧表示中は、カード表示専用の設定であることが分かるよう少し薄く見せる(押せなくはしない) */
+  .toolbar-toggle-group.is-inactive-group { opacity: 0.4; }
 
   /* 現在値更新: 実行ボタン。横幅いっぱいに広げず、内容に応じたコンパクトな幅にする */
   .toolbar-btn-group { display: flex; align-items: center; gap: 6px; }
@@ -530,7 +640,7 @@
 <header>
   <div>
     <h1>米国株 売買ライン監視</h1>
-    <div class="app-version">v2.43.6</div>
+    <div class="app-version">v2.45.1</div>
   </div>
   <div class="actions">
     <button class="icon-btn" id="helpBtn">使い方・免責事項</button>
@@ -539,12 +649,18 @@
   </div>
 </header>
 
-<div class="tabs">
-  <div class="tab active" data-tab="edit">銘柄編集</div>
+<div class="top-tabs">
+  <div class="top-tab active" data-top-tab="stocks">銘柄</div>
+  <div class="top-tab" data-top-tab="focus">注目<span id="focusBadge" class="tab-badge" style="display:none;"></span></div>
+  <div class="top-tab" data-top-tab="themes">テーマ</div>
+</div>
+<div class="sub-tabs" data-group="stocks">
+  <div class="tab active" data-tab="edit">全銘柄</div>
+  <div class="tab" data-tab="watch">監視対象</div>
+</div>
+<div class="sub-tabs" data-group="focus" style="display:none;">
   <div class="tab" data-tab="nonhold">非保有注目<span id="nonHoldBadge" class="tab-badge" style="display:none;"></span></div>
   <div class="tab" data-tab="hold">保有注目<span id="holdBadge" class="tab-badge" style="display:none;"></span></div>
-  <div class="tab" data-tab="watch">監視リスト</div>
-  <div class="tab" data-tab="themes">テーマ</div>
 </div>
 
 <div id="panel-edit" class="panel active">
@@ -562,9 +678,14 @@
     </div>
     <div class="toolbar-mixed-row">
       <span class="toolbar-inline-label">表示</span>
-      <div class="toolbar-toggle-group">
-        <button id="metricsVisibleToggleBtn" title="タップで財務指標の表示/非表示を切り替え">財務:表示</button>
-        <button id="badgeModeToggleBtn" title="タップでランク/数値の表示を切り替え">ランク表示</button>
+      <div class="toolbar-toggle-group" id="editViewModeToggle">
+        <button id="editViewModeCardBtn" data-mode="card" title="1銘柄ずつ詳しく確認できるカード表示に切り替え">カード</button>
+        <button id="editViewModeListBtn" data-mode="list" title="多数の銘柄をコンパクトに確認できる一覧表示に切り替え">一覧</button>
+      </div>
+      <span class="toolbar-row-sep">｜</span>
+      <div class="toolbar-toggle-group" id="cardDisplaySettingsGroup" title="カード表示の設定です(一覧表示には影響しません)">
+        <button id="metricsVisibleToggleBtn" title="タップで財務指標の表示/非表示を切り替え(カード表示のみ)">財務:表示</button>
+        <button id="badgeModeToggleBtn" title="タップでランク/数値の表示を切り替え(カード表示のみ)">ランク表示</button>
       </div>
     </div>
     <div class="toolbar-mixed-row">
@@ -579,6 +700,13 @@
     <div id="editStatusMsg" class="status-msg"></div>
   </div>
   <div id="editCardList"></div>
+  <div id="editListView" style="display:none;"></div>
+  <div id="listAnalysisMenu" class="list-analysis-menu" style="display:none;">
+    <button type="button" data-action="judgment">📊 投資判断</button>
+    <button type="button" data-action="rank">📈 財務ランク</button>
+    <button type="button" data-action="chart">📉 チャート分析</button>
+    <button type="button" data-action="ai">🧠 AI</button>
+  </div>
 </div>
 <div id="panel-nonhold" class="panel"></div>
 <div id="panel-hold" class="panel"></div>
@@ -618,7 +746,7 @@
     </div>
     <div class="indicator-section collapsed" id="themeRepsSection">
       <div class="hint" style="margin-top:8px;">
-        テーマごとに、代表として追跡する銘柄を3〜5件ほど選んでください(「銘柄編集」タブで登録済みの銘柄から選べます)。「+追加」のプルダウンは、その銘柄自体に設定されているテーマ(銘柄編集のテーマ欄)がここと一致する銘柄を「設定テーマ: ○○」として先頭にまとめ、それ以外は「その他の銘柄」として下にまとめます。ここで選んだ銘柄だけが、「テーマ分析を更新」で株価履歴を取得する対象になります(複数テーマで同じ銘柄を選んでも、1回の更新につき取得は1回だけです)。
+        テーマごとに、代表として追跡する銘柄を3〜5件ほど選んでください(「銘柄」タブ「全銘柄」で登録済みの銘柄から選べます)。「+追加」のプルダウンは、その銘柄自体に設定されているテーマ(全銘柄のテーマ欄)がここと一致する銘柄を「設定テーマ: ○○」として先頭にまとめ、それ以外は「その他の銘柄」として下にまとめます。ここで選んだ銘柄だけが、「テーマ分析を更新」で株価履歴を取得する対象になります(複数テーマで同じ銘柄を選んでも、1回の更新につき取得は1回だけです)。
       </div>
       <div id="themeRepsEditorBox" style="margin-top:8px;"></div>
     </div>
@@ -798,15 +926,13 @@
 <!-- 財務指標ランク モーダル -->
 <div class="modal-bg" id="rankModalBg">
   <div class="modal" style="max-width:640px;">
-    <h3 id="rankModalTitle">財務指標ランク</h3>
+    <h3 class="modal-title-with-help"><span id="rankModalTitle">財務指標ランク</span><button type="button" class="help-icon-btn" id="rankHelpBtn" title="財務ランクの使い方・仕組み">?</button></h3>
     <input type="hidden" id="rk_id">
 
     <div id="companyInfoBox" style="margin-top:0;"></div>
 
     <div class="hint" style="margin-top:8px;">
-      数値を入力すると、「ランク基準」に沿ってS〜Gが自動入力されます(手動で選び直すこともできます)。カテゴリ評価・総合評価は、指標のランクから自動計算されます(平均を四捨五入。例: SとBなら間を取ってA)。<br>
-      このうちPER・売上成長率・EPS成長率・営業利益率・ROEは、一覧のカード上にも抜粋表示されます。<br>
-      「手動入力」の指標(ROIC・Net Debt/EBITDA・自己資本比率)はAlpha Vantageから直接取得できないため、これまで通りご自身で数値を入力してください。それ以外の数値は下のボタンでまとめて取得できます(同じタイミングで、上部の「企業情報」欄(会社名・Sector・Industry・会社概要)もAlpha Vantageから同時に取得・保存されます。企業情報のためだけに追加のAPIリクエストが発生することはありません)。
+      数値を入力・自動取得するとランクが自動入力されます。「手動入力」の指標(表内に表示)はこれまで通りご自身で入力してください。仕組みの詳細は右上の「?」をご覧ください。
     </div>
 
     <div class="toolbar-row-2" style="margin-top:10px;">
@@ -821,6 +947,17 @@
     <div class="modal-actions">
       <button class="btn btn-secondary" id="rankCancelBtn">キャンセル</button>
       <button class="btn btn-primary" id="rankSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 各画面共通の「?」ヘルプモーダル(1つを使い回し、タイトル・本文だけ差し替える) -->
+<div class="modal-bg" id="miniHelpModalBg">
+  <div class="modal">
+    <h3 id="miniHelpModalTitle">ヘルプ</h3>
+    <div id="miniHelpModalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="miniHelpCloseBtn">閉じる</button>
     </div>
   </div>
 </div>
@@ -1042,15 +1179,17 @@
 
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:14px 0 4px;">■ 使い方</p>
     <div class="hint" style="margin-top:0;">
-      ・「銘柄編集」タブでティッカー・会社名・テーマ・保有ステータス・買いライン/売りラインを登録します。<br>
+      ・上部のタブは「銘柄」(全銘柄/監視対象)・「注目」(非保有注目/保有注目)・「テーマ」(保有テーマ分析/市場テーマ分析)の3つで、それぞれの下にサブタブがあります。<br>
+      ・「銘柄」タブの「全銘柄」でティッカー・会社名・テーマ・保有ステータス・買いライン/売りラインを登録します。<br>
       ・保有株数は「テーマ」タブの「保有テーマ分析」でテーマごとにまとめて入力・編集します(使わない場合は0のままで問題ありません)。同じサブタブ内で、財務指標の数値を銘柄横並びで比較できる表も確認できます。<br>
       ・右上の「接続設定」からバックエンドURL・アクセストークンを登録すると、現在値を取得できるようになります(<strong>価格取得プロキシの用意方法は別紙の手順書をご覧ください</strong>)。<br>
       ・「自動取得モード」に切り替えている場合、アプリを開くとウォッチ対象の銘柄の現在値を自動で取得します(未設定の場合は取得されません。デフォルトは自動取得しない「選択モード」です。詳しくは後述)。「現在値更新」の「監視対象」ボタンでいつでも手動更新もできます。<br>
-      ・「銘柄編集」タブの各カードにあるチェックボックスにチェックを入れると、「現在値更新」の「選択銘柄」ボタンでその銘柄だけをまとめて更新できます。<br>
+      ・「銘柄」タブ「全銘柄」の各カードにあるチェックボックスにチェックを入れると、「現在値更新」の「選択銘柄」ボタンでその銘柄だけをまとめて更新できます。<br>
+      ・「全銘柄」では「表示方式」でカード表示と一覧表示を切り替えられます(切り替えは端末に保存されます)。一覧表示では多数の銘柄をコンパクトに確認でき、各行の「↻」から1銘柄だけ現在値を更新できます。「分析」から投資判断・財務ランク・チャート分析・AIを開けます。ウォッチ中・削除の切り替えや詳細な編集は、行をタップして開く編集画面から行えます(チェックボックスの選択状態・検索/並び替え/テーマ絞り込みはカード表示と一覧表示で共通です)。「監視対象」サブタブでは、ウォッチ対象にした銘柄だけをカード表示で確認できます(内容は従来の「監視リスト」と同じです)。<br>
       ・デフォルトは「選択モード」で、開いた時に自動更新は行われません(前回取得した値のまま表示され、手動で更新した銘柄だけ最新になります)。「接続設定」で「選択銘柄だけ自動更新」に切り替えると、各カードのチェックボックスで選んだ銘柄だけを開くたびに自動更新します(選択状態は保存されます)。「自動取得モード」に切り替えると、開くたびにウォッチ対象銘柄すべてを自動更新しますが、銘柄数が多いと起動時に待ち時間が発生します。<br>
       ・登録した銘柄データはこのブラウザ内(localStorage)に保存されます。ファイルを開き直しても同じ場所・同じファイル名であればデータは残ります。<br>
       ・「データ管理」内の「データのバックアップ」から、登録データをパスワード付きで暗号化してファイルに書き出したり、別の端末で読み込んだりできます(バックアップ対象は登録銘柄データのみです。テーマ・参考サイト・ランク基準・カスタムプロンプトなどの各種設定は対象外で、別の端末では再設定が必要です)。テーマの整理も同じ画面から行えます。<br>
-      ・各カードの「📊 判断」から、投資理由・リスクなどの投資判断を記録できます。強気なら緑、弱気なら赤にタグの色が変わります(タグの文字数は常に一定にしているので、入力の有無でレイアウトが崩れません)。上の入力欄は「今後の基準となる最新の内容」を保存するもので、「📝 記録に残す」を押すと、それとは別に日付付きのメモとして積み重ねて残せます(タップで開閉できます。過去の判断を後から振り返るための機能です)。「🗑 入力欄を一括クリア」で、次の判断を書き直す前に入力欄をまとめて空にできます(各欄ごとの個別クリアも可能)。タイトル横の「📖 全文表示」で、入力欄をスクロールなしで見られる表示に切り替えられます(文字は少し小さくなります)。「📈 ランク」では、財務指標(PER・ROICなど8項目)を成長性/収益性/財務健全性/その他(バリュエーション)の4カテゴリに分けて表示し、数値を入力すると「ランク基準」に沿ってS〜Gが自動入力されます(必要なら手動で選び直せます)。画面の最上部には、何の会社か・どの業種か・どのテーマに属するかをすぐ確認できる「企業情報」欄(会社名・Sector・Industry・登録テーマ)をコンパクトに表示し、「▸ 会社概要を見る」を押した時だけ会社概要(Description)を展開できます。Sector・Industry・会社概要はAlpha Vantageから取得したものをそのまま表示しており、登録テーマはこのアプリで銘柄に設定したテーマをそのまま表示するだけで、AIによる自動判定ではありません。基準は「⚙ ランク基準を設定」から指標ごとに調整でき、このボタン自体に今ON/OFFどちらの状態かが表示されます。同じ画面で、ROICなど外部サイトで調べる指標のための「参考サイト」も登録・編集・管理でき(財務ランクの入力表のすぐ下に表示されます)、財務ランク画面から直接開けます。数値の自動取得後は、そのデータがいつ時点のものか(例: 2026年3月期)も表示されます。各カテゴリの評価・総合評価は、指標のランクから自動計算されます。カード上には自動取得できる5指標(PER・売上成長率・EPS成長率・営業利益率・ROE)が抜粋表示され、銘柄間の比較がしやすくなっています。「銘柄編集」タブ上部のボタンで、この抜粋表示をランク/数値どちらで見るか、また表示/非表示自体も、まとめて切り替えられます(銘柄数が多くスクロールが大変な場合は非表示がおすすめです)。<br>
+      ・各カードの「📊 判断」から、投資理由・リスクなどの投資判断を記録できます。強気なら緑、弱気なら赤にタグの色が変わります(タグの文字数は常に一定にしているので、入力の有無でレイアウトが崩れません)。上の入力欄は「今後の基準となる最新の内容」を保存するもので、「📝 記録に残す」を押すと、それとは別に日付付きのメモとして積み重ねて残せます(タップで開閉できます。過去の判断を後から振り返るための機能です)。「🗑 入力欄を一括クリア」で、次の判断を書き直す前に入力欄をまとめて空にできます(各欄ごとの個別クリアも可能)。タイトル横の「📖 全文表示」で、入力欄をスクロールなしで見られる表示に切り替えられます(文字は少し小さくなります)。「📈 ランク」では、財務指標(PER・ROICなど8項目)を成長性/収益性/財務健全性/その他(バリュエーション)の4カテゴリに分けて表示し、数値を入力すると「ランク基準」に沿ってS〜Gが自動入力されます(必要なら手動で選び直せます)。画面の最上部には、何の会社か・どの業種か・どのテーマに属するかをすぐ確認できる「企業情報」欄(会社名・Sector・Industry・登録テーマ)をコンパクトに表示し、「▸ 会社概要を見る」を押した時だけ会社概要(Description)を展開できます。Sector・Industry・会社概要はAlpha Vantageから取得したものをそのまま表示しており、登録テーマはこのアプリで銘柄に設定したテーマをそのまま表示するだけで、AIによる自動判定ではありません。基準は「⚙ ランク基準を設定」から指標ごとに調整でき、このボタン自体に今ON/OFFどちらの状態かが表示されます。同じ画面で、ROICなど外部サイトで調べる指標のための「参考サイト」も登録・編集・管理でき(財務ランクの入力表のすぐ下に表示されます)、財務ランク画面から直接開けます。数値の自動取得後は、そのデータがいつ時点のものか(例: 2026年3月期)も表示されます。各カテゴリの評価・総合評価は、指標のランクから自動計算されます。カード上には自動取得できる5指標(PER・売上成長率・EPS成長率・営業利益率・ROE)が抜粋表示され、銘柄間の比較がしやすくなっています。「全銘柄」上部のボタンで、この抜粋表示をランク/数値どちらで見るか、また表示/非表示自体も、まとめて切り替えられます(銘柄数が多くスクロールが大変な場合は非表示がおすすめです)。財務ランクの仕組み自体の詳しい説明は、「📈 ランク」画面のタイトル横にある「?」からも確認できます。<br>
       ・各カードの「📉 分析」から、ローソク足チャート・テクニカル指標(移動平均線・ボリンジャーバンド・RSI・ストキャスティクス・MACD)・ローソク足パターンの自動検出を確認できます。検出されたパターンの発生日をタップすると、その銘柄自身の過去データに基づく簡易バックテスト(同じパターンが過去何回発生し、その後N営業日後にどう動いたか)も表示されます。あくまで過去データの統計・参考情報であり、将来の値動きを保証するものではありません。<br>
       ・各カードの「🧠 AI」から、AI機能をまとめて開けます。画面上部で「実行方法」(🧠 アプリ内AI / 📋 他のAIに相談)と「回答スタイル」(投資判断に反映 / 財務指標 / 各種分析 / カスタム)を選べます。<br>
       ・「アプリ内AI」は、Anthropic APIキーをバックエンド(Apps Script)のスクリプトプロパティに設定しておく必要があり(README参照。アプリの画面上に入力欄はありません)、ご自身のAnthropicアカウントに利用料が発生します。「他のAIに相談」は、投資判断・財務ランクをまとめた相談文をコピーするだけなので、追加費用は不要です(ChatGPT・Gemini・Claudeなど好きなAIサービスに貼り付けてご利用ください)。<br>
@@ -1058,7 +1197,7 @@
       ・回答スタイル「財務指標」は、財務ランクの手動入力項目(ROIC・自己資本比率・Net Debt/EBITDA)について、AIが推定できた場合のみ参考値を提示します。実際の財務諸表を確認したものではないため、反映すると理由欄に自動で「AI推定値。要確認。」と入ります。反映後は「← 財務ランクを編集」から必ずご自身で数値を確認してください。「各種分析」は、直近のテクニカル指標も加味した、解説重視の分析コメントです。<br>
       ・回答スタイル「カスタム」を選ぶと、AIへの指示を自由に入力できます(「銘柄情報を含める」をONにすると、投資判断・財務ランクもあわせて送られます)。よく使う指示は名前を付けて保存でき(「別名で保存」)、次回から「保存済みプロンプト」から選ぶだけで呼び出せます。「保存」で上書き、「削除」で個別に削除できます。カスタムの結果は、項目別への自動反映はされません(反映したい場合は「投資判断に反映」または「財務指標」をご利用ください)。<br>
       ・アプリ内AIで生成したコメントは自動的に履歴として保存され、モーダルを閉じても消えません(タップで開閉、各履歴の「🗑 この履歴を削除」から個別に削除もできます)。「投資判断」画面の「保存してAI分析へ →」、「AI」画面の「← 投資判断を編集」から、カード一覧に戻らず両画面を直接行き来できます。<br>
-      ・「非保有注目」「保有注目」タブには、該当する銘柄がある時だけ件数が赤いバッジで表示されます。タブを開かなくても、注目すべき銘柄があるかどうかが一目で分かります。<br>
+      ・「注目」タブの「非保有注目」「保有注目」には、該当する銘柄がある時だけ件数が赤いバッジで表示されます(トップの「注目」タブには両方の合計件数が表示されます)。タブを開かなくても、注目すべき銘柄があるかどうかが一目で分かります。<br>
       ・買い/売りラインの下に、現在値からの距離(%)を表示します。5%以内で黄色、1%以内でオレンジ強調、到達すると🔔マークになります。<br>
       ・「テーマ」タブの「市場テーマ分析」では、テーマごとに設定した代表銘柄(3〜5銘柄)の株価履歴から、「テーマ強度」(今どれだけ強いか)・「浮上度」(前回の更新から勢いが増しているか)・「加速度」(更新間隔に関係なく、直近の値動き・出来高だけから毎回同じ条件で計算する短期的な勢い)を0〜100点で計算し、テーマのランキング・分類(主役/拡大中/浮上中/⚡初動候補/中立/失速中)を確認できます。「⚡初動候補」は、まだ主役級ではないものの加速度が高いテーマを見つけるための分類です。「代表銘柄の設定」で銘柄を選んだ後、「テーマ分析を更新」を押すと株価履歴を取得します(通常の現在値更新には含まれず、このボタンを押した時だけ実行されます。加速度・出来高倍率も同じ株価履歴データから計算するため、API呼び出し回数は増えません)。テーマの「詳細」からは代表銘柄ごとの内訳やスコアの推移(実行するたびに記録されます)を確認でき、「🧠 AIレビュー」では、アプリが計算した数値の意味づけだけをAIに解説してもらえます(数値自体をAIに作らせることはありません)。各スコアの配点・分類のしきい値は、「市場テーマ分析」内の「❓ 用語・算出方法」から確認できます。
     </div>
@@ -1100,7 +1239,7 @@
 
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ バージョン</p>
     <div class="hint" style="margin-top:0;">
-      v2.43.6
+      v2.45.1
     </div>
 
     <div class="modal-actions">
@@ -1473,7 +1612,7 @@
         <div class="pie-legend">${legendHtml}</div>
       </div>
       <div class="theme-alloc-bars">${barsHtml}</div>
-      ${missingPrice ? '<div class="hint" style="margin-top:10px; margin-bottom:0;">※ 現在値が未取得の保有銘柄は集計に含まれていません。「銘柄編集」タブの「監視対象」ボタンを試してください。</div>' : ''}`;
+      ${missingPrice ? '<div class="hint" style="margin-top:10px; margin-bottom:0;">※ 現在値が未取得の保有銘柄は集計に含まれていません。「銘柄」タブ「全銘柄」の「監視対象」ボタン(現在値更新)を試してください。</div>' : ''}`;
   }
 
   // カード表示指標の「数値」を、成長性→収益性→財務健全性→バリュエーションの順で横並び比較する
@@ -1565,6 +1704,8 @@
     renderRegisteredCountHint();
     updateTabBadge('nonHoldBadge', nonHoldStocks.length);
     updateTabBadge('holdBadge', holdStocks.length);
+    // トップの「注目」タブには、非保有注目+保有注目の合計件数を表示する(判定条件自体は変更しない)
+    updateTabBadge('focusBadge', nonHoldStocks.length + holdStocks.length);
   }
 
   function updateTabBadge(elId, count) {
@@ -1659,6 +1800,17 @@
     localStorage.setItem(METRICS_VISIBLE_STORAGE, v ? 'true' : 'false');
   }
 
+  // --- 「銘柄編集」の表示方式: カード表示 / 一覧表示(銘柄数が多い時の一覧性・更新のしやすさ向上のため追加)。
+  // 既定は既存ユーザーへの影響を避けるため「カード」のまま(値が無い場合はcard扱い) ---
+  const EDIT_VIEW_MODE_STORAGE = 'stockapp_edit_view_mode';
+  function getEditViewMode() {
+    const v = localStorage.getItem(EDIT_VIEW_MODE_STORAGE);
+    return v === 'list' ? 'list' : 'card';
+  }
+  function setEditViewMode(mode) {
+    localStorage.setItem(EDIT_VIEW_MODE_STORAGE, mode === 'list' ? 'list' : 'card');
+  }
+
   function rankBadgesHtml(s) {
     const metrics = (s.analysis && s.analysis.metrics) || {};
     const overall = (s.analysis && s.analysis.categoryRanks && s.analysis.categoryRanks.overall) || '';
@@ -1740,7 +1892,10 @@
                   <button type="button" class="watch-toggle-btn ${s.watch ? 'on' : 'off'}" data-id="${s.id}" title="ウォッチ対象の切替">${s.watch ? 'ウォッチ中' : 'ウォッチ外'}</button>
                   <button type="button" class="card-delete-btn" data-id="${s.id}" title="削除">✕</button>
                 </div>` : ''}
-              <div class="price ${priceClass(s)}">${priceTxt}</div>
+              <div class="price-row">
+                <div class="price ${priceClass(s)}">${priceTxt}</div>
+                ${showManageControls ? `<button type="button" class="card-refresh-btn" data-id="${s.id}" title="現在値を更新"><span class="spin-icon">↻</span></button>` : ''}
+              </div>
               ${changeHtml(s)}
               ${updatedHtml(s)}
             </div>
@@ -1784,6 +1939,9 @@
     });
   }
 
+  // カード表示(.stock-card)・一覧表示(.stock-list-row)のどちらにも使う共通のイベント配線。
+  // 両表示方式でチェック状態(selectedForUpdate)・行タップでの編集モーダル起動を共有するため、
+  // ここを分岐させずに1つの関数で両方を扱う
   function attachEditCardEvents(scope) {
     scope.querySelectorAll('.watch-toggle-btn').forEach(btn => {
       btn.onclick = (e) => { e.stopPropagation(); toggleWatchById(btn.dataset.id); };
@@ -1800,10 +1958,19 @@
         renderWatchCountWarning(); // 「選択銘柄だけ自動更新」モードの件数表示をリアルタイムに反映
       };
     });
-    // scope自体が.stock-cardの場合(1枚だけ差し替えた時)は、querySelectorAllが自分自身を拾えないため個別に対応する
-    const cardEls = (scope.classList && scope.classList.contains('stock-card'))
-      ? [scope, ...scope.querySelectorAll('.stock-card')]
-      : scope.querySelectorAll('.stock-card');
+    // 単体更新(↻): カード表示は.card-refresh-btn、一覧表示は.list-refresh-btn。どちらも既存のrefreshOne(id)をそのまま呼ぶ
+    scope.querySelectorAll('.card-refresh-btn, .list-refresh-btn').forEach(btn => {
+      btn.onclick = (e) => { e.stopPropagation(); handleSingleRefreshClick(btn.dataset.id, btn); };
+    });
+    // 一覧表示の「分析」: 投資判断/財務ランク/チャート分析/AIをまとめたメニューを開く(新しい分析ロジックは追加せず、既存の各openXxxModalを呼ぶだけ)
+    scope.querySelectorAll('.list-analysis-btn').forEach(btn => {
+      btn.onclick = (e) => { e.stopPropagation(); openListAnalysisMenu(btn.dataset.id, btn); };
+    });
+    // scope自体が.stock-card/.stock-list-rowの場合(1件だけ差し替えた時)は、querySelectorAllが自分自身を拾えないため個別に対応する
+    const rowSelector = '.stock-card, .stock-list-row';
+    const cardEls = (scope.matches && scope.matches(rowSelector))
+      ? [scope, ...scope.querySelectorAll(rowSelector)]
+      : scope.querySelectorAll(rowSelector);
     cardEls.forEach(card => {
       card.onclick = () => openEditModal(card.dataset.id);
     });
@@ -1811,19 +1978,41 @@
   }
 
   function renderEdit(stocks) {
-    const el = document.getElementById('editCardList');
-    if (!allStocks.length) {
-      el.innerHTML = '<div class="empty">銘柄がまだ登録されていません。右下の「+」から追加してください</div>';
-    } else if (!stocks.length) {
-      el.innerHTML = '<div class="empty">検索・絞り込み条件に一致する銘柄がありません</div>';
+    const mode = getEditViewMode();
+    const cardEl = document.getElementById('editCardList');
+    const listEl = document.getElementById('editListView');
+    if (mode === 'list') {
+      cardEl.style.display = 'none';
+      listEl.style.display = '';
+      renderEditListView(stocks, listEl);
     } else {
-      el.innerHTML = stocks.map(s => cardHtml(s, false, true)).join('');
+      listEl.style.display = 'none';
+      cardEl.style.display = '';
+      if (!allStocks.length) {
+        cardEl.innerHTML = '<div class="empty">銘柄がまだ登録されていません。右下の「+」から追加してください</div>';
+      } else if (!stocks.length) {
+        cardEl.innerHTML = '<div class="empty">検索・絞り込み条件に一致する銘柄がありません</div>';
+      } else {
+        cardEl.innerHTML = stocks.map(s => cardHtml(s, false, true)).join('');
+      }
+      attachEditCardEvents(cardEl);
     }
-    attachEditCardEvents(el);
   }
 
-  // 一覧を丸ごと作り直さず、対象の1枚のカードだけを差し替える(登録数が多い時の負荷対策)
+  // 一覧を丸ごと作り直さず、対象の1件(カードの1枚 または 一覧の1行)だけを差し替える(登録数が多い時の負荷対策)。
+  // 現在どちらの表示方式が有効かを見て、対応する側だけを更新する
   function updateSingleEditCard(s) {
+    if (getEditViewMode() === 'list') {
+      const el = document.getElementById('editListView');
+      const existing = el && el.querySelector(`.stock-list-row[data-id="${s.id}"]`);
+      if (!existing) return false; // 検索・絞り込みで現在表示されていない場合は何もしない
+      const temp = document.createElement('div');
+      temp.innerHTML = stockListRowHtml(s).trim();
+      const newRow = temp.firstElementChild;
+      existing.replaceWith(newRow);
+      attachEditCardEvents(newRow);
+      return true;
+    }
     const el = document.getElementById('editCardList');
     const existing = el.querySelector(`.stock-card[data-id="${s.id}"]`);
     if (!existing) return false; // 検索・絞り込みで現在表示されていない場合は何もしない
@@ -1833,6 +2022,118 @@
     existing.replaceWith(newCard);
     attachEditCardEvents(newCard);
     return true;
+  }
+
+  // --- 単体更新(↻)の共通ハンドラ。カード表示・一覧表示のどちらのボタンからも呼ばれる。
+  // 新しい価格取得ロジックは作らず、既存のrefreshOne(id)をそのまま利用する ---
+  async function handleSingleRefreshClick(id, btnEl) {
+    if (!btnEl || btnEl.disabled) return;
+    btnEl.disabled = true;
+    btnEl.classList.add('is-loading');
+    try {
+      await refreshOne(id);
+    } finally {
+      // refreshOneが成功した場合はupdateSingleEditCardで要素ごと差し替わっているため、
+      // ここでのリセットは古い(既にDOMから外れた)要素に対する無害な操作になる。
+      // 失敗時(まだ古い要素が残っている場合)はここでボタンを元の状態に戻す
+      btnEl.disabled = false;
+      btnEl.classList.remove('is-loading');
+    }
+  }
+
+  // --- 一覧表示: 1行分のHTML ---
+  function listPctText(pct) {
+    if (pct == null || !isFinite(pct)) return '-';
+    return (pct >= 0 ? '+' : '') + pct.toFixed(1);
+  }
+
+  function stockListRowHtml(s) {
+    const priceTxt = s.price != null ? Number(s.price).toFixed(2) : '-';
+    const dayCls = s.dayChange > 0 ? 'up' : (s.dayChange < 0 ? 'down' : '');
+    const dayTxt = (s.dayChange == null || s.dayChangePercent == null) ? '-' : listPctText(s.dayChangePercent);
+
+    const buyPct = lineDistancePct(s.price, s.buyLine);
+    const sellPct = lineDistancePct(s.price, s.sellLine);
+    const buyReached = s.price != null && s.buyLine != null && s.price <= s.buyLine;
+    const sellReached = s.price != null && s.sellLine != null && s.price >= s.sellLine;
+    const buyTier = buyReached ? 'reached-buy' : lineDistanceTier(buyPct);
+    const sellTier = sellReached ? 'reached-sell' : lineDistanceTier(sellPct);
+    const buyCls = s.buyLine == null ? 'muted' : (buyTier ? 'tier-' + buyTier : '');
+    const sellCls = s.sellLine == null ? 'muted' : (sellTier ? 'tier-' + sellTier : '');
+    const buyTxt = s.buyLine == null ? '-' : (buyReached ? '到達' : listPctText(buyPct));
+    const sellTxt = s.sellLine == null ? '-' : (sellReached ? '到達' : listPctText(sellPct));
+
+    const checked = selectedForUpdate.has(s.id) ? 'checked' : '';
+    // 会社名・更新日時は主要列には含めず、ティッカーのtitle属性で補助的に確認できるようにする。
+    // テーマは行の高さを増やさず、ティッカーと同じ1行内に(省略表示ありで)併記する(保存データ自体は変更しない、見た目上の省略のみ)
+    const titleParts = [];
+    if (s.company) titleParts.push(s.company);
+    if (s.theme) titleParts.push(`テーマ: ${s.theme}`);
+    if (s.updatedAt) titleParts.push(`更新: ${new Date(s.updatedAt).toLocaleString('ja-JP')}`);
+    const titleAttr = titleParts.length ? ` title="${escapeHtml(titleParts.join(' / '))}"` : '';
+    const themeHtml = s.theme ? `<span class="stock-list-theme">${escapeHtml(s.theme)}</span>` : '';
+
+    return `
+      <div class="stock-list-row" data-id="${s.id}">
+        <input type="checkbox" class="select-update-checkbox" data-id="${s.id}" title="チェックした銘柄だけ更新する対象に含める" ${checked}>
+        <div class="stock-list-cell-ticker"${titleAttr}>
+          <span class="stock-list-ticker">${escapeHtml(s.ticker)}</span>${themeHtml}
+        </div>
+        <div class="stock-list-num">${priceTxt}</div>
+        <div class="stock-list-num ${dayCls}">${dayTxt}</div>
+        <div class="stock-list-num ${buyCls}">${buyTxt}</div>
+        <div class="stock-list-num ${sellCls}">${sellTxt}</div>
+        <button type="button" class="list-refresh-btn" data-id="${s.id}" title="現在値を更新"><span class="spin-icon">↻</span></button>
+        <button type="button" class="list-analysis-btn" data-id="${s.id}" title="投資判断・財務ランク・チャート分析・AIを開く">分析</button>
+      </div>`;
+  }
+
+  function renderEditListView(stocks, el) {
+    if (!allStocks.length) {
+      el.innerHTML = '<div class="empty">銘柄がまだ登録されていません。右下の「+」から追加してください</div>';
+      return;
+    }
+    if (!stocks.length) {
+      el.innerHTML = '<div class="empty">検索・絞り込み条件に一致する銘柄がありません</div>';
+      return;
+    }
+    const header = `
+      <div class="stock-list-header">
+        <span></span>
+        <span>銘柄/テーマ</span>
+        <span>現在値($)</span>
+        <span>前日%</span>
+        <span>買い差%</span>
+        <span>売り差%</span>
+        <span></span>
+        <span></span>
+      </div>`;
+    el.innerHTML = header + `<div class="stock-list-body">${stocks.map(s => stockListRowHtml(s)).join('')}</div>`;
+    attachEditCardEvents(el);
+  }
+
+  // --- 一覧表示の「分析」ポップオーバー: 行ごとに要素を持たず、1つを使い回して開く位置だけ変える ---
+  let listAnalysisMenuTargetId = null;
+  function openListAnalysisMenu(id, anchorEl) {
+    const menu = document.getElementById('listAnalysisMenu');
+    if (!menu || !anchorEl) return;
+    listAnalysisMenuTargetId = id;
+    menu.style.display = 'block';
+    const rect = anchorEl.getBoundingClientRect();
+    const menuWidth = menu.offsetWidth || 150;
+    let left = rect.right - menuWidth;
+    if (left < 8) left = 8;
+    if (left + menuWidth > window.innerWidth - 8) left = window.innerWidth - menuWidth - 8;
+    let top = rect.bottom + 4;
+    const menuHeight = menu.offsetHeight || 170;
+    if (top + menuHeight > window.innerHeight - 8) top = rect.top - menuHeight - 4;
+    menu.style.left = Math.max(8, left) + 'px';
+    menu.style.top = Math.max(8, top) + 'px';
+  }
+  function closeListAnalysisMenu() {
+    listAnalysisMenuTargetId = null;
+    const menu = document.getElementById('listAnalysisMenu');
+    if (menu) menu.style.display = 'none';
   }
 
   function renderList(panelId, stocks, showSignal) {
@@ -2611,6 +2912,24 @@
     // キャンセル時は正式データを変更せず、未保存のAI推定値の下書きも破棄する
     clearFinancialDraft(document.getElementById('rk_id').value);
     rankModalBg.classList.remove('active');
+  });
+
+  // --- 各画面共通の「?」ヘルプモーダル(1つの要素を使い回し、開くたびにタイトル・本文だけ差し替える) ---
+  const miniHelpModalBg = document.getElementById('miniHelpModalBg');
+  function openMiniHelp(title, bodyHtml) {
+    document.getElementById('miniHelpModalTitle').textContent = title;
+    document.getElementById('miniHelpModalBody').innerHTML = bodyHtml;
+    miniHelpModalBg.classList.add('active');
+  }
+  document.getElementById('miniHelpCloseBtn').addEventListener('click', () => miniHelpModalBg.classList.remove('active'));
+
+  document.getElementById('rankHelpBtn').addEventListener('click', () => {
+    openMiniHelp('財務ランクについて', `
+      <p>各指標に数値を入力・自動取得すると、「⚙ ランク基準を設定」の基準に沿ってS(最高評価)〜G(最低評価)の8段階でランクが自動入力されます(自動判定はオフにもでき、その場合は手動で選びます)。カテゴリ評価・総合評価は、指標のランクから自動計算されます(平均を四捨五入。例: SとBなら間を取ってA)。</p>
+      <p>PER・売上成長率・EPS成長率・営業利益率・ROEは「📥 数値を自動取得」でAlpha Vantageからまとめて取得できます(同じタイミングで、上部の「企業情報」欄(会社名・Sector・Industry・会社概要)も同時に取得・保存されます。企業情報のためだけに追加のAPIリクエストが発生することはありません)。取得できたPER・売上成長率・EPS成長率・営業利益率・ROEの5指標は、一覧のカード上にも抜粋表示されます。</p>
+      <p>「手動入力」の指標(ROIC・Net Debt/EBITDA・自己資本比率)はAlpha Vantageから直接取得できないため、これまで通りご自身で数値を入力してください。外部サイトで調べる場合は「⚙ ランク基準を設定」内の「参考サイト」から直接開けます。</p>
+      <p>「🧠 AI」の回答スタイル「財務指標」を使うと、手動入力の指標についてAIが参考値を提示する場合があります。反映すると理由欄に自動で「AI推定値。要確認。」と入りますが、実際の財務諸表を確認したものではないため、必ずご自身で数値を確認してから使ってください。</p>
+    `);
   });
 
   // --- ランク基準の設定モーダル ---
@@ -3560,15 +3879,91 @@ ${metricLines}
     renderAll();
   });
 
-  // --- タブ切り替え ---
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
-      // 「銘柄編集」タブの時だけ + ボタンを表示する
-      document.getElementById('addBtn').style.display = (tab.dataset.tab === 'edit') ? 'flex' : 'none';
+  // --- 「銘柄編集」の表示方式: カード表示 / 一覧表示 ---
+  function updateEditViewModeToggleBtns() {
+    const mode = getEditViewMode();
+    const cardBtn = document.getElementById('editViewModeCardBtn');
+    const listBtn = document.getElementById('editViewModeListBtn');
+    if (cardBtn) cardBtn.classList.toggle('is-on', mode === 'card');
+    if (listBtn) listBtn.classList.toggle('is-on', mode === 'list');
+    // 財務:表示/ランク表示はカード表示専用の設定なので、一覧表示中は薄く表示して区別する(押せなくはしない)
+    const cardSettingsGroup = document.getElementById('cardDisplaySettingsGroup');
+    if (cardSettingsGroup) cardSettingsGroup.classList.toggle('is-inactive-group', mode === 'list');
+  }
+  updateEditViewModeToggleBtns();
+  document.getElementById('editViewModeCardBtn').addEventListener('click', () => {
+    if (getEditViewMode() === 'card') return;
+    setEditViewMode('card');
+    updateEditViewModeToggleBtns();
+    renderAll();
+  });
+  document.getElementById('editViewModeListBtn').addEventListener('click', () => {
+    if (getEditViewMode() === 'list') return;
+    setEditViewMode('list');
+    updateEditViewModeToggleBtns();
+    renderAll();
+  });
+
+  // --- 一覧表示の「分析」ポップオーバー: メニュー項目のクリックは既存の各モーダルをそのまま開くだけ ---
+  document.getElementById('listAnalysisMenu').querySelectorAll('button[data-action]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = listAnalysisMenuTargetId;
+      const action = btn.dataset.action;
+      closeListAnalysisMenu();
+      if (!id) return;
+      if (action === 'judgment') openAnalysisModal(id);
+      else if (action === 'rank') openRankModal(id);
+      else if (action === 'chart') openChartAnalysisModal(id);
+      else if (action === 'ai') openAiGenModal(id);
+    });
+  });
+  // メニュー外をタップ/スクロールしたら閉じる
+  document.addEventListener('click', (e) => {
+    const menu = document.getElementById('listAnalysisMenu');
+    if (!menu || menu.style.display === 'none') return;
+    if (e.target.closest('#listAnalysisMenu') || e.target.closest('.list-analysis-btn')) return;
+    closeListAnalysisMenu();
+  });
+  window.addEventListener('scroll', () => closeListAnalysisMenu(), true);
+
+  // --- タブ切り替え(トップ: 銘柄/注目/テーマ、各トップタブの下にサブタブ) ---
+  // トップタブ・サブタブの構成を変えただけで、各パネル(panel-edit/nonhold/hold/watch/themes)の
+  // 中身・データ・描画ロジックは一切変更していない。表示するパネルの選び方が変わるだけ。
+  function selectPanel(tabId) {
+    // サブタブの active 切り替えは、そのタブが属するグループ内だけで行う。
+    // 全グループ一括で active を外すと、他のトップタブに切り替えた時に選んでいたサブタブを覚えておけないため。
+    const tabEl = document.querySelector('.sub-tabs .tab[data-tab="' + tabId + '"]');
+    if (tabEl) {
+      const group = tabEl.closest('.sub-tabs');
+      if (group) group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tabEl.classList.add('active');
+    }
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    const panelEl = document.getElementById('panel-' + tabId);
+    if (panelEl) panelEl.classList.add('active');
+    // 「全銘柄」(旧・銘柄編集に相当)の時だけ + ボタンを表示する
+    document.getElementById('addBtn').style.display = (tabId === 'edit') ? 'flex' : 'none';
+  }
+  const DEFAULT_SUBTAB = { stocks: 'edit', focus: 'nonhold' };
+  document.querySelectorAll('.sub-tabs .tab').forEach(tab => {
+    tab.addEventListener('click', () => selectPanel(tab.dataset.tab));
+  });
+  document.querySelectorAll('.top-tab').forEach(topTab => {
+    topTab.addEventListener('click', () => {
+      document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+      topTab.classList.add('active');
+      const group = topTab.dataset.topTab;
+      document.querySelectorAll('.sub-tabs').forEach(st => {
+        st.style.display = (st.dataset.group === group) ? 'flex' : 'none';
+      });
+      if (group === 'themes') {
+        selectPanel('themes');
+      } else {
+        // そのグループ内で直前に選んでいたサブタブがあればそれを維持し、なければ既定のサブタブを表示する
+        const activeSub = document.querySelector('.sub-tabs[data-group="' + group + '"] .tab.active');
+        selectPanel(activeSub ? activeSub.dataset.tab : DEFAULT_SUBTAB[group]);
+      }
     });
   });
 
