@@ -376,18 +376,23 @@
   }
   .toolbar-row-2 > button:hover { border-color: var(--accent); }
 
-  /* 2行目: 「表示」トグルと「現在値更新」ボタン群を1行にまとめる。省スペースのため折り返しも許容する */
-  .toolbar-mixed-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; padding-left: 16px; }
-  .toolbar-mixed-row .toolbar-inline-label {
-    flex-shrink: 0; font-size: 13.5px; font-weight: 500; color: #b5b6bb; line-height: 1; white-space: nowrap;
+  /* 「表示」行・「現在値更新」行を、それぞれ独立した行として右詰めで並べる(合計2行)。
+     -webkit-text-size-adjust は、行が折り返さず単独の要素になった時にiOS Safari側で
+     文字が自動的に拡大されてしまう(表示のズレの原因になる)のを防ぐため、明示的に固定している */
+  .toolbar-mixed-row {
+    display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;
+    -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
   }
-  .toolbar-mixed-row .toolbar-inline-label-2nd { margin-left: 4px; }
+  .toolbar-mixed-row .toolbar-inline-label {
+    flex-shrink: 0; font-size: 13px; font-weight: 500; color: #b5b6bb; line-height: 1; white-space: nowrap;
+    -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+  }
 
   /* 現在値更新: 実行ボタン。横幅いっぱいに広げず、内容に応じたコンパクトな幅にする */
   .toolbar-btn-group { display: flex; align-items: center; gap: 6px; }
   .toolbar-btn-group button {
     flex: 0 0 auto; padding: 7px 15px; border-radius: 8px; border: 1px solid var(--card-border);
-    background: var(--card); color: var(--text); font-size: 14px; font-weight: 600; line-height: 1; cursor: pointer;
+    background: var(--card); color: var(--text); font-size: 13px; font-weight: 600; line-height: 1; cursor: pointer;
   }
   .toolbar-btn-group button:hover { border-color: var(--accent); }
   .toolbar-btn-group button:disabled { opacity: 0.5; cursor: not-allowed; border-color: var(--card-border); }
@@ -513,7 +518,7 @@
 <header>
   <div>
     <h1>米国株 売買ライン監視</h1>
-    <div class="app-version">v2.43.2</div>
+    <div class="app-version">v2.43.4</div>
   </div>
   <div class="actions">
     <button class="icon-btn" id="helpBtn">使い方・免責事項</button>
@@ -549,7 +554,9 @@
         <button id="metricsVisibleToggleBtn" title="タップで財務指標の表示/非表示を切り替え">財務:表示</button>
         <button id="badgeModeToggleBtn" title="タップでランク/数値の表示を切り替え">ランク表示</button>
       </div>
-      <span class="toolbar-inline-label toolbar-inline-label-2nd">現在値更新</span>
+    </div>
+    <div class="toolbar-mixed-row">
+      <span class="toolbar-inline-label">現在値更新</span>
       <div class="toolbar-btn-group">
         <button id="refreshAllBtn" title="監視対象(ウォッチ)銘柄の現在値を更新">監視対象</button>
         <button id="refreshSelectedBtn" title="チェックした銘柄だけ更新">選択銘柄</button>
@@ -1081,7 +1088,7 @@
 
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ バージョン</p>
     <div class="hint" style="margin-top:0;">
-      v2.43.2
+      v2.43.4
     </div>
 
     <div class="modal-actions">
@@ -5695,11 +5702,4 @@ ${metricLines}
 
   renderAll();
   // アプリを開いた時にウォッチ対象銘柄の現在値を自動取得(バックエンド未設定・選択モードの場合は何もしない)
-  if (isBackendConfigured()) {
-    const mode = getAutoRefreshMode();
-    if (mode === 'auto') refreshAllPrices(true);
-    else if (mode === 'selected') refreshSelectedPrices(true);
-  }
-</script>
-</body>
-</html>
+  if (isBackendConfig
