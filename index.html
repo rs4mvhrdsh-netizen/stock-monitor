@@ -8,7 +8,7 @@
   :root {
     --bg: #17181a;
     --card: #232427;
-    --card-border: #34363a; 
+    --card-border: #34363a;
     --accent: #e8b84b;
     --text: #f2f2f0;
     --muted: #8c8d92;
@@ -5702,4 +5702,11 @@ ${metricLines}
 
   renderAll();
   // アプリを開いた時にウォッチ対象銘柄の現在値を自動取得(バックエンド未設定・選択モードの場合は何もしない)
-  if (isBackendConfig
+  if (isBackendConfigured()) {
+    const mode = getAutoRefreshMode();
+    if (mode === 'auto') refreshAllPrices(true);
+    else if (mode === 'selected') refreshSelectedPrices(true);
+  }
+</script>
+</body>
+</html>
