@@ -178,11 +178,16 @@
   .line-row.reached { color: var(--text); }
   .line-row.reached.buy-line .dist-text { color: var(--down); font-weight: 800; }
   .line-row.reached.sell-line .dist-text { color: var(--up); font-weight: 800; }
-  .price-block { display: flex; flex-direction: column; align-items: flex-end; }
+  /* flex-shrink:0 + .updatedのmax-width: 「⚠ 更新: ...」(データが古い時の警告表示)は通常の
+     「更新: ...」より文字数が多く幅が広がるため、そのままだとカード右側(price-block)の必要幅が
+     銘柄によって変動し、左側のタグ行(📊判断/📈ランク/📉分析/🧠AI)が画面幅ぎりぎりで
+     折り返されてしまうことがあった。price-blockの幅を常に一定にすることで、タグ行が
+     不安定に折り返されるのを防ぐ */
+  .price-block { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
   .price { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .price.up { color: var(--up); }
   .price.down { color: var(--down); }
-  .updated { font-size: 10px; color: var(--muted); margin-top: 2px; text-align: right; }
+  .updated { font-size: 10px; color: var(--muted); margin-top: 2px; text-align: right; max-width: 112px; }
 
   .empty { text-align: center; color: var(--muted); padding: 50px 0; font-size: 13px; }
 
@@ -518,7 +523,7 @@
 <header>
   <div>
     <h1>米国株 売買ライン監視</h1>
-    <div class="app-version">v2.43.4</div>
+    <div class="app-version">v2.43.5</div>
   </div>
   <div class="actions">
     <button class="icon-btn" id="helpBtn">使い方・免責事項</button>
@@ -1088,7 +1093,7 @@
 
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ バージョン</p>
     <div class="hint" style="margin-top:0;">
-      v2.43.4
+      v2.43.5
     </div>
 
     <div class="modal-actions">
@@ -5698,15 +5703,4 @@ ${metricLines}
   document.querySelectorAll('.theme-subtab').forEach(el => {
     el.addEventListener('click', () => applyThemeSubtab(el.dataset.themeSubtab));
   });
-  applyThemeSubtab(getThemeSubtab());
-
-  renderAll();
-  // アプリを開いた時にウォッチ対象銘柄の現在値を自動取得(バックエンド未設定・選択モードの場合は何もしない)
-  if (isBackendConfigured()) {
-    const mode = getAutoRefreshMode();
-    if (mode === 'auto') refreshAllPrices(true);
-    else if (mode === 'selected') refreshSelectedPrices(true);
-  }
-</script>
-</body>
-</html>
+  applyThemeSubtab(getThemeSubt
