@@ -312,6 +312,14 @@
   .indicator-toggle-label { font-size: 11.5px; letter-spacing: .04em; color: var(--text); font-weight: 700; }
   .indicator-caret { font-size: 11px; color: var(--accent); }
   .indicator-section.collapsed { display: none; }
+  .company-info-box {
+    padding: 9px 11px; background: rgba(232,184,75,0.06); border: 1px solid var(--card-border); border-radius: 6px;
+  }
+  .company-info-name { font-size: 13.5px; font-weight: 700; color: var(--text); }
+  .company-info-row { display: grid; grid-template-columns: 62px 1fr; gap: 6px; font-size: 11.5px; color: var(--text); margin-top: 4px; }
+  .company-info-label { color: var(--muted); }
+  .company-info-desc { font-size: 11.5px; color: var(--text); line-height: 1.6; overflow-wrap: break-word; }
+  .company-info-source { font-size: 9.5px; color: var(--muted); opacity: .75; margin-top: 6px; }
   .indicator-values { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
   .indicator-values .iv { font-size: 11px; color: var(--muted); }
   .indicator-values .iv b { color: var(--text); }
@@ -345,20 +353,55 @@
   }
 
   .toolbar-controls { margin-bottom: 12px; }
-  .toolbar-controls input[type="text"] {
-    width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--card-border);
-    background: var(--card); color: var(--text); font-size: 13px; margin-bottom: 8px;
+
+  /* 1行目: 検索欄・並び替え・テーマを横並びに */
+  .toolbar-row-1 { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .toolbar-row-1 input[type="text"] {
+    flex: 1.3; min-width: 0; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--card-border);
+    background: var(--card); color: var(--text); font-size: 13px;
   }
-  .toolbar-row-2 { display: flex; gap: 8px; margin-bottom: 8px; }
+  .toolbar-row-1 select {
+    flex: 1; min-width: 0; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--card-border);
+    background: var(--card); color: var(--text); font-size: 12.5px;
+  }
+
+  .toolbar-row-2 { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .toolbar-row-2 select {
     flex: 1; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--card-border);
     background: var(--card); color: var(--text); font-size: 12.5px;
   }
-  .toolbar-row-2 button {
+  .toolbar-row-2 > button {
     flex: 1; padding: 9px; border-radius: 8px; border: 1px solid var(--card-border);
     background: var(--card); color: var(--text); font-size: 12px; cursor: pointer;
   }
-  .toolbar-row-2 button:hover { border-color: var(--accent); }
+  .toolbar-row-2 > button:hover { border-color: var(--accent); }
+
+  /* 2行目: 「表示」トグルと「現在値更新」ボタン群を1行にまとめる。省スペースのため折り返しも許容する */
+  .toolbar-mixed-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; padding-left: 16px; }
+  .toolbar-mixed-row .toolbar-inline-label {
+    flex-shrink: 0; font-size: 13.5px; font-weight: 500; color: #b5b6bb; line-height: 1; white-space: nowrap;
+  }
+  .toolbar-mixed-row .toolbar-inline-label-2nd { margin-left: 4px; }
+
+  /* 現在値更新: 実行ボタン。横幅いっぱいに広げず、内容に応じたコンパクトな幅にする */
+  .toolbar-btn-group { display: flex; align-items: center; gap: 6px; }
+  .toolbar-btn-group button {
+    flex: 0 0 auto; padding: 7px 15px; border-radius: 8px; border: 1px solid var(--card-border);
+    background: var(--card); color: var(--text); font-size: 14px; font-weight: 600; line-height: 1; cursor: pointer;
+  }
+  .toolbar-btn-group button:hover { border-color: var(--accent); }
+  .toolbar-btn-group button:disabled { opacity: 0.5; cursor: not-allowed; border-color: var(--card-border); }
+
+  /* 表示設定: 実行ボタンではなく、状態を示す小型トグル(チップ)として見せる。実行ボタンよりは控えめに */
+  .toolbar-toggle-group { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+  .toolbar-toggle-group button {
+    flex: 0 0 auto; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--card-border);
+    background: transparent; color: #a9aab0; font-size: 13px; font-weight: 600; line-height: 1; cursor: pointer;
+  }
+  .toolbar-toggle-group button.is-on {
+    border-color: var(--accent); color: var(--accent); background: rgba(232, 184, 75, 0.12);
+  }
+  .toolbar-toggle-group button:hover { border-color: var(--accent); }
 
   .theme-manage-list { display: flex; flex-wrap: wrap; gap: 6px; }
   .theme-manage-item {
@@ -404,6 +447,65 @@
     background: #1c1d20; color: var(--text); font-size: 12px; text-align: right;
   }
   .shares-input:focus { outline: none; border-color: var(--accent); }
+
+  /* --- 「テーマ」タブのサブタブ(保有テーマ分析 / 市場テーマ分析) --- */
+  .theme-subtabs {
+    display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--card-border);
+  }
+  .theme-subtab {
+    flex: 1; text-align: center; padding: 9px 4px; font-size: 12.5px; color: var(--muted);
+    cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent;
+  }
+  .theme-subtab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
+  .theme-subpanel { display: none; }
+  .theme-subpanel.active { display: block; }
+
+  /* --- テーマ分析(「テーマ」タブ内、「市場テーマ分析」サブタブの機能) --- */
+  .theme-rep-row { padding: 8px 0; border-bottom: 1px solid var(--card-border); }
+  .theme-rep-row:last-child { border-bottom: none; }
+  .theme-rep-name { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .theme-rep-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .theme-rep-chip {
+    display: flex; align-items: center; gap: 4px; font-size: 11.5px;
+    padding: 4px 5px 4px 10px; border-radius: 20px; border: 1px solid var(--accent); color: var(--accent);
+  }
+  .theme-rep-chip button {
+    background: none; border: none; color: var(--down); cursor: pointer; font-size: 12px; padding: 1px 4px; line-height: 1;
+  }
+  .theme-rep-add-select {
+    padding: 4px 6px; border-radius: 20px; border: 1px dashed var(--card-border);
+    background: #1c1d20; color: var(--muted); font-size: 11px; max-width: 120px;
+  }
+
+  .theme-summary-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .theme-summary-cell {
+    flex: 1; min-width: 96px; background: #1c1d20; border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 8px 10px;
+  }
+  .theme-summary-label { font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+  .theme-summary-value { font-size: 12.5px; font-weight: 700; color: var(--accent); }
+
+  .theme-cat-badge {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    border: 1px solid currentColor; border-radius: 20px; padding: 2px 9px; white-space: nowrap;
+  }
+  table.theme-rank-table td, table.theme-rank-table th { text-align: center; }
+  table.theme-rank-table td:first-child, table.theme-rank-table th:first-child { text-align: left; }
+
+  .theme-analysis-card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 10px;
+  }
+  .theme-analysis-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .theme-analysis-card-name { font-size: 14px; font-weight: 700; }
+  .theme-analysis-card-scores { display: flex; gap: 16px; margin-top: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .theme-analysis-card-scores b { font-size: 15px; color: var(--accent); margin-left: 3px; }
+  .theme-analysis-card-returns { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; }
+  .theme-analysis-card-rank { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .theme-analysis-card-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .theme-analysis-card-actions .btn { padding: 7px; font-size: 12px; }
+  .theme-up { color: var(--up); }
+  .theme-down { color: var(--down); }
 </style>
 </head>
 <body>
@@ -411,7 +513,7 @@
 <header>
   <div>
     <h1>米国株 売買ライン監視</h1>
-    <div class="app-version">v2.22.0</div>
+    <div class="app-version">v2.43.2</div>
   </div>
   <div class="actions">
     <button class="icon-btn" id="helpBtn">使い方・免責事項</button>
@@ -425,13 +527,13 @@
   <div class="tab" data-tab="nonhold">非保有注目<span id="nonHoldBadge" class="tab-badge" style="display:none;"></span></div>
   <div class="tab" data-tab="hold">保有注目<span id="holdBadge" class="tab-badge" style="display:none;"></span></div>
   <div class="tab" data-tab="watch">監視リスト</div>
-  <div class="tab" data-tab="themes">テーマ別</div>
+  <div class="tab" data-tab="themes">テーマ</div>
 </div>
 
 <div id="panel-edit" class="panel active">
   <div class="toolbar-controls">
-    <input type="text" id="searchInput" placeholder="ティッカー・会社名で検索">
-    <div class="toolbar-row-2">
+    <div class="toolbar-row-1">
+      <input type="text" id="searchInput" placeholder="ティッカー・会社名で検索">
       <select id="sortSelect">
         <option value="ticker">ティッカー順</option>
         <option value="change">値動き順</option>
@@ -441,13 +543,17 @@
       </select>
       <select id="themeFilterSelect"><option value="">すべてのテーマ</option></select>
     </div>
-    <div class="toolbar">
-      <button id="refreshAllBtn">全銘柄の現在値を更新</button>
-      <button id="refreshSelectedBtn">チェックした銘柄だけ更新</button>
-    </div>
-    <div class="toolbar-row-2" style="margin-top:8px;">
-      <button id="metricsVisibleToggleBtn">財務指標を表示中(タップで非表示)</button>
-      <button id="badgeModeToggleBtn">ランク表示中(タップで数値表示)</button>
+    <div class="toolbar-mixed-row">
+      <span class="toolbar-inline-label">表示</span>
+      <div class="toolbar-toggle-group">
+        <button id="metricsVisibleToggleBtn" title="タップで財務指標の表示/非表示を切り替え">財務:表示</button>
+        <button id="badgeModeToggleBtn" title="タップでランク/数値の表示を切り替え">ランク表示</button>
+      </div>
+      <span class="toolbar-inline-label toolbar-inline-label-2nd">現在値更新</span>
+      <div class="toolbar-btn-group">
+        <button id="refreshAllBtn" title="監視対象(ウォッチ)銘柄の現在値を更新">監視対象</button>
+        <button id="refreshSelectedBtn" title="チェックした銘柄だけ更新">選択銘柄</button>
+      </div>
     </div>
     <div id="watchCountWarning" class="hint" style="margin-top:8px; display:none;"></div>
     <div id="registeredCountHint" class="hint" style="margin-top:8px; display:none;"></div>
@@ -459,20 +565,63 @@
 <div id="panel-hold" class="panel"></div>
 <div id="panel-watch" class="panel"></div>
 <div id="panel-themes" class="panel">
-  <p class="section-title" style="margin-top:0;">■ 保有株数の編集(テーマ別)</p>
-  <div class="hint" style="margin-top:0;">
-    ここでテーマごとに保有株数をまとめて入力できます。使わない場合は触らなくても問題ありません。
+  <div class="theme-subtabs">
+    <div class="theme-subtab active" data-theme-subtab="holdings">保有テーマ分析</div>
+    <div class="theme-subtab" data-theme-subtab="market">市場テーマ分析</div>
   </div>
-  <div id="sharesByThemeBox" style="margin-top:6px;"></div>
 
-  <p class="section-title">■ 保有株のテーマ別割合</p>
-  <div id="themeAllocBox" class="theme-alloc-box"></div>
+  <div id="themeSubpanel-holdings" class="theme-subpanel active">
+    <p class="section-title" style="margin-top:0;">■ 保有株数の編集(テーマ別)</p>
+    <div class="hint" style="margin-top:0;">
+      ここでテーマごとに保有株数をまとめて入力できます。使わない場合は触らなくても問題ありません。
+    </div>
+    <div id="sharesByThemeBox" style="margin-top:6px;"></div>
 
-  <p class="section-title">■ 財務指標の数値比較</p>
-  <div class="hint" style="margin-top:0;">
-    「📈 財務ランク」に入力した数値を、銘柄横並びで比較できます(ランクではなく実際の数値です)。
+    <p class="section-title">■ 保有株のテーマ別割合</p>
+    <div id="themeAllocBox" class="theme-alloc-box"></div>
+
+    <p class="section-title">■ 財務指標の数値比較</p>
+    <div class="hint" style="margin-top:0;">
+      「📈 財務ランク」に入力した数値を、銘柄横並びで比較できます(ランクではなく実際の数値です)。
+    </div>
+    <div id="metricCompareBox" style="margin-top:10px; overflow-x:auto;"></div>
   </div>
-  <div id="metricCompareBox" style="margin-top:10px; overflow-x:auto;"></div>
+
+  <div id="themeSubpanel-market" class="theme-subpanel">
+    <p class="section-title" style="margin-top:0;">■ テーマ分析</p>
+    <div class="hint" style="margin-top:0;">
+      テーマごとに設定した代表銘柄(3〜5銘柄)の株価履歴から、「テーマ強度」(今どれだけ強いか)と「浮上度」(最近勢いが加速しているか)をアプリ側で計算します。数値自体はAIには作らせず、「AIレビュー」ではこの数値の意味づけだけを解説してもらう方式です。通常の現在値更新には含まれず、下の「テーマ分析を更新」を押した時だけ株価履歴を取得します。
+    </div>
+
+    <div class="indicator-toggle" onclick="toggleThemeRepsEditor()">
+      <span class="indicator-toggle-label">代表銘柄の設定</span>
+      <span class="indicator-caret" id="themeRepsCaret">▸ 開く</span>
+    </div>
+    <div class="indicator-section collapsed" id="themeRepsSection">
+      <div class="hint" style="margin-top:8px;">
+        テーマごとに、代表として追跡する銘柄を3〜5件ほど選んでください(「銘柄編集」タブで登録済みの銘柄から選べます)。「+追加」のプルダウンは、その銘柄自体に設定されているテーマ(銘柄編集のテーマ欄)がここと一致する銘柄を「設定テーマ: ○○」として先頭にまとめ、それ以外は「その他の銘柄」として下にまとめます。ここで選んだ銘柄だけが、「テーマ分析を更新」で株価履歴を取得する対象になります(複数テーマで同じ銘柄を選んでも、1回の更新につき取得は1回だけです)。
+      </div>
+      <div id="themeRepsEditorBox" style="margin-top:8px;"></div>
+    </div>
+
+    <div style="margin-top:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <button type="button" class="btn btn-primary" id="themeAnalysisUpdateBtn" style="width:auto; flex:none; padding:9px 16px; margin-top:0;">テーマ分析を更新</button>
+      <span class="hint" id="themeAnalysisUpdateHint" style="margin:0;"></span>
+    </div>
+    <div id="themeAnalysisStatusMsg" class="status-msg"></div>
+    <div id="themeAnalysisMeta" class="hint" style="margin-top:2px;"></div>
+
+    <div id="themeAnalysisRankingBox" style="margin-top:10px;"></div>
+    <div id="themeAnalysisCardsBox" style="margin-top:10px;"></div>
+
+    <div class="indicator-toggle" onclick="toggleThemeHelpSection()" style="margin-top:14px;">
+      <span class="indicator-toggle-label">❓ 用語・算出方法</span>
+      <span class="indicator-caret" id="themeHelpCaret">▸ 開く</span>
+    </div>
+    <div class="indicator-section collapsed" id="themeHelpSection">
+      <div id="themeHelpBody" style="margin-top:8px; font-size:12px; color:var(--muted); line-height:1.7;"></div>
+    </div>
+  </div>
 </div>
 
 <button class="fab" id="addBtn">+</button>
@@ -521,25 +670,22 @@
     </div>
     <div class="field">
       <label>アクセストークン</label>
-      <input id="accessTokenInput" placeholder="プロキシ側で設定したトークン">
-    </div>
-    <div class="field">
-      <label>Anthropic APIキー(任意。「🧠 AI分析」機能を使う場合のみ)</label>
-      <input type="password" id="anthropicApiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+      <input type="password" id="accessTokenInput" placeholder="プロキシ側で設定したトークン" autocomplete="off">
     </div>
     <div class="field">
       <label>アプリを開いた時の動き</label>
       <select id="autoRefreshModeSelect">
         <option value="manual">選択モード(自動更新しない。手動で更新した銘柄だけ反映)</option>
+        <option value="selected">選択銘柄だけ自動更新(開くたびに、チェックした銘柄だけ自動更新)</option>
         <option value="auto">自動取得モード(開くたびに全ウォッチ銘柄を自動更新)</option>
       </select>
     </div>
     <div class="hint">
-      株価・チャートの取得はTwelve Data、財務指標の取得はAlpha Vantageを、ご自身で用意したApps Scriptのバックエンド(価格取得プロキシ)経由で行います。<br>
+      株価・チャートの取得はTwelve Data、財務指標の取得はAlpha Vantage、AI分析の取得はAnthropicを、ご自身で用意したApps Scriptのバックエンド(価格取得プロキシ)経由で行います。<br>
       それぞれのAPIキー自体はこの画面やブラウザには一切入力・保存されません(プロキシ側のスクリプトプロパティにのみ保存されます)。<br>
       入力したバックエンドURLとトークンはこのブラウザのlocalStorageに保存されます。<br>
-      デフォルトは「選択モード」です。開いた時は前回取得した値のまま表示され、「全銘柄の現在値を更新」ボタンやカードのタップで更新した時だけ最新値になります。「自動取得モード」に切り替えると、開くたびに自動で更新されますが、銘柄数が多いと起動時に待ち時間が発生します。<br>
-      「Anthropic APIキー」は、ご自身のAnthropicアカウントで発行したもの(従量課金)です。入力すると、「🧠 AI分析」タグから、Claudeによる分析コメントをアプリ内で直接生成できます。このキーはブラウザのlocalStorageにのみ保存され、「AI分析」を実行した時だけバックエンド(Apps Script)へ送られます。バックエンド側では保存・ログ出力しません。未入力でも他の機能はすべて使えます。
+      デフォルトは「選択モード」です。開いた時は前回取得した値のまま表示され、「現在値更新」の「監視対象」ボタンやカードのタップで更新した時だけ最新値になります。「選択銘柄だけ自動更新」にすると、各カードのチェックボックスで選んだ銘柄だけを、開くたびに自動更新します(選択状態は保存されるので、一度選べば次回以降もそのままです)。「自動取得モード」に切り替えると、開くたびに全ウォッチ銘柄を自動で更新しますが、銘柄数が多いと起動時に待ち時間が発生します。<br>
+      「🧠 AI」の「アプリ内AI」機能を使うには、Anthropic APIキーをバックエンド(Apps Script)のスクリプトプロパティに設定してください(README参照)。このアプリの画面上では、Anthropic APIキーを入力・保存する箇所はありません。
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" id="connectionCancelBtn">閉じる</button>
@@ -582,7 +728,7 @@
   <div class="modal" style="max-width:480px;">
     <div class="modal-title-row">
       <h3 id="analysisModalTitle" style="margin:0;">投資判断</h3>
-      <button type="button" class="btn btn-secondary" id="analysisFullViewBtn">📖 全文表示</button>
+      <button type="button" class="btn btn-secondary" id="analysisFullViewBtn">📖 折りたたむ</button>
     </div>
     <input type="hidden" id="an_id">
 
@@ -624,6 +770,7 @@
 
     <div class="modal-actions">
       <button class="btn btn-secondary" id="analysisCancelBtn">キャンセル</button>
+      <button class="btn btn-secondary" id="analysisSaveAndGoAiBtn">保存してAI分析へ →</button>
       <button class="btn btn-primary" id="analysisSaveBtn">保存</button>
     </div>
   </div>
@@ -635,10 +782,12 @@
     <h3 id="rankModalTitle">財務指標ランク</h3>
     <input type="hidden" id="rk_id">
 
-    <div class="hint" style="margin-top:0;">
+    <div id="companyInfoBox" style="margin-top:0;"></div>
+
+    <div class="hint" style="margin-top:8px;">
       数値を入力すると、「ランク基準」に沿ってS〜Gが自動入力されます(手動で選び直すこともできます)。カテゴリ評価・総合評価は、指標のランクから自動計算されます(平均を四捨五入。例: SとBなら間を取ってA)。<br>
       このうちPER・売上成長率・EPS成長率・営業利益率・ROEは、一覧のカード上にも抜粋表示されます。<br>
-      「手動入力」の指標(ROIC・Net Debt/EBITDA・自己資本比率)はAlpha Vantageから直接取得できないため、これまで通りご自身で数値を入力してください。それ以外の数値は下のボタンでまとめて取得できます。
+      「手動入力」の指標(ROIC・Net Debt/EBITDA・自己資本比率)はAlpha Vantageから直接取得できないため、これまで通りご自身で数値を入力してください。それ以外の数値は下のボタンでまとめて取得できます(同じタイミングで、上部の「企業情報」欄(会社名・Sector・Industry・会社概要)もAlpha Vantageから同時に取得・保存されます。企業情報のためだけに追加のAPIリクエストが発生することはありません)。
     </div>
 
     <div class="toolbar-row-2" style="margin-top:10px;">
@@ -649,7 +798,6 @@
     <div id="fundamentalsPeriodMsg" class="hint" style="margin-top:4px; display:none;"></div>
 
     <div id="rankGroupsContainer" style="margin-top:10px;"></div>
-    <div id="referenceLinksQuickList" class="tags-row" style="margin-top:10px;"></div>
 
     <div class="modal-actions">
       <button class="btn btn-secondary" id="rankCancelBtn">キャンセル</button>
@@ -799,17 +947,58 @@
 <!-- AI分析モーダル(Claudeによる自動生成コメント。ユーザー自身のAnthropic APIキーを使用) -->
 <div class="modal-bg" id="aiGenModalBg">
   <div class="modal" style="max-width:560px;">
-    <h3 id="aiGenModalTitle">AI分析</h3>
+    <h3 id="aiGenModalTitle">AI</h3>
 
-    <div id="aiGenNoKeyMsg" class="hint" style="margin-top:0; display:none;">
-      Anthropic APIキーが未設定です。「接続設定」から入力すると、この画面でClaudeによる分析コメントを生成できます。<br>
-      キーを用意していない場合は、代わりにカードの「🤖 AI相談」から、投資判断・財務ランクをまとめたテキストをコピーして、ChatGPT・Gemini・Claudeなど好きなAIサービスに貼り付けてご利用ください(そちらは追加費用不要です)。
-    </div>
-
-    <div id="aiGenReadyArea" style="display:none;">
-      <div class="hint" style="margin-top:0;">
-        今記録されている投資判断・財務ランク・直近のテクニカル指標(移動平均線・RSI・MACDなど、自動取得)をもとに、Claudeが投資仮説のレビュー・矛盾点の指摘・見落としているリスクなどをコメントします。<b>ご自身のAnthropicアカウントの利用料が発生します。</b>
+    <div id="aiGenReadyArea">
+      <div class="toolbar-row-2" style="margin-top:0;">
+        <div>
+          <label style="font-size:11px; color:var(--muted); display:block; margin-bottom:3px;">実行方法</label>
+          <select id="aiExecModeSelect">
+            <option value="inapp">🧠 アプリ内AI</option>
+            <option value="external">📋 他のAIに相談</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px; color:var(--muted); display:block; margin-bottom:3px;">回答スタイル</label>
+          <select id="aiStyleSelect">
+            <option value="reflect">投資判断に反映</option>
+            <option value="financial">財務指標</option>
+            <option value="detail">各種分析</option>
+            <option value="custom">カスタム</option>
+          </select>
+        </div>
       </div>
+
+      <div id="aiGenHintInapp" class="hint" style="margin-top:8px;">
+        今記録されている投資判断・財務ランクをもとに、Claudeがアプリ内で直接コメントを生成します。<b>ご自身のAnthropicアカウントの利用料が発生します。</b>「バックエンドにAnthropic APIキーが未設定です」と表示された場合は、README「AI分析を使えるようにする」の手順に沿ってスクリプトプロパティに設定してください。
+      </div>
+      <div id="aiGenHintExternal" class="hint" style="margin-top:8px; display:none;">
+        今記録されている投資判断・財務ランクをまとめた相談文をコピーします。ChatGPT・Gemini・Claudeなど好きなAIサービスに貼り付けてご利用ください(追加費用不要です)。
+      </div>
+
+      <div id="aiCustomArea" style="display:none; margin-top:8px;">
+        <div class="field">
+          <label>保存済みプロンプト</label>
+          <select id="aiCustomPromptSelect">
+            <option value="">(保存せず入力)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>指示内容(自由に記述してください)</label>
+          <textarea id="aiCustomPromptText" rows="5" maxlength="4000" placeholder="例: この銘柄について、今後3か月の最大の上昇要因と下落要因を3つずつ挙げてください。特に次回決算とバリュエーションを重視してください。"></textarea>
+          <div id="aiCustomPromptCounter" class="hint" style="margin-top:2px; text-align:right;">0 / 4000</div>
+        </div>
+        <label style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:8px;">
+          <input type="checkbox" id="aiCustomIncludeDataCheckbox" checked style="width:auto; margin:0;">
+          現在の銘柄情報を含める
+        </label>
+        <div class="toolbar-row-2" style="margin-top:0;">
+          <button type="button" class="btn btn-secondary" id="aiCustomSaveBtn" style="margin-top:0;">💾 保存</button>
+          <button type="button" class="btn btn-secondary" id="aiCustomSaveAsBtn" style="margin-top:0;">📋 別名で保存</button>
+        </div>
+        <button type="button" class="btn btn-danger" id="aiCustomDeleteBtn" style="width:100%; margin-top:6px; display:none;">🗑 この保存済みプロンプトを削除</button>
+      </div>
+
       <button type="button" class="btn btn-primary" id="aiGenRunBtn" style="width:100%; margin-top:6px;">🧠 分析コメントを生成する</button>
       <div id="aiGenStatusMsg" class="status-msg"></div>
       <div id="aiGenResultArea" class="judgment-log-body" style="display:none; margin-top:12px; background:#1c1d20; border:1px solid var(--card-border); border-radius:8px; padding:12px;"></div>
@@ -819,6 +1008,8 @@
     </div>
 
     <div class="modal-actions">
+      <button class="btn btn-secondary" id="aiGenBackToJudgmentBtn">← 投資判断を編集</button>
+      <button class="btn btn-secondary" id="aiGenGoToRankBtn">← 財務ランクを編集</button>
       <button class="btn btn-secondary" id="aiGenCloseBtn">閉じる</button>
     </div>
   </div>
@@ -833,19 +1024,24 @@
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:14px 0 4px;">■ 使い方</p>
     <div class="hint" style="margin-top:0;">
       ・「銘柄編集」タブでティッカー・会社名・テーマ・保有ステータス・買いライン/売りラインを登録します。<br>
-      ・保有株数は「テーマ別」タブでテーマごとにまとめて入力・編集します(使わない場合は0のままで問題ありません)。同じタブ内で、財務指標の数値を銘柄横並びで比較できる表も確認できます。<br>
+      ・保有株数は「テーマ」タブの「保有テーマ分析」でテーマごとにまとめて入力・編集します(使わない場合は0のままで問題ありません)。同じサブタブ内で、財務指標の数値を銘柄横並びで比較できる表も確認できます。<br>
       ・右上の「接続設定」からバックエンドURL・アクセストークンを登録すると、現在値を取得できるようになります(<strong>価格取得プロキシの用意方法は別紙の手順書をご覧ください</strong>)。<br>
-      ・アプリを開くと、ウォッチ対象の銘柄の現在値を自動で取得します(未設定の場合は取得されません)。「全銘柄の現在値を更新」ボタンでいつでも手動更新もできます。<br>
-      ・「銘柄編集」タブの各カードにあるチェックボックスにチェックを入れると、「チェックした銘柄だけ更新」ボタンでその銘柄だけをまとめて更新できます。<br>
-      ・デフォルトは「選択モード」で、開いた時に自動更新は行われません(前回取得した値のまま表示され、手動で更新した銘柄だけ最新になります)。「接続設定」で「自動取得モード」に切り替えると、開くたびにウォッチ対象銘柄を自動更新しますが、銘柄数が多いと起動時に待ち時間が発生します。<br>
+      ・「自動取得モード」に切り替えている場合、アプリを開くとウォッチ対象の銘柄の現在値を自動で取得します(未設定の場合は取得されません。デフォルトは自動取得しない「選択モード」です。詳しくは後述)。「現在値更新」の「監視対象」ボタンでいつでも手動更新もできます。<br>
+      ・「銘柄編集」タブの各カードにあるチェックボックスにチェックを入れると、「現在値更新」の「選択銘柄」ボタンでその銘柄だけをまとめて更新できます。<br>
+      ・デフォルトは「選択モード」で、開いた時に自動更新は行われません(前回取得した値のまま表示され、手動で更新した銘柄だけ最新になります)。「接続設定」で「選択銘柄だけ自動更新」に切り替えると、各カードのチェックボックスで選んだ銘柄だけを開くたびに自動更新します(選択状態は保存されます)。「自動取得モード」に切り替えると、開くたびにウォッチ対象銘柄すべてを自動更新しますが、銘柄数が多いと起動時に待ち時間が発生します。<br>
       ・登録した銘柄データはこのブラウザ内(localStorage)に保存されます。ファイルを開き直しても同じ場所・同じファイル名であればデータは残ります。<br>
-      ・「データ管理」内の「データのバックアップ」から、登録データをパスワード付きで暗号化してファイルに書き出したり、別の端末で読み込んだりできます。テーマの整理も同じ画面から行えます。<br>
-      ・各カードの「📊 判断」から、投資理由・リスクなどの投資判断を記録できます。強気なら緑、弱気なら赤にタグの色が変わります(タグの文字数は常に一定にしているので、入力の有無でレイアウトが崩れません)。上の入力欄は「今後の基準となる最新の内容」を保存するもので、「📝 記録に残す」を押すと、それとは別に日付付きのメモとして積み重ねて残せます(タップで開閉できます。過去の判断を後から振り返るための機能です)。「🗑 入力欄を一括クリア」で、次の判断を書き直す前に入力欄をまとめて空にできます(各欄ごとの個別クリアも可能)。タイトル横の「📖 全文表示」で、入力欄をスクロールなしで見られる表示に切り替えられます(文字は少し小さくなります)。「📈 ランク」では、財務指標(PER・ROICなど8項目)を成長性/収益性/財務健全性/その他(バリュエーション)の4カテゴリに分けて表示し、数値を入力すると「ランク基準」に沿ってS〜Gが自動入力されます(必要なら手動で選び直せます)。基準は「⚙ ランク基準を設定」から指標ごとに調整でき、このボタン自体に今ON/OFFどちらの状態かが表示されます。同じ画面で、ROICなど外部サイトで調べる指標のための「参考サイト」も登録・編集・管理でき(財務ランクの入力表のすぐ下に表示されます)、財務ランク画面から直接開けます。数値の自動取得後は、そのデータがいつ時点のものか(例: 2026年3月期)も表示されます。各カテゴリの評価・総合評価は、指標のランクから自動計算されます。カード上には自動取得できる5指標(PER・売上成長率・EPS成長率・営業利益率・ROE)が抜粋表示され、銘柄間の比較がしやすくなっています。「銘柄編集」タブ上部のボタンで、この抜粋表示をランク/数値どちらで見るか、また表示/非表示自体も、まとめて切り替えられます(銘柄数が多くスクロールが大変な場合は非表示がおすすめです)。<br>
+      ・「データ管理」内の「データのバックアップ」から、登録データをパスワード付きで暗号化してファイルに書き出したり、別の端末で読み込んだりできます(バックアップ対象は登録銘柄データのみです。テーマ・参考サイト・ランク基準・カスタムプロンプトなどの各種設定は対象外で、別の端末では再設定が必要です)。テーマの整理も同じ画面から行えます。<br>
+      ・各カードの「📊 判断」から、投資理由・リスクなどの投資判断を記録できます。強気なら緑、弱気なら赤にタグの色が変わります(タグの文字数は常に一定にしているので、入力の有無でレイアウトが崩れません)。上の入力欄は「今後の基準となる最新の内容」を保存するもので、「📝 記録に残す」を押すと、それとは別に日付付きのメモとして積み重ねて残せます(タップで開閉できます。過去の判断を後から振り返るための機能です)。「🗑 入力欄を一括クリア」で、次の判断を書き直す前に入力欄をまとめて空にできます(各欄ごとの個別クリアも可能)。タイトル横の「📖 全文表示」で、入力欄をスクロールなしで見られる表示に切り替えられます(文字は少し小さくなります)。「📈 ランク」では、財務指標(PER・ROICなど8項目)を成長性/収益性/財務健全性/その他(バリュエーション)の4カテゴリに分けて表示し、数値を入力すると「ランク基準」に沿ってS〜Gが自動入力されます(必要なら手動で選び直せます)。画面の最上部には、何の会社か・どの業種か・どのテーマに属するかをすぐ確認できる「企業情報」欄(会社名・Sector・Industry・登録テーマ)をコンパクトに表示し、「▸ 会社概要を見る」を押した時だけ会社概要(Description)を展開できます。Sector・Industry・会社概要はAlpha Vantageから取得したものをそのまま表示しており、登録テーマはこのアプリで銘柄に設定したテーマをそのまま表示するだけで、AIによる自動判定ではありません。基準は「⚙ ランク基準を設定」から指標ごとに調整でき、このボタン自体に今ON/OFFどちらの状態かが表示されます。同じ画面で、ROICなど外部サイトで調べる指標のための「参考サイト」も登録・編集・管理でき(財務ランクの入力表のすぐ下に表示されます)、財務ランク画面から直接開けます。数値の自動取得後は、そのデータがいつ時点のものか(例: 2026年3月期)も表示されます。各カテゴリの評価・総合評価は、指標のランクから自動計算されます。カード上には自動取得できる5指標(PER・売上成長率・EPS成長率・営業利益率・ROE)が抜粋表示され、銘柄間の比較がしやすくなっています。「銘柄編集」タブ上部のボタンで、この抜粋表示をランク/数値どちらで見るか、また表示/非表示自体も、まとめて切り替えられます(銘柄数が多くスクロールが大変な場合は非表示がおすすめです)。<br>
       ・各カードの「📉 分析」から、ローソク足チャート・テクニカル指標(移動平均線・ボリンジャーバンド・RSI・ストキャスティクス・MACD)・ローソク足パターンの自動検出を確認できます。検出されたパターンの発生日をタップすると、その銘柄自身の過去データに基づく簡易バックテスト(同じパターンが過去何回発生し、その後N営業日後にどう動いたか)も表示されます。あくまで過去データの統計・参考情報であり、将来の値動きを保証するものではありません。<br>
-      ・各カードの「🧠 AI分析」から、投資判断・財務ランク・直近のテクニカル指標(自動取得)をもとに、Claudeが分析コメントをアプリ内で直接生成します。利用には「接続設定」でご自身のAnthropic APIキーの入力が必要で、ご自身のAnthropicアカウントに利用料が発生します。キーを用意していない場合は、代わりに「🤖 AI相談」からテキストをコピーして、好きなAIサービスに貼り付ける方法(追加費用なし)をご利用ください。生成したコメントは自動的に履歴として保存され、モーダルを閉じても消えません(タップで開閉できます)。<br>
+      ・各カードの「🧠 AI」から、AI機能をまとめて開けます。画面上部で「実行方法」(🧠 アプリ内AI / 📋 他のAIに相談)と「回答スタイル」(投資判断に反映 / 財務指標 / 各種分析 / カスタム)を選べます。<br>
+      ・「アプリ内AI」は、Anthropic APIキーをバックエンド(Apps Script)のスクリプトプロパティに設定しておく必要があり(README参照。アプリの画面上に入力欄はありません)、ご自身のAnthropicアカウントに利用料が発生します。「他のAIに相談」は、投資判断・財務ランクをまとめた相談文をコピーするだけなので、追加費用は不要です(ChatGPT・Gemini・Claudeなど好きなAIサービスに貼り付けてご利用ください)。<br>
+      ・回答スタイル「投資判断に反映」は、投資判断欄にそのまま使える短い修正案を項目ごとに生成します(アプリ内AIで生成した場合、気になる項目の「この案を反映」を押すと反映済みバッジが付き、画面を移動せず複数の項目を選べます。選び終わったら「← 投資判断を編集」で内容を確認・保存してください)。<br>
+      ・回答スタイル「財務指標」は、財務ランクの手動入力項目(ROIC・自己資本比率・Net Debt/EBITDA)について、AIが推定できた場合のみ参考値を提示します。実際の財務諸表を確認したものではないため、反映すると理由欄に自動で「AI推定値。要確認。」と入ります。反映後は「← 財務ランクを編集」から必ずご自身で数値を確認してください。「各種分析」は、直近のテクニカル指標も加味した、解説重視の分析コメントです。<br>
+      ・回答スタイル「カスタム」を選ぶと、AIへの指示を自由に入力できます(「銘柄情報を含める」をONにすると、投資判断・財務ランクもあわせて送られます)。よく使う指示は名前を付けて保存でき(「別名で保存」)、次回から「保存済みプロンプト」から選ぶだけで呼び出せます。「保存」で上書き、「削除」で個別に削除できます。カスタムの結果は、項目別への自動反映はされません(反映したい場合は「投資判断に反映」または「財務指標」をご利用ください)。<br>
+      ・アプリ内AIで生成したコメントは自動的に履歴として保存され、モーダルを閉じても消えません(タップで開閉、各履歴の「🗑 この履歴を削除」から個別に削除もできます)。「投資判断」画面の「保存してAI分析へ →」、「AI」画面の「← 投資判断を編集」から、カード一覧に戻らず両画面を直接行き来できます。<br>
       ・「非保有注目」「保有注目」タブには、該当する銘柄がある時だけ件数が赤いバッジで表示されます。タブを開かなくても、注目すべき銘柄があるかどうかが一目で分かります。<br>
       ・買い/売りラインの下に、現在値からの距離(%)を表示します。5%以内で黄色、1%以内でオレンジ強調、到達すると🔔マークになります。<br>
-      ・各カードの「🤖 AI相談用」から、投資判断・財務ランク・狙い値までの距離などをまとめたテキストをクリップボードにコピーできます。ChatGPTやGeminiなど、お好きなAIサービスに貼り付けて相談にご利用ください(この機能自体はAPIを消費しません)。
+      ・「テーマ」タブの「市場テーマ分析」では、テーマごとに設定した代表銘柄(3〜5銘柄)の株価履歴から、「テーマ強度」(今どれだけ強いか)・「浮上度」(前回の更新から勢いが増しているか)・「加速度」(更新間隔に関係なく、直近の値動き・出来高だけから毎回同じ条件で計算する短期的な勢い)を0〜100点で計算し、テーマのランキング・分類(主役/拡大中/浮上中/⚡初動候補/中立/失速中)を確認できます。「⚡初動候補」は、まだ主役級ではないものの加速度が高いテーマを見つけるための分類です。「代表銘柄の設定」で銘柄を選んだ後、「テーマ分析を更新」を押すと株価履歴を取得します(通常の現在値更新には含まれず、このボタンを押した時だけ実行されます。加速度・出来高倍率も同じ株価履歴データから計算するため、API呼び出し回数は増えません)。テーマの「詳細」からは代表銘柄ごとの内訳やスコアの推移(実行するたびに記録されます)を確認でき、「🧠 AIレビュー」では、アプリが計算した数値の意味づけだけをAIに解説してもらえます(数値自体をAIに作らせることはありません)。各スコアの配点・分類のしきい値は、「市場テーマ分析」内の「❓ 用語・算出方法」から確認できます。
     </div>
 
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ 保有注目とは</p>
@@ -863,25 +1059,29 @@
       ・本アプリで表示する株価情報はTwelve Data社のAPIから、財務指標はAlpha Vantage社のAPIから取得したものであり、いずれも正確性・最新性を保証するものではありません。<br>
       ・本アプリの情報は投資助言を目的としたものではありません。投資の最終判断はご自身の責任で行ってください。<br>
       ・本アプリの利用により生じたいかなる損害についても、作成者は責任を負いません。<br>
-      ・「🧠 AI分析」で生成されるコメントは、Claude(Anthropic)によるものであり、正確性・妥当性を保証するものではありません。投資助言ではなく、投資の最終判断はご自身の責任で行ってください。この機能の利用には、ご自身のAnthropicアカウントでの利用料が発生します。
+      ・「🧠 AI」(アプリ内AI)で生成されるコメントは、Claude(Anthropic)によるものであり、正確性・妥当性を保証するものではありません。投資助言ではなく、投資の最終判断はご自身の責任で行ってください。この機能の利用には、ご自身のAnthropicアカウントでの利用料が発生します。<br>
+      ・「テーマ分析」の「テーマ強度」「浮上度」「加速度」およびそれに基づく分類(⚡初動候補を含む)は、代表銘柄の株価履歴からアプリが機械的に計算した参考指標であり、将来の値動きの予測や確率を示すものではなく、投資助言を目的としたものでもありません。代表銘柄の選び方によって数値は変わります。「🧠 AIレビュー」で生成されるコメントも、その数値の解釈を述べたものにすぎず、正確性・妥当性を保証するものではありません。
     </div>
 
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ データについて</p>
     <div class="hint" style="margin-top:0;">
-      ・株価データはAlpha Vantage APIの無料枠を、自分で用意したApps Scriptバックエンド経由で利用しているため、取得タイミングによっては数分〜数十分の遅延が発生する場合があります。<br>
-      ・登録した銘柄データ・バックエンドURL・アクセストークンは、すべてお使いのブラウザ内にのみ保存されます。Alpha Vantageの本物のAPIキーはブラウザには一切保存されず、バックエンド側だけが保持しています。
+      ・株価・チャートのデータはTwelve Data、財務指標・企業情報(会社名・Sector・Industry・会社概要)はいずれもAlpha Vantageの無料枠を、自分で用意したApps Scriptバックエンド経由で利用しているため、取得タイミングによっては遅延が発生する場合があります。<br>
+      ・登録した銘柄データに加えて、バックエンドURL・アクセストークン、テーマ・参考サイト・ランク基準・自動ランクON/OFF・表示設定(財務指標表示/ランク・数値表示)・自動更新モード・「選択銘柄だけ更新」の選択状態・AI機能の実行方法/回答スタイル/保存済みカスタムプロンプト・テーマ分析の代表銘柄設定/計算結果/履歴/AIレビュー履歴といった各種設定は、すべてこのブラウザのlocalStorageにのみ保存されます。Twelve Data・Alpha Vantage・Anthropicの本物のAPIキーはいずれもブラウザには一切保存されず、Apps Scriptバックエンド側(スクリプトプロパティ)だけが保持しています。<br>
+      ・Anthropicへデータが送信されるのは「🧠 AI」(各銘柄のAI機能・テーマ分析の「AIレビュー」)で「アプリ内AI」を実行した場合のみです(「他のAIに相談」はコピーするだけで、Anthropicを含むどこにも自動送信されません)。それ以外の操作でAnthropicへ情報が送られることはありません。<br>
+      ・テーマ分析(代表銘柄の設定・計算結果・履歴・AIレビュー履歴)は「データのバックアップ」の対象外です(対象は登録銘柄データのみ)。別の端末では代表銘柄の設定からやり直してください。
     </div>
 
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ 利用上の注意</p>
     <div class="hint" style="margin-top:0;">
-      ・アクセストークンは第三者と共有しないでください(Alpha Vantageの本物のキーは含みませんが、バックエンドの利用枠を消費されてしまいます)。<br>
+      ・アクセストークンは第三者と共有しないでください(Twelve Data・Alpha Vantage・Anthropicの本物のAPIキーは含みませんが、バックエンドの利用枠を消費されてしまいます)。<br>
       ・現在値の取得元にはTwelve Dataを使用しています(無料枠: 1分8回・1日800回)。財務指標の自動取得はAlpha Vantage(1分5回・1日25回程度)のままです。登録銘柄数が多いと更新に時間がかかったり、一部取得できない場合があります。<br>
-      ・ウォッチ対象(自動更新の対象)は15件程度までを推奨しています。それを超えると、アプリ内に更新にかかる目安時間が表示されます。あまり見ない銘柄は「ウォッチ対象にする」のチェックを外しておくと快適です。
+      ・ウォッチ対象(自動更新の対象)は25件程度までを推奨しています。それを超えると、アプリ内に更新にかかる目安時間が表示されます。あまり見ない銘柄は「ウォッチ対象にする」のチェックを外しておくと快適です。<br>
+      ・「テーマ分析を更新」は、代表銘柄(重複を除く)の株価履歴を1件ずつ取得するため、対象銘柄数に応じて時間がかかります(目安時間はボタンの横に表示されます)。現在値の更新処理(監視対象・選択銘柄)と同時には実行できません。
     </div>
 
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ バージョン</p>
     <div class="hint" style="margin-top:0;">
-      v2.22.0
+      v2.43.2
     </div>
 
     <div class="modal-actions">
@@ -890,11 +1090,69 @@
   </div>
 </div>
 
+<!-- テーマ分析: 詳細モーダル -->
+<div class="modal-bg" id="themeDetailModalBg">
+  <div class="modal" style="max-width:520px;">
+    <h3 id="themeDetailModalTitle">テーマの詳細</h3>
+    <div id="themeDetailBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="themeDetailAiReviewBtn">🧠 AIレビュー</button>
+      <button class="btn btn-secondary" id="themeDetailCloseBtn">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- テーマ分析: AIレビューモーダル -->
+<div class="modal-bg" id="themeAiModalBg">
+  <div class="modal" style="max-width:520px;">
+    <h3 id="themeAiModalTitle">テーマのAIレビュー</h3>
+
+    <div class="field">
+      <label>実行方法</label>
+      <select id="themeAiExecModeSelect">
+        <option value="inapp">🧠 アプリ内AI</option>
+        <option value="external">📋 他のAIに相談</option>
+      </select>
+    </div>
+    <div id="themeAiHintInapp" class="hint" style="margin-top:0;">
+      アプリが計算したテーマ強度・浮上度・リターンなどの数値をもとに、Claudeがアプリ内で直接コメントを生成します(数値自体はAIに作らせず、意味づけだけを解説してもらいます)。<b>ご自身のAnthropicアカウントの利用料が発生します。</b>
+    </div>
+    <div id="themeAiHintExternal" class="hint" style="margin-top:0; display:none;">
+      計算済みの数値をまとめた相談文をコピーします。ChatGPT・Gemini・Claudeなど好きなAIサービスに貼り付けてご利用ください(追加費用不要です)。
+    </div>
+    <div id="themeAiNoDataHint" class="hint" style="margin-top:8px; color:var(--down); display:none;">
+      このテーマはまだ分析結果がありません。先に「テーマ分析を更新」を実行してください。
+    </div>
+
+    <button type="button" class="btn btn-primary" id="themeAiRunBtn" style="width:100%; margin-top:10px;">🧠 AIレビューを生成する</button>
+    <div id="themeAiStatusMsg" class="status-msg"></div>
+    <div id="themeAiResultArea" class="judgment-log-body" style="display:none; margin-top:12px; background:#1c1d20; border:1px solid var(--card-border); border-radius:8px; padding:12px;"></div>
+
+    <p class="section-title">■ 生成履歴(新しい順・タップで開閉。閉じても消えません)</p>
+    <div id="themeAiHistoryList"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="themeAiCloseBtn">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const STORAGE_KEY = 'stockapp_stocks_v1';
   const BACKEND_URL_STORAGE = 'stockapp_backend_url';
   const ACCESS_TOKEN_STORAGE = 'stockapp_access_token';
-  const ANTHROPIC_KEY_STORAGE = 'stockapp_anthropic_api_key';
+
+  // ユーザーが入力・インポートできる文字列(会社名・テーマ名・投資判断のテキスト・参考サイト名など)を
+  // innerHTMLへ差し込む前に必ず通す。HTML/JSが実行されないよう、特殊文字を無害な表記に変換する。
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   function loadStocks() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
@@ -907,21 +1165,21 @@
   function setBackendUrl(v) { localStorage.setItem(BACKEND_URL_STORAGE, (v || '').trim()); }
   function getAccessToken() { return (localStorage.getItem(ACCESS_TOKEN_STORAGE) || '').trim(); }
   function setAccessToken(v) { localStorage.setItem(ACCESS_TOKEN_STORAGE, v || ''); }
-  function getAnthropicApiKey() { return (localStorage.getItem(ANTHROPIC_KEY_STORAGE) || '').trim(); }
-  function setAnthropicApiKey(v) { localStorage.setItem(ANTHROPIC_KEY_STORAGE, (v || '').trim()); }
   function isBackendConfigured() { return !!(getBackendUrl() && getAccessToken()); }
 
-  // プロキシへのAPI呼び出しURLを組み立てる。URLの形式がおかしい場合はここで気づけるようにする
+  // quote/history/fundamentals専用(GET方式)。以前この3つはPOSTに統一していたが、
+  // 実機のApps Script環境でdoPostにリクエストが正しく届かない不具合が確認されたため、
+  // 従来から安定して動いていたGET方式(doGet経由)へ一旦切り戻している。
+  // 参考サイトURLの検証やAI分析(POST・postToBackend)には影響しない。
   function buildProxyUrl(params) {
     const base = getBackendUrl();
-    if (!/^https?:\/\//i.test(base)) {
+    if (!/^https:\/\//i.test(base)) {
       throw new Error('バックエンドURLの形式が正しくありません(「https://」から始まっているか、「接続設定」を確認してください)。');
     }
     const qs = Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join('&');
     return `${base}${base.includes('?') ? '&' : '?'}${qs}`;
   }
 
-  // 通信が一時的に不安定な時のために、失敗したら1.5秒待って1回だけ自動で再試行する
   async function fetchJsonWithRetry(url, retriesLeft) {
     if (retriesLeft === undefined) retriesLeft = 1;
     try {
@@ -937,8 +1195,62 @@
   }
 
   const AUTO_REFRESH_STORAGE = 'stockapp_auto_refresh_mode';
-  function getAutoRefreshMode() { return localStorage.getItem(AUTO_REFRESH_STORAGE) || 'manual'; }
-  function setAutoRefreshMode(v) { localStorage.setItem(AUTO_REFRESH_STORAGE, v === 'manual' ? 'manual' : 'auto'); }
+  const VALID_AUTO_REFRESH_MODES = ['manual', 'auto', 'selected'];
+  function getAutoRefreshMode() {
+    const v = localStorage.getItem(AUTO_REFRESH_STORAGE);
+    return VALID_AUTO_REFRESH_MODES.includes(v) ? v : 'manual';
+  }
+  function setAutoRefreshMode(v) {
+    localStorage.setItem(AUTO_REFRESH_STORAGE, VALID_AUTO_REFRESH_MODES.includes(v) ? v : 'manual');
+  }
+
+  // 「選択銘柄だけ自動更新」モードで使う、チェックした銘柄IDの一覧。次回もそのまま使えるよう保存する。
+  const SELECTED_FOR_UPDATE_STORAGE = 'stockapp_selected_for_update';
+  function loadSelectedForUpdate() {
+    try {
+      const arr = JSON.parse(localStorage.getItem(SELECTED_FOR_UPDATE_STORAGE));
+      return Array.isArray(arr) ? arr.filter(id => typeof id === 'string') : [];
+    } catch (e) { return []; }
+  }
+  function saveSelectedForUpdate(set) {
+    localStorage.setItem(SELECTED_FOR_UPDATE_STORAGE, JSON.stringify(Array.from(set)));
+  }
+
+  // AI機能の「実行方法」「回答スタイル」は、次回もそのまま使えるよう最後に選んだ内容を記憶する
+  const AI_EXEC_MODE_STORAGE = 'stockapp_ai_exec_mode';
+  const AI_STYLE_STORAGE = 'stockapp_ai_style';
+  const VALID_AI_STYLES = ['reflect', 'financial', 'detail', 'custom'];
+  function getAiExecMode() { return localStorage.getItem(AI_EXEC_MODE_STORAGE) === 'external' ? 'external' : 'inapp'; }
+  function setAiExecMode(v) { localStorage.setItem(AI_EXEC_MODE_STORAGE, v === 'external' ? 'external' : 'inapp'); }
+  function getAiStyle() { const v = localStorage.getItem(AI_STYLE_STORAGE); return VALID_AI_STYLES.includes(v) ? v : 'reflect'; }
+  function setAiStyle(v) { localStorage.setItem(AI_STYLE_STORAGE, VALID_AI_STYLES.includes(v) ? v : 'reflect'); }
+
+  // カスタムプロンプト(名前付きで複数保存できる、ユーザー自身のAI指示テンプレート)。
+  // 既存の銘柄データ(allStocks)とは完全に分離した、専用のlocalStorageキーで管理する。
+  const CUSTOM_PROMPTS_STORAGE = 'stockapp_custom_prompts';
+  const AI_LAST_CUSTOM_PROMPT_STORAGE = 'stockapp_ai_last_custom_prompt_id';
+  const CUSTOM_PROMPT_MAX_LENGTH = 4000; // textareaのmaxlengthともここで揃える
+
+  function sanitizeCustomPromptEntry(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const id = (typeof raw.id === 'string' && raw.id) ? raw.id : null;
+    const name = typeof raw.name === 'string' ? raw.name.trim().slice(0, 60) : '';
+    const prompt = typeof raw.prompt === 'string' ? raw.prompt.slice(0, CUSTOM_PROMPT_MAX_LENGTH) : '';
+    if (!id || !name || !prompt) return null;
+    return { id, name, prompt };
+  }
+
+  function getCustomPrompts() {
+    let raw;
+    try { raw = JSON.parse(localStorage.getItem(CUSTOM_PROMPTS_STORAGE)) || []; } catch (e) { raw = []; }
+    if (!Array.isArray(raw)) return [];
+    return raw.map(sanitizeCustomPromptEntry).filter(Boolean);
+  }
+  function setCustomPrompts(list) {
+    localStorage.setItem(CUSTOM_PROMPTS_STORAGE, JSON.stringify(list));
+  }
+  function getLastCustomPromptId() { return localStorage.getItem(AI_LAST_CUSTOM_PROMPT_STORAGE) || ''; }
+  function setLastCustomPromptId(id) { localStorage.setItem(AI_LAST_CUSTOM_PROMPT_STORAGE, id || ''); }
 
   // --- テーマ一覧の管理 ---
   const THEMES_STORAGE = 'stockapp_themes';
@@ -947,11 +1259,13 @@
     '量子コンピュータ', 'データセンター', '材料', 'ロボット', 'AI', 'ヘルスケア', '小売'
   ];
   function getThemes() {
+    const raw = localStorage.getItem(THEMES_STORAGE);
+    if (raw === null) return DEFAULT_THEMES.slice(); // 初回起動でまだ一度も保存されていない場合だけデフォルトを使う
     try {
-      const stored = JSON.parse(localStorage.getItem(THEMES_STORAGE));
-      if (Array.isArray(stored) && stored.length) return stored;
+      const stored = JSON.parse(raw);
+      if (Array.isArray(stored)) return stored; // 空配列(ユーザーが意図的に全削除した状態)もそのまま尊重する
     } catch (e) { /* fallthrough */ }
-    return DEFAULT_THEMES.slice();
+    return DEFAULT_THEMES.slice(); // 保存データが壊れている場合のみデフォルトにフォールバック
   }
   function setThemes(list) {
     localStorage.setItem(THEMES_STORAGE, JSON.stringify(list));
@@ -965,7 +1279,7 @@
   }
 
   let allStocks = loadStocks();
-  const selectedForUpdate = new Set(); // 「チェックした銘柄だけ更新」で使う選択状態(セッション中のみ保持)
+  const selectedForUpdate = new Set(loadSelectedForUpdate()); // 「チェックした銘柄だけ更新」で使う選択状態(localStorageに永続化)
 
   // --- 検索・並び替え・テーマ絞り込みの状態 ---
   let searchQuery = '';
@@ -1075,10 +1389,10 @@
         .sort((a, b) => a.ticker.localeCompare(b.ticker))
         .map(s => `
           <div class="shares-row" data-id="${s.id}">
-            <span class="shares-row-name">${s.ticker}<span class="shares-row-company">${s.company || ''}</span></span>
+            <span class="shares-row-name">${escapeHtml(s.ticker)}<span class="shares-row-company">${escapeHtml(s.company || '')}</span></span>
             <input type="number" class="shares-input" data-id="${s.id}" value="${s.shares || 0}" min="0">
           </div>`).join('');
-      return `<div class="shares-group-header">${theme}</div>${rows}`;
+      return `<div class="shares-group-header">${escapeHtml(theme)}</div>${rows}`;
     }).join('');
 
     box.querySelectorAll('.shares-input').forEach(inp => {
@@ -1120,7 +1434,7 @@
       const color = PIE_COLORS[i % PIE_COLORS.length];
       return `<div class="pie-legend-row">
         <span class="pie-legend-swatch" style="background:${color};"></span>
-        <span class="pie-legend-label">${theme}</span>
+        <span class="pie-legend-label">${escapeHtml(theme)}</span>
       </div>`;
     }).join('');
 
@@ -1129,7 +1443,7 @@
       const pct = total ? (value / total * 100) : 0;
       const color = PIE_COLORS[i % PIE_COLORS.length];
       return `<div class="theme-alloc-row">
-        <div class="theme-alloc-top"><span>${theme}</span><span>$${value.toFixed(2)}(${pct.toFixed(1)}%)</span></div>
+        <div class="theme-alloc-top"><span>${escapeHtml(theme)}</span><span>$${value.toFixed(2)}(${pct.toFixed(1)}%)</span></div>
         <div class="theme-alloc-bar-bg"><div class="theme-alloc-bar-fill" style="width:${Math.min(pct, 100)}%; background:${color};"></div></div>
       </div>`;
     }).join('');
@@ -1140,7 +1454,7 @@
         <div class="pie-legend">${legendHtml}</div>
       </div>
       <div class="theme-alloc-bars">${barsHtml}</div>
-      ${missingPrice ? '<div class="hint" style="margin-top:10px; margin-bottom:0;">※ 現在値が未取得の保有銘柄は集計に含まれていません。「全銘柄の現在値を更新」を試してください。</div>' : ''}`;
+      ${missingPrice ? '<div class="hint" style="margin-top:10px; margin-bottom:0;">※ 現在値が未取得の保有銘柄は集計に含まれていません。「銘柄編集」タブの「監視対象」ボタンを試してください。</div>' : ''}`;
   }
 
   // カード表示指標の「数値」を、成長性→収益性→財務健全性→バリュエーションの順で横並び比較する
@@ -1165,11 +1479,11 @@
     compareMetrics.forEach(m => { html += `<th>${m.label}<br>(${m.unit})</th>`; });
     html += '</tr></thead><tbody>';
     sortedRows.forEach(s => {
-      html += `<tr><td class="metric-label-cell">${s.ticker}${s.theme ? `<br><span class="theme-label" style="font-size:10px;">【${s.theme}】</span>` : ''}</td>`;
+      html += `<tr><td class="metric-label-cell">${escapeHtml(s.ticker)}${s.theme ? `<br><span class="theme-label" style="font-size:10px;">【${escapeHtml(s.theme)}】</span>` : ''}</td>`;
       compareMetrics.forEach(m => {
         const data = s.analysis.metrics[m.key];
         const val = data && data.value != null ? data.value : null;
-        html += `<td>${val != null ? val : '-'}</td>`;
+        html += `<td>${val != null ? escapeHtml(val) : '-'}</td>`;
       });
       html += '</tr>';
     });
@@ -1180,11 +1494,27 @@
   function renderWatchCountWarning() {
     const el = document.getElementById('watchCountWarning');
     if (!el) return;
+
+    if (getAutoRefreshMode() === 'selected') {
+      const count = selectedForUpdate.size;
+      if (count === 0) {
+        el.innerHTML = '⚠ 「選択銘柄だけ自動更新」に設定されていますが、選択銘柄がありません。各カードのチェックボックスで、自動更新したい銘柄を選んでください。';
+        el.style.display = 'block';
+        return;
+      }
+      if (count <= RECOMMENDED_MAX_WATCH) { el.style.display = 'none'; return; }
+      const estSec = Math.max(0, count - 1) * UPDATE_INTERVAL_SEC;
+      const estMin = Math.round(estSec / 60 * 10) / 10;
+      el.innerHTML = `⚠ 選択銘柄が${count}件あります(推奨は${RECOMMENDED_MAX_WATCH}件程度まで)。無料枠のペース上、選択銘柄の更新に約${estMin}分かかります。`;
+      el.style.display = 'block';
+      return;
+    }
+
     const count = allStocks.filter(s => s.watch).length;
     if (count <= RECOMMENDED_MAX_WATCH) { el.style.display = 'none'; return; }
     const estSec = Math.max(0, count - 1) * UPDATE_INTERVAL_SEC;
     const estMin = Math.round(estSec / 60 * 10) / 10;
-    el.innerHTML = `⚠ ウォッチ対象が${count}件あります(推奨は${RECOMMENDED_MAX_WATCH}件程度まで)。無料枠のペース上、全銘柄の更新に約${estMin}分かかります。あまり見ない銘柄は「ウォッチ対象にする」のチェックを外すことをおすすめします。`;
+    el.innerHTML = `⚠ ウォッチ対象が${count}件あります(推奨は${RECOMMENDED_MAX_WATCH}件程度まで)。無料枠のペース上、監視対象の更新に約${estMin}分かかります。あまり見ない銘柄は「ウォッチ対象にする」のチェックを外すことをおすすめします。`;
     el.style.display = 'block';
   }
 
@@ -1211,6 +1541,7 @@
     renderSharesByTheme();
     renderThemeAllocation();
     renderMetricCompare();
+    renderThemeAnalysisSection();
     renderWatchCountWarning();
     renderRegisteredCountHint();
     updateTabBadge('nonHoldBadge', nonHoldStocks.length);
@@ -1321,7 +1652,7 @@
       if (mode === 'value') {
         const def = METRIC_DEFS.find(d => d.key === m.key);
         const unit = def ? def.unit : '';
-        displayText = data.value != null ? `${data.value}${unit}` : '-';
+        displayText = data.value != null ? `${escapeHtml(data.value)}${escapeHtml(unit)}` : '-';
       } else {
         displayText = rank || '-';
       }
@@ -1380,9 +1711,9 @@
         <div class="stock-card-body">
           <div class="card-top-row">
             <div class="stock-main">
-              <div class="ticker">${checkboxHtml}${s.ticker}<span class="company">${s.company || ''}</span>${s.theme ? ` <span class="theme-label">【${s.theme}】</span>` : ''}</div>
+              <div class="ticker">${checkboxHtml}${escapeHtml(s.ticker)}<span class="company">${escapeHtml(s.company || '')}</span>${s.theme ? ` <span class="theme-label">【${escapeHtml(s.theme)}】</span>` : ''}</div>
               ${linesHtml(s)}
-              <div class="tags-row">${showSignal ? signalLabel(s) : ''}<span class="analysis-tag" data-id="${s.id}" title="投資判断ノートを開く" style="${analysisTagStyle(s)}">${analysisTagLabel()}</span><span class="analysis-tag rank-tag" data-id="${s.id}" title="財務指標ランクを開く" style="${rankTagStyle(s)}">${rankTagLabel()}</span><span class="analysis-tag chart-analysis-tag" data-id="${s.id}" title="チャート・テクニカル指標・パターン検出を開く">📉 分析</span><span class="analysis-tag ai-copy-tag" data-id="${s.id}" title="AI相談用にコピー">🤖 AI相談</span><span class="analysis-tag ai-gen-tag" data-id="${s.id}" title="Claudeに分析コメントを生成させる(要Anthropic APIキー)">🧠 AI分析</span></div>
+              <div class="tags-row">${showSignal ? signalLabel(s) : ''}<span class="analysis-tag" data-id="${s.id}" title="投資判断ノートを開く" style="${analysisTagStyle(s)}">${analysisTagLabel()}</span><span class="analysis-tag rank-tag" data-id="${s.id}" title="財務指標ランクを開く" style="${rankTagStyle(s)}">${rankTagLabel()}</span><span class="analysis-tag chart-analysis-tag" data-id="${s.id}" title="チャート・テクニカル指標・パターン検出を開く">📉 分析</span><span class="analysis-tag ai-tag" data-id="${s.id}" title="AI機能を開く(アプリ内AI分析・他のAIへの相談)">🧠 AI</span></div>
             </div>
             <div class="price-block">
               ${showManageControls ? `
@@ -1405,6 +1736,8 @@
     if (!s) return;
     if (!confirm(`${s.ticker} を削除しますか?`)) return;
     allStocks = allStocks.filter(x => x.id !== id);
+    selectedForUpdate.delete(id);
+    saveSelectedForUpdate(selectedForUpdate);
     saveStocks(allStocks);
     renderAll();
   }
@@ -1424,13 +1757,10 @@
     scope.querySelectorAll('.rank-tag').forEach(tag => {
       tag.onclick = (e) => { e.stopPropagation(); openRankModal(tag.dataset.id); };
     });
-    scope.querySelectorAll('.ai-copy-tag').forEach(tag => {
-      tag.onclick = (e) => { e.stopPropagation(); copyAiPrompt(tag.dataset.id); };
-    });
     scope.querySelectorAll('.chart-analysis-tag').forEach(tag => {
       tag.onclick = (e) => { e.stopPropagation(); openChartAnalysisModal(tag.dataset.id); };
     });
-    scope.querySelectorAll('.ai-gen-tag').forEach(tag => {
+    scope.querySelectorAll('.ai-tag').forEach(tag => {
       tag.onclick = (e) => { e.stopPropagation(); openAiGenModal(tag.dataset.id); };
     });
   }
@@ -1447,6 +1777,8 @@
       cb.onchange = () => {
         if (cb.checked) selectedForUpdate.add(cb.dataset.id);
         else selectedForUpdate.delete(cb.dataset.id);
+        saveSelectedForUpdate(selectedForUpdate);
+        renderWatchCountWarning(); // 「選択銘柄だけ自動更新」モードの件数表示をリアルタイムに反映
       };
     });
     // scope自体が.stock-cardの場合(1枚だけ差し替えた時)は、querySelectorAllが自分自身を拾えないため個別に対応する
@@ -1619,6 +1951,179 @@
     return s.analysis;
   }
 
+  /* =========================================================
+   * バックアップJSONインポート時の検証・サニタイズ
+   * -----------------------------------------------------------
+   * インポートされたデータは、ファイルの中身が改ざん・破損していたり、
+   * 想定外の型・異常に長い文字列を含んでいる可能性がある。
+   * ここで1件ずつ検証し、危険な値・型はすべて安全な既定値に補正する。
+   * 旧バージョンのバックアップとの互換性のため、無い項目はエラーにせず既定値で補う。
+   * ========================================================= */
+  const IMPORT_LIMITS = {
+    ticker: 10, company: 100, theme: 50, status: 20,
+    shortText: 2000,   // 撤退条件・想定保有期間など
+    longText: 5000,    // 投資理由・リスクなど
+    aiText: 20000,     // AI分析の生成結果(Claudeの応答)
+    refLabel: 100, refUrl: 2000,
+    maxLogEntries: 1000, maxAiHistoryEntries: 500
+  };
+  const VALID_STANCES = ['', '強気', '中立', '弱気'];
+  const VALID_STATUSES = ['非保有', '保有'];
+  const VALID_RANKS = ['', 'S', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
+  const METRIC_KEYS = METRIC_DEFS.map(m => m.key);
+  const CATEGORY_KEYS = CATEGORY_DEFS.map(c => c.key);
+
+  function sanitizeString(v, maxLen) {
+    if (typeof v !== 'string') return '';
+    return v.length > maxLen ? v.slice(0, maxLen) : v;
+  }
+  function sanitizeNumberOrNull(v) {
+    if (v == null || v === '') return null;
+    const n = Number(v);
+    return (typeof v !== 'object' && isFinite(n)) ? n : null;
+  }
+  function sanitizeEnum(v, allowed, fallback) {
+    return allowed.includes(v) ? v : fallback;
+  }
+  function sanitizeBoolean(v) {
+    return v === true;
+  }
+  function sanitizeDateString(v) {
+    if (typeof v !== 'string') return new Date().toISOString();
+    // 日付として解釈できない文字列は、記録の並び順が壊れないよう現在時刻に補正する
+    return isNaN(new Date(v).getTime()) ? new Date().toISOString() : sanitizeString(v, 100);
+  }
+
+  function sanitizeMetrics(rawMetrics) {
+    const metrics = {};
+    const src = (rawMetrics && typeof rawMetrics === 'object') ? rawMetrics : {};
+    METRIC_KEYS.forEach(key => {
+      const d = (src[key] && typeof src[key] === 'object') ? src[key] : {};
+      metrics[key] = {
+        value: sanitizeNumberOrNull(d.value),
+        rank: sanitizeEnum(d.rank, VALID_RANKS, ''),
+        reason: sanitizeString(d.reason, IMPORT_LIMITS.shortText)
+      };
+    });
+    return metrics;
+  }
+
+  function sanitizeCategoryRanks(raw) {
+    const src = (raw && typeof raw === 'object') ? raw : {};
+    const out = {};
+    CATEGORY_KEYS.forEach(key => { out[key] = sanitizeEnum(src[key], VALID_RANKS, ''); });
+    out.overall = sanitizeEnum(src.overall, VALID_RANKS, '');
+    return out;
+  }
+
+  function sanitizeJudgmentLog(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw.slice(0, IMPORT_LIMITS.maxLogEntries).map(entry => {
+      const e = (entry && typeof entry === 'object') ? entry : {};
+      return {
+        date: sanitizeDateString(e.date),
+        stance: sanitizeEnum(e.stance, VALID_STANCES, ''),
+        reasons: sanitizeString(e.reasons, IMPORT_LIMITS.longText),
+        risks: sanitizeString(e.risks, IMPORT_LIMITS.longText),
+        exitCondition: sanitizeString(e.exitCondition, IMPORT_LIMITS.shortText),
+        holdingPeriod: sanitizeString(e.holdingPeriod, IMPORT_LIMITS.shortText)
+      };
+    });
+  }
+
+  function sanitizeAiAnalysisHistory(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw.slice(0, IMPORT_LIMITS.maxAiHistoryEntries).map(entry => {
+      const e = (entry && typeof entry === 'object') ? entry : {};
+      const result = {
+        date: sanitizeDateString(e.date),
+        text: sanitizeString(e.text, IMPORT_LIMITS.aiText)
+      };
+      // style は 'reflect'/'financial'/'detail'/'custom' のみ許可。無い場合(旧バージョンのバックアップ)は付けない(各種分析として表示される)
+      if (e.style === 'reflect' || e.style === 'financial' || e.style === 'detail' || e.style === 'custom') result.style = e.style;
+      if (result.style === 'custom' && typeof e.customPromptName === 'string' && e.customPromptName) {
+        result.customPromptName = sanitizeString(e.customPromptName, 60);
+      }
+      return result;
+    });
+  }
+
+  function sanitizeAnalysis(raw) {
+    const src = (raw && typeof raw === 'object') ? raw : {};
+    return {
+      stance: sanitizeEnum(src.stance, VALID_STANCES, ''),
+      reasons: sanitizeString(src.reasons, IMPORT_LIMITS.longText),
+      risks: sanitizeString(src.risks, IMPORT_LIMITS.longText),
+      fairValue: sanitizeNumberOrNull(src.fairValue),
+      targetBuyPrice: sanitizeNumberOrNull(src.targetBuyPrice),
+      exitCondition: sanitizeString(src.exitCondition, IMPORT_LIMITS.shortText),
+      holdingPeriod: sanitizeString(src.holdingPeriod, IMPORT_LIMITS.shortText),
+      metrics: sanitizeMetrics(src.metrics),
+      categoryRanks: sanitizeCategoryRanks(src.categoryRanks),
+      fundamentalsAsOf: typeof src.fundamentalsAsOf === 'string' ? sanitizeString(src.fundamentalsAsOf, 30) : null,
+      judgmentLog: sanitizeJudgmentLog(src.judgmentLog),
+      aiAnalysisHistory: sanitizeAiAnalysisHistory(src.aiAnalysisHistory),
+      updatedAt: sanitizeDateString(src.updatedAt)
+    };
+  }
+
+  // 「📥 数値を自動取得」でAlpha Vantage(企業概要)から同時取得した会社情報。財務ランク画面上部の
+  // コンパクトな企業情報欄で使う(Sector/Industryはそのまま表示、テーマはアプリ側の登録テーマを別途表示)。
+  // rawが無い・不正な形なら「まだ取得していない」ことを表すnullを返す(companyInfo自体が無かった旧データとの後方互換性)。
+  function sanitizeCompanyInfo(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    return {
+      name: sanitizeString(raw.name, IMPORT_LIMITS.company),
+      sector: sanitizeString(raw.sector, 60),
+      industry: sanitizeString(raw.industry, 80),
+      description: sanitizeString(raw.description, IMPORT_LIMITS.longText),
+      updatedAt: raw.updatedAt ? sanitizeDateString(raw.updatedAt) : null
+    };
+  }
+  // s.companyInfoへの安全なアクセサ(旧データ・未取得の場合はnull。呼び出し側で都度typeofを気にしなくてよいように)
+  function getCompanyInfo(s) {
+    return (s && s.companyInfo && typeof s.companyInfo === 'object') ? s.companyInfo : null;
+  }
+
+  // 銘柄1件分を検証・補正する。tickerが無い・不正な形式の場合は読み込めないのでnullを返す。
+  function sanitizeImportedStock(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+
+    const tickerRaw = typeof raw.ticker === 'string' ? raw.ticker.trim().toUpperCase() : '';
+    if (!tickerRaw || !/^[A-Za-z0-9.\-]{1,10}$/.test(tickerRaw)) return null;
+
+    const id = (typeof raw.id === 'string' && /^[A-Za-z0-9\-]{1,64}$/.test(raw.id)) ? raw.id : uuid();
+
+    return {
+      id,
+      ticker: tickerRaw,
+      company: sanitizeString(raw.company, IMPORT_LIMITS.company),
+      theme: sanitizeString(raw.theme, IMPORT_LIMITS.theme),
+      status: sanitizeEnum(raw.status, VALID_STATUSES, '非保有'),
+      buyLine: sanitizeNumberOrNull(raw.buyLine),
+      sellLine: sanitizeNumberOrNull(raw.sellLine),
+      shares: sanitizeNumberOrNull(raw.shares) || 0,
+      watch: sanitizeBoolean(raw.watch),
+      price: sanitizeNumberOrNull(raw.price),
+      dayChange: sanitizeNumberOrNull(raw.dayChange),
+      dayChangePercent: sanitizeNumberOrNull(raw.dayChangePercent),
+      updatedAt: raw.updatedAt ? sanitizeDateString(raw.updatedAt) : null,
+      analysis: sanitizeAnalysis(raw.analysis),
+      companyInfo: sanitizeCompanyInfo(raw.companyInfo)
+    };
+  }
+
+  // 参考サイト1件分の検証。ラベルが正常な文字列であり、URLがhttps://から始まるものだけを有効とする。
+  // getReferenceLinks()でlocalStorageから読み込むたびに通すため、旧バージョンで保存されたhttp://等の
+  // データが残っていても、表示・利用されることはない。
+  function sanitizeReferenceLink(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const url = typeof raw.url === 'string' ? raw.url.trim() : '';
+    const label = sanitizeString(raw.label, IMPORT_LIMITS.refLabel).trim();
+    if (!label || !/^https:\/\//i.test(url) || url.length > IMPORT_LIMITS.refUrl) return null;
+    return { label, url };
+  }
+
   // --- 投資判断モーダル ---
   const analysisModalBg = document.getElementById('analysisModalBg');
 
@@ -1637,8 +2142,8 @@
         `想定保有期間: ${entry.holdingPeriod || '未記入'}`
       ].join('\n');
       return `<div class="judgment-log-entry">
-        <button type="button" class="judgment-log-toggle">${dateTxt}</button>
-        <div class="judgment-log-body" style="display:none;">${lines.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\n/g, '<br>')}</div>
+        <button type="button" class="judgment-log-toggle">${escapeHtml(dateTxt)}</button>
+        <div class="judgment-log-body" style="display:none;">${escapeHtml(lines).replace(/\n/g, '<br>')}</div>
       </div>`;
     }).join('');
   }
@@ -1653,7 +2158,7 @@
     });
   }
 
-  let analysisFullViewOn = false;
+  let analysisFullViewOn = true; // 投資判断は内容を読めないと意味がないため、デフォルトで全文表示にする
   const JUDGMENT_TEXTAREA_IDS = ['an_reasons', 'an_risks', 'an_exit'];
 
   function applyAnalysisFullView(enable) {
@@ -1689,6 +2194,14 @@
     applyAnalysisFullView(!analysisFullViewOn);
   });
 
+  // AI「投資判断に反映」で選んだが、まだ「保存」を押していない下書き。
+  // s.analysis(正式データ)は書き換えず、投資判断フォームの表示だけに一時的に反映する。
+  let judgmentDraftId = null;
+  let judgmentDraft = {};
+  function clearJudgmentDraft(id) {
+    if (judgmentDraftId === id) { judgmentDraftId = null; judgmentDraft = {}; }
+  }
+
   function openAnalysisModal(id) {
     const s = allStocks.find(x => x.id === id);
     if (!s) return;
@@ -1701,14 +2214,34 @@
     document.getElementById('an_risks').value = a.risks || '';
     document.getElementById('an_exit').value = a.exitCondition || '';
     document.getElementById('an_holdperiod').value = a.holdingPeriod || '';
+
+    // 未保存のAI反映下書きがあれば、フォームの表示にだけ上書きする(s.analysisはまだ変更しない)
+    if (judgmentDraftId === s.id) {
+      const fieldMap = { stance: 'an_stance', reasons: 'an_reasons', risks: 'an_risks', exitCondition: 'an_exit', holdingPeriod: 'an_holdperiod' };
+      Object.keys(fieldMap).forEach(key => {
+        if (Object.prototype.hasOwnProperty.call(judgmentDraft, key)) {
+          document.getElementById(fieldMap[key]).value = judgmentDraft[key];
+        }
+      });
+    }
+
     document.getElementById('judgmentLogList').innerHTML = judgmentLogHtml(a.judgmentLog);
     attachJudgmentLogToggles(document.getElementById('judgmentLogList'));
-    applyAnalysisFullView(false); // 銘柄を開くたびに折りたたみ表示にリセット
 
     analysisModalBg.classList.add('active');
+
+    // 表示状態(全文/コンパクト)は前回のまま維持する(投資判断⇄AI分析を往復しても失われないように)。
+    // デフォルトはanalysisFullViewOnの初期値どおり全文表示。
+    // 【重要】高さの自動計算(scrollHeight)はモーダルが表示された後でないと正しく取得できないため、
+    // 「active」クラスを付けて表示状態にしてから呼び出す。
+    applyAnalysisFullView(analysisFullViewOn);
   }
 
-  document.getElementById('analysisCancelBtn').addEventListener('click', () => analysisModalBg.classList.remove('active'));
+  document.getElementById('analysisCancelBtn').addEventListener('click', () => {
+    // キャンセル時は正式データを変更せず、未保存のAI反映下書きも破棄する
+    clearJudgmentDraft(document.getElementById('an_id').value);
+    analysisModalBg.classList.remove('active');
+  });
 
   document.getElementById('clearJudgmentFieldsBtn').addEventListener('click', () => {
     if (!confirm('入力欄(評価・投資理由・リスク・撤退条件・想定保有期間)をすべて空にしますか?記録済みの履歴は消えません。「保存」を押すまでは確定しません。')) return;
@@ -1748,10 +2281,12 @@
     alert('記録に残しました。');
   });
 
-  document.getElementById('analysisSaveBtn').addEventListener('click', () => {
+  // 投資判断フォームの現在の入力内容を保存する(「保存」「保存してAI分析へ」共通)。
+  // 保存できた場合は対象の銘柄オブジェクトを、id不正などで保存できなかった場合はnullを返す。
+  function saveJudgmentForm() {
     const id = document.getElementById('an_id').value;
     const s = allStocks.find(x => x.id === id);
-    if (!s) return;
+    if (!s) return null;
     const a = getOrInitAnalysis(s);
 
     a.stance = document.getElementById('an_stance').value;
@@ -1762,9 +2297,24 @@
     a.updatedAt = new Date().toISOString();
 
     saveStocks(allStocks);
-    analysisModalBg.classList.remove('active');
     updateSingleEditCard(s);
     renderAlertTabs();
+    clearJudgmentDraft(id); // 正式に保存できたので、未保存の下書きは役目を終える
+    return s;
+  }
+
+  document.getElementById('analysisSaveBtn').addEventListener('click', () => {
+    if (!saveJudgmentForm()) return;
+    analysisModalBg.classList.remove('active');
+  });
+
+  // 投資判断 → AI分析への往復操作(往復の度にカード一覧を経由しなくて済むようにするため)。
+  // 現在の入力内容をまず保存してから、そのままAI分析モーダルを開く。
+  document.getElementById('analysisSaveAndGoAiBtn').addEventListener('click', () => {
+    const s = saveJudgmentForm();
+    if (!s) return;
+    analysisModalBg.classList.remove('active');
+    openAiGenModal(s.id);
   });
 
   // --- 財務指標ランクモーダル ---
@@ -1824,9 +2374,9 @@
           <tr data-key="${m.key}">
             ${catCell}
             <td class="metric-label-cell">${m.label}(${m.unit})${m.autoFillable ? '' : '<br><span class="manual-only-badge">手動入力</span>'}</td>
-            <td><input type="number" step="0.01" class="metric-value" data-key="${m.key}" value="${data.value != null ? data.value : ''}"></td>
+            <td><input type="number" step="0.01" class="metric-value" data-key="${m.key}" value="${data.value != null ? escapeHtml(data.value) : ''}"></td>
             <td><select class="metric-rank" data-key="${m.key}" data-cat="${cat.key}">${rankOptionsHtml(data.rank)}</select></td>
-            <td><input type="text" class="metric-reason" data-key="${m.key}" value="${data.reason ? data.reason.replace(/"/g, '&quot;') : ''}"></td>
+            <td><input type="text" class="metric-reason" data-key="${m.key}" value="${data.reason ? escapeHtml(data.reason) : ''}"></td>
             ${catRankCell}
             ${overallCell}
           </tr>`;
@@ -1890,22 +2440,59 @@
     el.style.display = 'block';
   }
 
+  // --- 財務ランク画面上部の「企業情報」欄(コンパクト表示。会社概要のみ折りたたみ) ---
+  // 何の会社か・どの業種か・どのテーマに属するかを数秒で確認できることを目的とし、常時表示は最小限にとどめる。
+  // Sector/Industryは Alpha Vantage の値をそのまま表示。「Theme」はAIが判定したものではなく、
+  // 既存の銘柄データに設定済みのテーマ(f_themeで登録したもの)をそのまま表示するだけ(未設定なら「未設定」)。
+  function renderCompanyInfoBox(s) {
+    const box = document.getElementById('companyInfoBox');
+    if (!box) return;
+    const info = getCompanyInfo(s); // 未取得・旧データならnull(companyInfoが無くてもエラーにならない)
+    const name = (info && info.name) ? info.name : (s.company || '');
+    const sector = (info && info.sector) ? info.sector : '不明';
+    const industry = (info && info.industry) ? info.industry : '不明';
+    const theme = s.theme ? s.theme : '未設定';
+    const nameLine = name ? `${escapeHtml(s.ticker)}　${escapeHtml(name)}` : escapeHtml(s.ticker);
+
+    const hasDesc = !!(info && info.description);
+    const descHtml = hasDesc ? `
+        <div class="indicator-toggle" onclick="toggleCompanyInfoDesc()" style="margin-top:8px;">
+          <span class="indicator-caret" id="companyInfoDescCaret">▸ 会社概要を見る</span>
+        </div>
+        <div class="indicator-section collapsed" id="companyInfoDescSection">
+          <div class="company-info-desc">${escapeHtml(info.description)}</div>
+        </div>` : '';
+    // データ出典の明記(AIが生成した説明文と誤解されないよう、目立たない位置に小さく表示する)
+    const sourceHtml = info ? `<div class="company-info-source">企業情報: Alpha Vantage</div>` : '';
+
+    box.innerHTML = `
+      <div class="company-info-box">
+        <div class="company-info-name">${nameLine}</div>
+        <div class="company-info-row"><span class="company-info-label">Sector</span><span>${escapeHtml(sector)}</span></div>
+        <div class="company-info-row"><span class="company-info-label">Industry</span><span>${escapeHtml(industry)}</span></div>
+        <div class="company-info-row"><span class="company-info-label">Theme</span><span>${escapeHtml(theme)}</span></div>
+        ${descHtml}
+        ${sourceHtml}
+      </div>`;
+  }
+  function toggleCompanyInfoDesc() {
+    const section = document.getElementById('companyInfoDescSection');
+    const caret = document.getElementById('companyInfoDescCaret');
+    if (!section) return;
+    const nowCollapsed = section.classList.toggle('collapsed');
+    if (caret) caret.textContent = nowCollapsed ? '▸ 会社概要を見る' : '▾ 会社概要を閉じる';
+  }
+
   // --- 参考サイト(外部で調べる指標のためのリンク集) ---
   const REFERENCE_LINKS_STORAGE = 'stockapp_reference_links';
   function getReferenceLinks() {
-    try { return JSON.parse(localStorage.getItem(REFERENCE_LINKS_STORAGE)) || []; } catch (e) { return []; }
+    let raw;
+    try { raw = JSON.parse(localStorage.getItem(REFERENCE_LINKS_STORAGE)) || []; } catch (e) { raw = []; }
+    if (!Array.isArray(raw)) return [];
+    return raw.map(sanitizeReferenceLink).filter(Boolean);
   }
   function setReferenceLinks(links) {
     localStorage.setItem(REFERENCE_LINKS_STORAGE, JSON.stringify(links));
-  }
-
-  function renderReferenceLinksQuick() {
-    const el = document.getElementById('referenceLinksQuickList');
-    if (!el) return;
-    const links = getReferenceLinks();
-    el.innerHTML = links.map(l =>
-      `<a class="analysis-tag" href="${l.url}" target="_blank" rel="noopener noreferrer" title="${l.label}を新しいタブで開く">🔗 ${l.label}</a>`
-    ).join('');
   }
 
   let editingRefLinkIndex = null; // 参考サイトの編集中インデックス(nullなら新規追加モード)
@@ -1920,7 +2507,7 @@
     }
     el.innerHTML = links.map((l, i) => `
       <div class="ref-link-row">
-        <a href="${l.url}" target="_blank" rel="noopener noreferrer">${l.label}</a>
+        <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(l.label)}</a>
         <span class="ref-link-actions">
           <button type="button" class="ref-link-edit" data-idx="${i}" title="編集">✎編集</button>
           <button type="button" class="ref-link-delete" data-idx="${i}" title="削除">✕</button>
@@ -1955,6 +2542,18 @@
     });
   }
 
+  // AI「投資判断に反映」で選んだが、まだ「保存」を押していない財務指標(ROIC等)の下書き。
+  // s.analysis.metrics(正式データ)は書き換えず、財務ランクフォームの表示だけに一時的に反映する。
+  let financialDraftId = null;
+  let financialDraft = {};
+  // 財務データ取得日(fundamentalsAsOf)の下書き。数値と同様、保存するまで正式データへは書き込まない。
+  // 「ドラフト未設定」と「取得したが基準日が無かった(null)」を区別するため、値とは別にフラグを持つ。
+  let financialDraftAsOf = null;
+  let financialDraftAsOfSet = false;
+  function clearFinancialDraft(id) {
+    if (financialDraftId === id) { financialDraftId = null; financialDraft = {}; financialDraftAsOf = null; financialDraftAsOfSet = false; }
+  }
+
   function openRankModal(id) {
     const s = allStocks.find(x => x.id === id);
     if (!s) return;
@@ -1962,18 +2561,38 @@
 
     document.getElementById('rankModalTitle').textContent = `${s.ticker} の財務指標ランク`;
     document.getElementById('rk_id').value = s.id;
+    renderCompanyInfoBox(s);
 
     const cats = a.categoryRanks || {};
     renderRankGroups(a.metrics, cats);
     renderFundamentalsPeriodMsg(a.fundamentalsAsOf);
-    renderReferenceLinksQuick();
     updateRankCriteriaBtnText();
+
+    // 未保存のAI推定値の下書きがあれば、フォームの表示にだけ上書きする(a.metricsはまだ変更しない)
+    if (financialDraftId === s.id) {
+      Object.keys(financialDraft).forEach(key => {
+        const valueInput = document.querySelector(`.metric-value[data-key="${key}"]`);
+        const reasonInput = document.querySelector(`.metric-reason[data-key="${key}"]`);
+        if (valueInput) valueInput.value = financialDraft[key].value;
+        if (reasonInput) reasonInput.value = financialDraft[key].reason;
+        // 自動ランク機能がONの場合、AI案の値に合わせて個別・カテゴリ・総合ランクも再計算する(既存の自動ランク処理を流用)
+        autoFillRankFromValue(key);
+      });
+      // 財務データ基準日の下書きがあれば、こちらも表示にだけ上書きする(保存するまでa.fundamentalsAsOfは書き換えない)
+      if (financialDraftAsOfSet) {
+        renderFundamentalsPeriodMsg(financialDraftAsOf);
+      }
+    }
 
     colorizeRankSelects(rankModalBg);
     rankModalBg.classList.add('active');
   }
 
-  document.getElementById('rankCancelBtn').addEventListener('click', () => rankModalBg.classList.remove('active'));
+  document.getElementById('rankCancelBtn').addEventListener('click', () => {
+    // キャンセル時は正式データを変更せず、未保存のAI推定値の下書きも破棄する
+    clearFinancialDraft(document.getElementById('rk_id').value);
+    rankModalBg.classList.remove('active');
+  });
 
   // --- ランク基準の設定モーダル ---
   const rankCriteriaModalBg = document.getElementById('rankCriteriaModalBg');
@@ -1984,7 +2603,7 @@
     el.innerHTML = METRIC_DEFS.map(m => {
       const dirLabel = RANK_CRITERIA_DIRECTIONS[m.key] ? '以上' : '以下';
       const vals = criteria[m.key];
-      const cells = vals.map((v, i) => `<td><input type="number" step="0.01" class="criteria-input" data-key="${m.key}" data-idx="${i}" value="${v}"></td>`).join('');
+      const cells = vals.map((v, i) => `<td><input type="number" step="0.01" class="criteria-input" data-key="${m.key}" data-idx="${i}" value="${escapeHtml(v)}"></td>`).join('');
       return `<tr><td class="metric-label-cell">${m.label}<br><span class="manual-only-badge">${dirLabel}(${m.unit})</span></td>${cells}</tr>`;
     }).join('');
   }
@@ -2001,7 +2620,6 @@
   });
   document.getElementById('rankCriteriaCancelBtn').addEventListener('click', () => {
     rankCriteriaModalBg.classList.remove('active');
-    renderReferenceLinksQuick(); // 参考サイトの追加・削除を財務ランク側にも反映
   });
   document.getElementById('rankCriteriaResetBtn').addEventListener('click', () => {
     if (!confirm('ランク基準を初期値に戻しますか?')) return;
@@ -2012,7 +2630,7 @@
     const label = document.getElementById('refLinkLabelInput').value.trim();
     const url = document.getElementById('refLinkUrlInput').value.trim();
     if (!label || !url) { alert('名前とURLの両方を入力してください'); return; }
-    if (!/^https?:\/\//i.test(url)) { alert('URLは「https://」から始まる形式で入力してください'); return; }
+    if (!/^https:\/\//i.test(url)) { alert('URLは「https://」から始まる形式で入力してください'); return; }
     const links = getReferenceLinks();
     if (editingRefLinkIndex !== null && links[editingRefLinkIndex]) {
       links[editingRefLinkIndex] = { label, url };
@@ -2089,10 +2707,29 @@
       }
     });
 
-    const a = getOrInitAnalysis(s);
-    a.fundamentalsAsOf = result.latestQuarter || null;
-    renderFundamentalsPeriodMsg(a.fundamentalsAsOf);
+    // 財務データ基準日は、数値・ランクと同様に保存するまで正式データ(a.fundamentalsAsOf)を書き換えない下書き扱いにする
+    if (financialDraftId !== s.id) { financialDraftId = s.id; financialDraft = {}; }
+    financialDraftAsOf = result.latestQuarter || null;
+    financialDraftAsOfSet = true;
+    renderFundamentalsPeriodMsg(financialDraftAsOf);
     const periodTxt = result.latestQuarter ? `(データ基準日: ${formatFiscalPeriod(result.latestQuarter)})` : '(データ基準日は取得できませんでした)';
+
+    // 企業情報(会社名・Sector・Industry・会社概要)は、財務指標と同じAPIレスポンスから同時に保存する
+    // (このためだけの追加リクエストは発生しない)。ランク・数値のような下書き/保存の区別は設けず、
+    // 取得できた時点でそのまま保存する(会社概要はユーザーが編集して確定させる類の項目ではないため)。
+    // 一部・全部の項目が空でも、財務指標側の反映が失敗扱いになることはない。
+    const infoName = result.name || '';
+    const infoSector = result.sector || '';
+    const infoIndustry = result.industry || '';
+    const infoDescription = result.description || '';
+    if (infoName || infoSector || infoIndustry || infoDescription) {
+      s.companyInfo = {
+        name: infoName, sector: infoSector, industry: infoIndustry, description: infoDescription,
+        updatedAt: new Date().toISOString()
+      };
+      saveStocks(allStocks);
+      renderCompanyInfoBox(s);
+    }
 
     if (filled === 0) {
       alert('取得できた数値がありませんでした(この銘柄のデータが無いか、非対応の可能性があります)。');
@@ -2126,15 +2763,20 @@
       categoryRanks[cat.key] = sel ? sel.value : '';
     });
     a.categoryRanks = categoryRanks;
+    // 財務データ基準日: 下書きがあればそれを正式データへ反映(無ければ既存の値を維持する)
+    if (financialDraftId === s.id && financialDraftAsOfSet) {
+      a.fundamentalsAsOf = financialDraftAsOf;
+    }
     a.updatedAt = new Date().toISOString();
 
     saveStocks(allStocks);
     rankModalBg.classList.remove('active');
     updateSingleEditCard(s);
     renderAlertTabs();
+    clearFinancialDraft(id); // 正式に保存できたので、未保存の下書きは役目を終える
   });
 
-  // --- AI相談用にコピー ---
+  // --- クリップボードへのコピー(「他のAIに相談」実行時に使用) ---
   function copyToClipboard(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       return navigator.clipboard.writeText(text);
@@ -2157,7 +2799,8 @@
     });
   }
 
-  function generateAiPrompt(s) {
+  // AI機能共通のデータ部分(銘柄情報・狙い値・投資判断・財務評価)
+  function buildJudgmentDataSection(s) {
     const a = s.analysis || {};
     const metrics = a.metrics || {};
     const cats = a.categoryRanks || {};
@@ -2165,15 +2808,27 @@
     const sellPct = lineDistancePct(s.price, s.sellLine);
     const fmtPct = (pct) => (pct == null ? '不明' : `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`);
 
+    // 現在値がいつ時点のものか。AIが古い価格をリアルタイムの現在値だと誤認しないよう明記する
+    let priceUpdatedTxt = '取得日時不明';
+    if (s.updatedAt) {
+      const d = new Date(s.updatedAt);
+      if (!isNaN(d.getTime())) priceUpdatedTxt = d.toLocaleString('ja-JP');
+    }
+
     const metricLines = METRIC_DEFS.map(m => {
       const d = metrics[m.key] || {};
       const valTxt = d.value != null ? `${d.value}${m.unit}` : '未入力';
       const rankTxt = d.rank || '未評価';
-      return `${m.label}: ${rankTxt}(値: ${valTxt})`;
+      // AI自身が過去に推定して反映した値は、その出所(要確認)もあわせて伝え、確定した事実として扱われないようにする
+      const provenanceTxt = /AI推定値/.test(d.reason || '') ? '・AI推定値のため要確認' : '';
+      return `${m.label}: ${rankTxt}(値: ${valTxt}${provenanceTxt})`;
     }).join('\n');
 
+    const fundamentalsAsOfTxt = a.fundamentalsAsOf ? formatFiscalPeriod(a.fundamentalsAsOf) : '不明(手動入力または未取得)';
+
     return `銘柄: ${s.ticker}${s.company ? '(' + s.company + ')' : ''}
-現在株価: ${s.price != null ? '$' + s.price : '未取得'}
+現在値(最終取得値): ${s.price != null ? '$' + s.price : '未取得'}
+株価取得日時: ${priceUpdatedTxt}(これより新しい値動きは反映されていません)
 
 【狙い値】
 買いライン: ${s.buyLine != null ? '$' + s.buyLine : '未設定'}(現在値からの距離: ${fmtPct(buyPct)})
@@ -2184,16 +2839,21 @@
 財務総合評価: ${cats.overall || '未評価'}
 想定保有期間: ${a.holdingPeriod || '未設定'}
 
-【財務評価】(※以下のランクは私自身の主観評価です。客観的な格付けではありません)
+【財務評価】(※以下のランクは私自身の主観評価です。客観的な格付けではありません。財務データ基準日: ${fundamentalsAsOfTxt}。「AI推定値」の注記がある項目は、あなた自身か他のAIが過去に推定した未確認の値であり、確定した事実として扱わないでください)
 ${metricLines}
 
 【投資仮説】
 投資理由: ${a.reasons || '未記入'}
 最大のリスク: ${a.risks || '未記入'}
-撤退条件: ${a.exitCondition || '未記入'}
+撤退条件: ${a.exitCondition || '未記入'}`;
+  }
+
+  // 回答スタイル「各種分析」(内部キーはdetailのまま): 解説重視。既存のAI分析と同内容
+  function buildDetailPrompt(s) {
+    return buildJudgmentDataSection(s) + `
 
 ---
-この投資判断について、最新の公開情報も確認した上でレビューしてください。
+この投資判断について、与えられた情報をもとにレビューしてください。あなたが最新の株価・決算・ニュースを知っている前提で断定しないでください。外部の最新情報を確認できない場合は推測で補わず、その旨を明示してください。
 入力されている財務ランクは私自身の主観評価です。数値が未入力または不自然な場合は推測で補完せず、その旨を指摘してください。
 
 1. 入力データの不足・矛盾・異常値
@@ -2205,13 +2865,118 @@ ${metricLines}
 7. このレビューを踏まえ、アプリ上で見直す候補項目だけを最後にまとめてください`;
   }
 
-  function copyAiPrompt(id) {
-    const s = allStocks.find(x => x.id === id);
-    if (!s) return;
-    const text = generateAiPrompt(s);
-    copyToClipboard(text)
-      .then(() => alert(`${s.ticker} の情報をコピーしました。ChatGPTやGeminiなどに貼り付けてご利用ください。`))
-      .catch(() => alert('コピーに失敗しました。お使いのブラウザがクリップボード機能に対応していない可能性があります。'));
+  // 回答スタイル「投資判断に反映」: 投資判断欄へそのまま転記できる、構造化された短い修正案を求める
+  const AI_REFLECT_FIELDS = [
+    { section: '評価案', key: 'stance', label: '評価' },
+    { section: '投資理由の修正案', key: 'reasons', label: '投資理由' },
+    { section: '最大のリスクの修正案', key: 'risks', label: '最大のリスク' },
+    { section: '売却・撤退条件の修正案', key: 'exitCondition', label: '売却・撤退条件' },
+    { section: '想定保有期間の修正案', key: 'holdingPeriod', label: '想定保有期間' }
+  ];
+
+  // 財務ランクの手動入力項目(ROIC・自己資本比率・Net Debt/EBITDA)へのAI推定値。
+  // 通常の投資判断フィールドとは異なり、数値を財務ランクモーダルへ反映する(要確認の注記付き)。
+  const AI_REFLECT_FINANCIAL_FIELDS = [
+    { section: 'ROIC推定値', key: 'roic', label: 'ROIC' },
+    { section: '自己資本比率推定値', key: 'equityRatio', label: '自己資本比率' },
+    { section: 'Net Debt/EBITDA推定値', key: 'netDebtEbitda', label: 'Net Debt/EBITDA' }
+  ];
+
+  function buildReflectPrompt(s) {
+    return buildJudgmentDataSection(s) + `
+
+---
+上記の投資判断について、与えられた情報をもとにレビューし、投資判断欄にそのまま転記できる形で、項目ごとに簡潔な修正案を提示してください。あなたが最新の株価・決算・ニュースを知っている前提で断定しないでください。外部の最新情報を確認できない場合は推測で補わず、分からない場合はその旨を書いてください。
+
+前置きは不要です。各項目は短く具体的に、そのまま保存しても違和感のない文章にしてください。変更の必要が無い項目は「変更なし」とだけ書いてください。
+
+必ず次の見出し(【】で囲む)をこの順番で使い、他の文章は付け加えないでください。
+
+【評価案】
+強気・中立・弱気のいずれか1つだけ
+
+【投資理由の修正案】
+
+【最大のリスクの修正案】
+
+【売却・撤退条件の修正案】
+
+【想定保有期間の修正案】
+
+【補足コメント】
+無ければ「特になし」`;
+  }
+
+  // 回答スタイル「財務指標」: 財務ランクの手動入力項目(ROIC・自己資本比率・Net Debt/EBITDA)への参考値だけを求める
+  function buildFinancialEstimatePrompt(s) {
+    return buildJudgmentDataSection(s) + `
+
+---
+上記の銘柄について、財務ランクの手動入力項目の参考値を推定してください。実際の財務諸表を確認したものではない、あなたの知識に基づく参考値であることを踏まえ、自信を持って言えない・最新の数値を知らない場合は、無理に数値を出さず「不明」とだけ書いてください。あなたが最新の決算を知っている前提で断定しないでください。
+
+必ず次の見出し(【】で囲む)をこの順番で使い、他の文章は付け加えないでください。
+
+【ROIC推定値】
+数値のみ(%表記の数字部分だけ。例: 8.5)。分からなければ「不明」
+
+【自己資本比率推定値】
+数値のみ(%表記の数字部分だけ)。分からなければ「不明」
+
+【Net Debt/EBITDA推定値】
+数値のみ(倍数の数字部分だけ)。分からなければ「不明」`;
+  }
+
+  // AIが返した財務指標の推定値テキストから、数値だけを取り出す。
+  // 「不明」等、数値として解釈できない場合はnullを返す(この場合、反映ボタンは表示しない)。
+  function parseNumericEstimate(raw) {
+    if (!raw) return null;
+    const trimmed = raw.trim();
+    if (!trimmed || /不明|わかりません|分かりません|不確か|判断できません/.test(trimmed)) return null;
+    const match = trimmed.match(/-?\d+(\.\d+)?/);
+    if (!match) return null;
+    const num = Number(match[0]);
+    return isFinite(num) ? num : null;
+  }
+
+  // 「投資判断に反映」モードの回答を、見出しごとのセクションに分解する
+  function parseReflectSections(text) {
+    const sections = {};
+    const regex = /【([^】]+)】([\s\S]*?)(?=(?:【[^】]+】)|$)/g;
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      sections[match[1].trim()] = match[2].trim();
+    }
+    return sections;
+  }
+
+  // 期待している見出しが1つも解析できなかったか(=AIが指定フォーマットを守らなかったか)を判定する。
+  // 「本当に全部変更なし」と「パース失敗」を混同しないための判定。
+  function reflectParseFailed(sections, expectedSectionNames) {
+    return !expectedSectionNames.some(name => Object.prototype.hasOwnProperty.call(sections, name));
+  }
+
+  // パース失敗時の表示。生のAI回答も確認できるようにする。
+  function parseFailureHtml(rawText) {
+    const escaped = escapeHtml(rawText || '').replace(/\n/g, '<br>');
+    return `<div class="hint" style="margin-top:0; margin-bottom:8px; color:var(--down);">⚠ AI回答の形式を解析できませんでした。もう一度生成してください。</div>
+      <div class="judgment-log-entry">
+        <button type="button" class="judgment-log-toggle">生成されたAI回答をそのまま見る</button>
+        <div class="judgment-log-body" style="display:none;">${escaped}</div>
+      </div>`;
+  }
+
+  function normalizeStanceText(text) {
+    if (/強気/.test(text)) return '強気';
+    if (/弱気/.test(text)) return '弱気';
+    if (/中立/.test(text)) return '中立';
+    return '';
+  }
+
+  // 回答スタイル「カスタム」: ユーザー自身の自由な指示 + (ON時のみ)既存の銘柄情報データ部分を再利用
+  function buildCustomPrompt(s, userInstruction, includeData) {
+    const instructionSection = `【ユーザーの追加指示】\n${userInstruction}`;
+    if (!includeData) return instructionSection;
+    return `【現在の銘柄情報】\n${buildJudgmentDataSection(s)}\n\n---\n${instructionSection}`;
   }
 
   // --- AI分析(Claudeによる自動生成コメント。ユーザー自身のAnthropic APIキーを使用) ---
@@ -2251,13 +3016,21 @@ ${metricLines}
     if (!history || !history.length) {
       return '<div class="hint" style="margin-top:0;">まだ生成履歴がありません。</div>';
     }
-    return history.slice().reverse().map(entry => {
+    // 削除時に元の配列のインデックスを正しく指せるよう、reverseする前にインデックスを控えておく
+    return history.map((entry, idx) => ({ entry, idx })).slice().reverse().map(({ entry, idx }) => {
       const d = new Date(entry.date);
       const dateTxt = isNaN(d.getTime()) ? entry.date : d.toLocaleString('ja-JP');
-      const escaped = String(entry.text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\n/g, '<br>');
+      const escaped = escapeHtml(entry.text || '').replace(/\n/g, '<br>');
+      // styleが無い(旧バージョンで生成した)履歴は「詳細分析」として扱う(既存データとの互換性維持)
+      let styleLabel;
+      if (entry.style === 'reflect') styleLabel = '判断反映';
+      else if (entry.style === 'financial') styleLabel = '財務指標';
+      else if (entry.style === 'custom') styleLabel = entry.customPromptName ? `カスタム / ${escapeHtml(entry.customPromptName)}` : 'カスタム';
+      else styleLabel = '各種分析';
       return `<div class="judgment-log-entry">
-        <button type="button" class="judgment-log-toggle">${dateTxt}</button>
+        <button type="button" class="judgment-log-toggle"><span class="hint" style="display:inline; margin:0; padding:1px 5px; border:1px solid var(--card-border); border-radius:4px; margin-right:5px;">${styleLabel}</span>${escapeHtml(dateTxt)}</button>
         <div class="judgment-log-body" style="display:none;">${escaped}</div>
+        <button type="button" class="btn btn-danger ai-history-delete-btn" data-idx="${idx}" style="margin-top:4px; font-size:11px; padding:3px 8px; width:auto;">🗑 この履歴を削除</button>
       </div>`;
     }).join('');
   }
@@ -2267,98 +3040,446 @@ ${metricLines}
     const el = document.getElementById('aiGenHistoryList');
     el.innerHTML = aiGenHistoryHtml(a.aiAnalysisHistory);
     attachJudgmentLogToggles(el);
+    el.querySelectorAll('.ai-history-delete-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const idx = Number(btn.dataset.idx);
+        if (isNaN(idx) || !a.aiAnalysisHistory[idx]) return;
+        if (!confirm('この分析結果を削除しますか?(この操作は元に戻せません)')) return;
+        a.aiAnalysisHistory.splice(idx, 1);
+        saveStocks(allStocks);
+        renderAiGenHistory(s); // 削除後、即座に一覧を再描画してlocalStorageの内容と一致させる
+      };
+    });
   }
+
+  // 実行方法(アプリ内AI/他のAI)に応じて、ヒント文言とボタンの文言を切り替える
+  function refreshAiModeUi() {
+    const mode = getAiExecMode();
+    const style = getAiStyle();
+    document.getElementById('aiExecModeSelect').value = mode;
+    document.getElementById('aiStyleSelect').value = style;
+    document.getElementById('aiGenHintInapp').style.display = (mode === 'inapp' && style !== 'custom') ? 'block' : 'none';
+    document.getElementById('aiGenHintExternal').style.display = (mode === 'external' && style !== 'custom') ? 'block' : 'none';
+    document.getElementById('aiCustomArea').style.display = style === 'custom' ? 'block' : 'none';
+    if (style === 'custom') refreshCustomPromptSelect();
+    const btn = document.getElementById('aiGenRunBtn');
+    if (mode === 'inapp') {
+      btn.textContent = style === 'reflect' ? '🧠 修正案を生成する'
+        : style === 'financial' ? '🧠 財務指標を推定する'
+        : style === 'custom' ? '🧠 カスタム分析を実行する'
+        : '🧠 分析コメントを生成する';
+    } else {
+      btn.textContent = (style === 'reflect' || style === 'financial') ? '📋 転記用の相談文をコピーする' : '📋 相談文をコピーする';
+    }
+  }
+
+  document.getElementById('aiExecModeSelect').addEventListener('change', (e) => {
+    setAiExecMode(e.target.value);
+    refreshAiModeUi();
+  });
+  document.getElementById('aiStyleSelect').addEventListener('change', (e) => {
+    setAiStyle(e.target.value);
+    refreshAiModeUi();
+  });
+
+  // --- カスタムプロンプト(保存済み一覧・選択・保存・別名保存・削除) ---
+  function updateCustomPromptCounter() {
+    const counterEl = document.getElementById('aiCustomPromptCounter');
+    if (!counterEl) return;
+    const len = document.getElementById('aiCustomPromptText').value.length;
+    counterEl.textContent = `${len} / ${CUSTOM_PROMPT_MAX_LENGTH}`;
+    counterEl.style.color = len >= CUSTOM_PROMPT_MAX_LENGTH ? 'var(--down)' : '';
+  }
+  document.getElementById('aiCustomPromptText').addEventListener('input', updateCustomPromptCounter);
+
+  // 選択肢一覧だけを更新する(現在選択中の値・textareaの内容には触れない)。
+  // 実行方法・回答スタイルを切り替えるたびに呼ばれるため、未保存の編集内容を消さないようにするための設計。
+  function refreshCustomPromptSelect() {
+    const sel = document.getElementById('aiCustomPromptSelect');
+    const list = getCustomPrompts();
+    const currentValue = sel.value;
+    const validValue = list.some(p => p.id === currentValue) ? currentValue : '';
+    sel.innerHTML = '<option value="">(保存せず入力)</option>' +
+      list.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`).join('');
+    sel.value = validValue;
+    document.getElementById('aiCustomDeleteBtn').style.display = validValue ? 'block' : 'none';
+  }
+
+  // AI画面を開いた直後だけ呼ぶ。選択肢一覧を作り、前回最後に選んでいたプロンプトの内容を
+  // textareaへ読み込む(初回表示専用。ユーザーが選び直した時・保存/削除した時以外は呼ばない)。
+  function loadCustomPromptSelectionOnOpen() {
+    const sel = document.getElementById('aiCustomPromptSelect');
+    const list = getCustomPrompts();
+    const lastId = getLastCustomPromptId();
+    // 削除済みのプロンプトを参照していた場合は、エラーにせず「保存せず入力」扱いに戻す
+    const validLastId = list.some(p => p.id === lastId) ? lastId : '';
+    sel.innerHTML = '<option value="">(保存せず入力)</option>' +
+      list.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`).join('');
+    sel.value = validLastId;
+    applyCustomPromptSelection(validLastId, list);
+  }
+
+  function applyCustomPromptSelection(id, list) {
+    const deleteBtn = document.getElementById('aiCustomDeleteBtn');
+    if (!id) {
+      deleteBtn.style.display = 'none';
+      return;
+    }
+    const entry = (list || getCustomPrompts()).find(p => p.id === id);
+    if (!entry) {
+      deleteBtn.style.display = 'none';
+      return;
+    }
+    document.getElementById('aiCustomPromptText').value = entry.prompt;
+    updateCustomPromptCounter();
+    deleteBtn.style.display = 'block';
+  }
+
+  document.getElementById('aiCustomPromptSelect').addEventListener('change', (e) => {
+    const id = e.target.value;
+    setLastCustomPromptId(id);
+    applyCustomPromptSelection(id);
+  });
+
+  document.getElementById('aiCustomSaveBtn').addEventListener('click', () => {
+    const id = document.getElementById('aiCustomPromptSelect').value;
+    const text = document.getElementById('aiCustomPromptText').value.trim();
+    if (!text) { alert('保存する指示内容を入力してください'); return; }
+    if (text.length > CUSTOM_PROMPT_MAX_LENGTH) {
+      alert(`指示内容が長すぎます(${text.length}字)。${CUSTOM_PROMPT_MAX_LENGTH}字以内に短くしてから保存してください。`);
+      return;
+    }
+    const list = getCustomPrompts();
+    const existing = list.find(p => p.id === id);
+    if (!existing) {
+      alert('現在は保存済みプロンプトが選択されていません。「別名で保存」から新しい名前で保存してください。');
+      return;
+    }
+    existing.prompt = text;
+    setCustomPrompts(list);
+    alert(`「${existing.name}」を上書き保存しました。`);
+  });
+
+  document.getElementById('aiCustomSaveAsBtn').addEventListener('click', () => {
+    const text = document.getElementById('aiCustomPromptText').value.trim();
+    if (!text) { alert('保存する指示内容を入力してください'); return; }
+    if (text.length > CUSTOM_PROMPT_MAX_LENGTH) {
+      alert(`指示内容が長すぎます(${text.length}字)。${CUSTOM_PROMPT_MAX_LENGTH}字以内に短くしてから保存してください。`);
+      return;
+    }
+    const name = (prompt('この指示に付ける名前を入力してください(例: 決算前チェック)') || '').trim();
+    if (!name) return;
+    const list = getCustomPrompts();
+    const entry = { id: uuid(), name: name.slice(0, 60), prompt: text };
+    list.push(entry);
+    setCustomPrompts(list);
+    setLastCustomPromptId(entry.id);
+    refreshCustomPromptSelect();
+    document.getElementById('aiCustomPromptSelect').value = entry.id; // 選択肢構築後に、新規保存したプロンプトを選択状態にする
+    document.getElementById('aiCustomDeleteBtn').style.display = 'block';
+    alert(`「${entry.name}」として保存しました。`);
+  });
+
+  document.getElementById('aiCustomDeleteBtn').addEventListener('click', () => {
+    const id = document.getElementById('aiCustomPromptSelect').value;
+    if (!id) return;
+    const list = getCustomPrompts();
+    const entry = list.find(p => p.id === id);
+    if (!entry) return;
+    if (!confirm(`「${entry.name}」を削除しますか?(この操作は元に戻せません)`)) return;
+    setCustomPrompts(list.filter(p => p.id !== id));
+    setLastCustomPromptId('');
+    document.getElementById('aiCustomPromptText').value = '';
+    updateCustomPromptCounter();
+    refreshCustomPromptSelect();
+  });
 
   function openAiGenModal(id) {
     const s = allStocks.find(x => x.id === id);
     if (!s) return;
     aiGenCurrentId = id;
-    document.getElementById('aiGenModalTitle').textContent = `${s.ticker} のAI分析`;
+    document.getElementById('aiGenModalTitle').textContent = `${s.ticker} のAI`;
     document.getElementById('aiGenStatusMsg').textContent = '';
     document.getElementById('aiGenResultArea').style.display = 'none';
-    document.getElementById('aiGenResultArea').textContent = '';
+    document.getElementById('aiGenResultArea').innerHTML = '';
+    if (getAiStyle() === 'custom') loadCustomPromptSelectionOnOpen(); // モーダルを開いた直後だけ、保存済み内容を読み込む
+    refreshAiModeUi();
+    updateCustomPromptCounter();
     renderAiGenHistory(s);
-
-    const hasKey = !!getAnthropicApiKey();
-    document.getElementById('aiGenNoKeyMsg').style.display = hasKey ? 'none' : 'block';
-    document.getElementById('aiGenReadyArea').style.display = hasKey ? 'block' : 'none';
 
     aiGenModalBg.classList.add('active');
   }
 
   document.getElementById('aiGenCloseBtn').addEventListener('click', () => aiGenModalBg.classList.remove('active'));
 
+  // AI分析 → 投資判断への往復操作。AI分析側は編集中の下書きを持たないため、保存操作なしでそのまま戻れる。
+  // 生成済みの結果・履歴はs.analysisに保存済みのため、往復しても消えない。
+  document.getElementById('aiGenBackToJudgmentBtn').addEventListener('click', () => {
+    const id = aiGenCurrentId;
+    aiGenModalBg.classList.remove('active');
+    openAnalysisModal(id);
+  });
+
+  // AI分析 → 財務ランクへの往復操作(ROIC等の推定値を反映した後、確認・保存しに行くため)。
+  document.getElementById('aiGenGoToRankBtn').addEventListener('click', () => {
+    const id = aiGenCurrentId;
+    aiGenModalBg.classList.remove('active');
+    openRankModal(id);
+  });
+
   // Apps ScriptのWebアプリはCORSのプリフライト(OPTIONS)に対応していないため、
   // 「application/json」で送るとブラウザにブロックされる。text/plainとして送り、
   // サーバー側(doPost)で中身をJSONとして解釈してもらう。
+  // 原因調査をしやすくするため、投げるErrorに.code(NETWORK_FAILURE/RESPONSE_NOT_JSON/BACKEND_ERROR)を付与する。
+  // ユーザー向けの表示文言自体は変更しない(status要素に.messageを表示する既存の挙動のまま)。
   async function postToBackend(payload) {
     const base = getBackendUrl();
-    if (!/^https?:\/\//i.test(base)) {
-      throw new Error('バックエンドURLの形式が正しくありません(「接続設定」を確認してください)。');
+    if (!/^https:\/\//i.test(base)) {
+      const err = new Error('バックエンドURLの形式が正しくありません(「https://」から始まっているか、「接続設定」を確認してください)。');
+      err.code = 'INVALID_BACKEND_URL';
+      throw err;
     }
-    const resp = await fetch(base, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    });
+    let resp;
+    try {
+      resp = await fetch(base, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+    } catch (networkErr) {
+      const err = new Error('通信に失敗しました。ネットワーク接続を確認してください。');
+      err.code = 'NETWORK_FAILURE';
+      throw err;
+    }
     let json;
     try {
       json = await resp.json();
     } catch (parseErr) {
-      throw new Error('応答が正しく受け取れませんでした。しばらくしてからもう一度お試しください。');
+      const err = new Error('応答が正しく受け取れませんでした。しばらくしてからもう一度お試しください。');
+      err.code = 'RESPONSE_NOT_JSON';
+      throw err;
     }
     if (!resp.ok || json.error) {
-      throw new Error(json.error || '不明なエラーが発生しました。');
+      const err = new Error(json.error || '不明なエラーが発生しました。');
+      err.code = json.errorCode || 'BACKEND_ERROR';
+      throw err;
     }
     return json;
+  }
+
+  // 「投資判断に反映」モードの結果を、項目ごとの反映ボタン付きで表示するHTMLを組み立てる
+  function reflectResultHtml(sections, rawText) {
+    const expectedSections = AI_REFLECT_FIELDS.map(f => f.section).concat(['補足コメント']);
+    if (reflectParseFailed(sections, expectedSections)) {
+      return parseFailureHtml(rawText);
+    }
+    const hintHtml = '<div class="hint" style="margin-top:0; margin-bottom:8px;">気になる項目だけ「反映」を押してください(複数選べます)。選び終わったら、下の「← 投資判断を編集」で内容を確認・保存してください。</div>';
+    let itemsHtml = '';
+    AI_REFLECT_FIELDS.forEach(f => {
+      const raw = sections[f.section];
+      if (raw == null || raw === '') return;
+      const isNoChange = /^変更なし$/.test(raw.trim());
+      itemsHtml += `<div class="ai-reflect-item" style="margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--card-border);">
+        <div style="font-size:11.5px; font-weight:700; color:var(--accent); margin-bottom:3px;">${escapeHtml(f.label)}案</div>
+        <div style="font-size:12.5px; white-space:pre-wrap; margin-bottom:6px;">${escapeHtml(raw)}</div>
+        ${isNoChange ? '' : `<button type="button" class="btn btn-secondary ai-reflect-apply-btn" data-key="${f.key}" style="width:auto; font-size:11px; padding:4px 10px;">この案を${escapeHtml(f.label)}へ反映</button>`}
+      </div>`;
+    });
+    const note = sections['補足コメント'];
+    if (note && !/^特になし$/.test(note.trim())) {
+      itemsHtml += `<div style="margin-top:4px;"><div style="font-size:11.5px; font-weight:700; color:var(--muted); margin-bottom:3px;">補足コメント</div><div style="font-size:12.5px; white-space:pre-wrap;">${escapeHtml(note)}</div></div>`;
+    }
+    if (!itemsHtml) {
+      return hintHtml + '<div class="hint" style="margin-top:0;">今回はすべて「変更なし」でした。</div>';
+    }
+    return hintHtml + itemsHtml;
+  }
+
+  // 財務ランクの手動入力項目(ROIC等)1件分のカードHTML(reflect/financial両方から使う共通部品)
+  function financialItemCardHtml(f, num) {
+    return `<div class="ai-reflect-item" style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--card-border);">
+      <div style="font-size:11.5px; font-weight:700; color:var(--accent); margin-bottom:3px;">${escapeHtml(f.label)}の推定値(要確認)</div>
+      <div style="font-size:12.5px; margin-bottom:6px;">${escapeHtml(String(num))}${f.key === 'netDebtEbitda' ? '倍' : '%'}</div>
+      <button type="button" class="btn btn-secondary ai-reflect-financial-apply-btn" data-key="${f.key}" data-value="${num}" style="width:auto; font-size:11px; padding:4px 10px;">この推定値を財務ランクへ反映(要確認)</button>
+    </div>`;
+  }
+
+  // 回答スタイル「財務指標」の結果表示。項目別の反映ボタン付き。
+  function financialResultHtml(sections, rawText) {
+    const expectedSections = AI_REFLECT_FINANCIAL_FIELDS.map(f => f.section);
+    if (reflectParseFailed(sections, expectedSections)) {
+      return parseFailureHtml(rawText);
+    }
+    const hintHtml = '<div class="hint" style="margin-top:0; margin-bottom:8px; color:var(--down);">⚠ 以下は財務ランクの手動入力項目に対するAIの推定値です。実際の財務諸表を確認したものではありません。反映すると「理由」欄に「AI推定値。要確認。」と自動で入りますが、必ずご自身で数値を確認してから使ってください。気になる項目だけ「反映」を押してください(複数選べます)。選び終わったら、下の「← 財務ランクを編集」で内容を確認・保存してください。</div>';
+    let itemsHtml = '';
+    AI_REFLECT_FINANCIAL_FIELDS.forEach(f => {
+      const raw = sections[f.section];
+      const num = parseNumericEstimate(raw);
+      if (num == null) return; // 「不明」等、数値として解釈できない場合は表示しない
+      itemsHtml += financialItemCardHtml(f, num);
+    });
+    if (!itemsHtml) {
+      return hintHtml + '<div class="hint" style="margin-top:0;">今回はいずれも推定できませんでした。</div>';
+    }
+    return hintHtml + itemsHtml;
+  }
+
+  // 「この案を反映」クリック時: s.analysis(正式データ)は書き換えず、未保存の下書き(judgmentDraft)にだけ反映する。
+  // 画面は移動せず、そのまま他の項目も続けて選べるようにする。
+  // 正式データに書き込まれるのは、投資判断画面で「保存」を押した時だけ。
+  function attachReflectApplyButtons(container, s, sections) {
+    container.querySelectorAll('.ai-reflect-apply-btn').forEach(btn => {
+      btn.onclick = () => {
+        const key = btn.dataset.key;
+        const fieldMeta = AI_REFLECT_FIELDS.find(f => f.key === key);
+        if (!fieldMeta) return;
+        const raw = sections[fieldMeta.section];
+        if (raw == null) return;
+        const value = key === 'stance' ? normalizeStanceText(raw) : raw;
+        if (judgmentDraftId !== s.id) { judgmentDraftId = s.id; judgmentDraft = {}; }
+        judgmentDraft[key] = value;
+        // 反映済みであることが分かるよう、ボタンの見た目を変える(再度押せば下書きを上書きできる)
+        btn.textContent = `✓ ${fieldMeta.label}へ反映済み(未保存)`;
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-primary');
+      };
+    });
+
+    // 財務ランクの手動入力項目(ROIC等)へのAI推定値。反映すると「理由」欄にも自動で「AI推定値。要確認。」と入る。
+    container.querySelectorAll('.ai-reflect-financial-apply-btn').forEach(btn => {
+      btn.onclick = () => {
+        const key = btn.dataset.key;
+        const fieldMeta = AI_REFLECT_FINANCIAL_FIELDS.find(f => f.key === key);
+        if (!fieldMeta) return;
+        const value = Number(btn.dataset.value);
+        if (!isFinite(value)) return;
+        if (financialDraftId !== s.id) { financialDraftId = s.id; financialDraft = {}; }
+        financialDraft[key] = { value, reason: 'AI推定値。要確認。' };
+        btn.textContent = `✓ ${fieldMeta.label}へ反映済み(未保存・要確認)`;
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-primary');
+      };
+    });
   }
 
   document.getElementById('aiGenRunBtn').addEventListener('click', async () => {
     const s = allStocks.find(x => x.id === aiGenCurrentId);
     if (!s) return;
+
+    const mode = getAiExecMode();
+    const style = getAiStyle();
+
+    // カスタムスタイルの場合、自由入力欄の内容を取得してプロンプトを組み立てる
+    let basePrompt;
+    let customPromptName = null;
+    if (style === 'custom') {
+      const userInstruction = document.getElementById('aiCustomPromptText').value.trim();
+      if (!userInstruction) {
+        alert('AIへの指示内容を入力してください');
+        return;
+      }
+      const includeData = document.getElementById('aiCustomIncludeDataCheckbox').checked;
+      basePrompt = buildCustomPrompt(s, userInstruction, includeData);
+      const selectedId = document.getElementById('aiCustomPromptSelect').value;
+      if (selectedId) {
+        const entry = getCustomPrompts().find(p => p.id === selectedId);
+        if (entry) {
+          // 保存済み内容から編集されている場合、元の名前をそのまま履歴に出すと誤解を招くため区別する
+          customPromptName = entry.prompt === userInstruction ? entry.name : '未保存編集';
+        }
+      }
+    } else {
+      basePrompt = style === 'reflect' ? buildReflectPrompt(s)
+        : style === 'financial' ? buildFinancialEstimatePrompt(s)
+        : buildDetailPrompt(s);
+    }
+
+    if (mode === 'external') {
+      let finalPromptExternal = basePrompt;
+      if (style === 'detail') {
+        // アプリ内AIと仕様を揃えるため、外部AI用の相談文にも取得できる場合は同じテクニカル要約を含める
+        try {
+          const candles = await fetchHistoryCandles(s.ticker, 90);
+          const summary = buildTechnicalSummary(candles);
+          if (summary) finalPromptExternal += `\n\n【直近のテクニカル指標(参考情報。1つの見方に過ぎません)】\n${summary}`;
+        } catch (techErr) {
+          // 取得できなくても、投資判断・財務情報だけでコピー自体は続行する
+        }
+      }
+      copyToClipboard(finalPromptExternal)
+        .then(() => alert(`${s.ticker} の情報をコピーしました。ChatGPTやGeminiなどに貼り付けてご利用ください。`))
+        .catch(() => alert('コピーに失敗しました。お使いのブラウザがクリップボード機能に対応していない可能性があります。'));
+      return;
+    }
+
+    // ここから「アプリ内AI」
     if (!isBackendConfigured()) {
       alert('先に「接続設定」からバックエンドURLとアクセストークンを登録してください');
       return;
     }
-    const apiKey = getAnthropicApiKey();
-    if (!apiKey) {
-      alert('先に「接続設定」からAnthropic APIキーを登録してください');
-      return;
+
+    // カスタムプロンプトでユーザーが「最新ニュースを調べて」等と書いた場合でも、
+    // Web検索できないこの実行環境で確認済みの情報のように断定・推測しないよう明示する
+    if (style === 'custom') {
+      basePrompt += '\n\n【重要】この実行環境ではWeb検索できません。与えられていない最新情報を確認済みのように断定したり、推測で補ったりしないでください。分からない場合は、分からないと明示してください。';
     }
 
     const btn = document.getElementById('aiGenRunBtn');
     const statusEl = document.getElementById('aiGenStatusMsg');
     const resultEl = document.getElementById('aiGenResultArea');
     btn.disabled = true;
-    statusEl.textContent = 'テクニカル指標を取得中...';
     resultEl.style.display = 'none';
 
     try {
-      // 投資判断・財務ランクに加えて、直近のテクニカル指標(SMA・RSI・MACDなど)もあわせて渡す
-      let technicalSection = '';
-      try {
-        const candles = await fetchHistoryCandles(s.ticker, 90);
-        const summary = buildTechnicalSummary(candles);
-        if (summary) technicalSection = `\n\n【直近のテクニカル指標(参考情報。1つの見方に過ぎません)】\n${summary}`;
-      } catch (techErr) {
-        // チャートデータが取得できなくても、投資判断・財務ランクだけでAI分析は続行する
+      let finalPrompt = basePrompt;
+      let technicalFetchFailed = false;
+      if (style === 'detail') {
+        // 「各種分析」の時だけ、直近のテクニカル指標(SMA・RSI・MACDなど)もあわせて渡す
+        statusEl.textContent = 'テクニカル指標を取得中...';
+        try {
+          const candles = await fetchHistoryCandles(s.ticker, 90);
+          const summary = buildTechnicalSummary(candles);
+          if (summary) finalPrompt += `\n\n【直近のテクニカル指標(参考情報。1つの見方に過ぎません)】\n${summary}`;
+          else technicalFetchFailed = true; // データは取れたが指標を算出できるだけの本数が無かった場合も含む
+        } catch (techErr) {
+          // チャートデータが取得できなくても、投資判断・財務ランクだけで続行する(ユーザーには後で分かるように表示する)
+          technicalFetchFailed = true;
+        }
+        finalPrompt += '\n\n(回答は日本語で、600字程度を目安に、要点を絞って簡潔にまとめてください。)';
       }
 
       statusEl.textContent = '生成中...(数秒〜十数秒かかることがあります)';
-      const prompt = generateAiPrompt(s) + technicalSection + '\n\n(回答は日本語で、600字程度を目安に、要点を絞って簡潔にまとめてください。)';
-      const json = await postToBackend({ action: 'ai-analysis', token: getAccessToken(), apiKey, prompt });
+      const json = await postToBackend({ action: 'ai-analysis', token: getAccessToken(), prompt: finalPrompt });
 
-      statusEl.textContent = '';
-      resultEl.textContent = json.text;
+      statusEl.textContent = technicalFetchFailed
+        ? 'テクニカルデータを取得できなかったため、投資判断・財務情報を中心に分析しました。'
+        : '';
+      if (style === 'reflect') {
+        const sections = parseReflectSections(json.text);
+        resultEl.innerHTML = reflectResultHtml(sections, json.text);
+        attachReflectApplyButtons(resultEl, s, sections);
+        attachJudgmentLogToggles(resultEl); // パース失敗時の「生成されたAI回答をそのまま見る」トグル用
+      } else if (style === 'financial') {
+        const sections = parseReflectSections(json.text);
+        resultEl.innerHTML = financialResultHtml(sections, json.text);
+        attachReflectApplyButtons(resultEl, s, sections);
+        attachJudgmentLogToggles(resultEl);
+      } else {
+        // 「各種分析」「カスタム」はどちらも自由回答の表示のみ(項目別反映ボタンは付けない)
+        resultEl.textContent = json.text;
+      }
       resultEl.style.display = 'block';
 
-      // 生成に成功したら、閉じても消えないよう履歴として自動保存する
+      // 生成に成功したら、閉じても消えないよう履歴として自動保存する(スタイル・カスタムプロンプト名も記録)
       const a = getOrInitAnalysis(s);
-      a.aiAnalysisHistory.push({ date: new Date().toISOString(), text: json.text });
+      const historyEntry = { date: new Date().toISOString(), text: json.text, style };
+      if (style === 'custom' && customPromptName) historyEntry.customPromptName = customPromptName;
+      a.aiAnalysisHistory.push(historyEntry);
       saveStocks(allStocks);
       renderAiGenHistory(s);
     } catch (e) {
-      statusEl.textContent = 'エラー: ' + e.message;
+      statusEl.textContent = 'エラー: ' + e.message + (e.code ? `(${e.code})` : '');
     } finally {
       btn.disabled = false;
     }
@@ -2371,7 +3492,7 @@ ${metricLines}
     if (!el) return;
     const current = themeFilterValue;
     const themes = getThemes();
-    el.innerHTML = '<option value="">すべてのテーマ</option>' + themes.map(t => `<option value="${t}">${t}</option>`).join('');
+    el.innerHTML = '<option value="">すべてのテーマ</option>' + themes.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
     el.value = themes.includes(current) ? current : '';
     themeFilterValue = el.value;
   }
@@ -2395,9 +3516,9 @@ ${metricLines}
   function updateBadgeModeToggleBtnText() {
     const btn = document.getElementById('badgeModeToggleBtn');
     if (!btn) return;
-    btn.textContent = getBadgeMode() === 'value'
-      ? '数値表示中(タップでランク表示)'
-      : 'ランク表示中(タップで数値表示)';
+    const isRank = getBadgeMode() !== 'value';
+    btn.textContent = isRank ? 'ランク表示' : '数値表示';
+    btn.classList.toggle('is-on', isRank);
   }
   updateBadgeModeToggleBtnText();
   document.getElementById('badgeModeToggleBtn').addEventListener('click', () => {
@@ -2409,9 +3530,9 @@ ${metricLines}
   function updateMetricsVisibleToggleBtnText() {
     const btn = document.getElementById('metricsVisibleToggleBtn');
     if (!btn) return;
-    btn.textContent = getMetricsVisible()
-      ? '財務指標を表示中(タップで非表示)'
-      : '財務指標を非表示中(タップで表示)';
+    const visible = getMetricsVisible();
+    btn.textContent = visible ? '財務:表示' : '財務:非表示';
+    btn.classList.toggle('is-on', visible);
   }
   updateMetricsVisibleToggleBtnText();
   document.getElementById('metricsVisibleToggleBtn').addEventListener('click', () => {
@@ -2441,7 +3562,7 @@ ${metricLines}
     const themes = getThemes();
     const el = document.getElementById('f_theme');
     const current = el.value;
-    el.innerHTML = '<option value="">(未選択)</option>' + themes.map(t => `<option value="${t}">${t}</option>`).join('');
+    el.innerHTML = '<option value="">(未選択)</option>' + themes.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
     el.value = current;
   }
 
@@ -2483,6 +3604,10 @@ ${metricLines}
     const id = document.getElementById('f_id').value;
     const ticker = document.getElementById('f_ticker').value.trim().toUpperCase();
     if (!ticker) { alert('ティッカーを入力してください'); return; }
+    if (!/^[A-Za-z0-9.\-]{1,10}$/.test(ticker)) {
+      alert('ティッカーの形式が正しくありません。英数字・ピリオド(.)・ハイフン(-)のみ、10文字以内で入力してください。');
+      return;
+    }
 
     const data = {
       ticker,
@@ -2509,6 +3634,8 @@ ${metricLines}
     const id = document.getElementById('f_id').value;
     if (!confirm('この銘柄を削除しますか?')) return;
     allStocks = allStocks.filter(x => x.id !== id);
+    selectedForUpdate.delete(id);
+    saveSelectedForUpdate(selectedForUpdate);
     saveStocks(allStocks);
     modalBg.classList.remove('active');
     renderAll();
@@ -2524,15 +3651,18 @@ ${metricLines}
   document.getElementById('connectionBtn').addEventListener('click', () => {
     document.getElementById('backendUrlInput').value = getBackendUrl();
     document.getElementById('accessTokenInput').value = getAccessToken();
-    document.getElementById('anthropicApiKeyInput').value = getAnthropicApiKey();
     document.getElementById('autoRefreshModeSelect').value = getAutoRefreshMode();
     connectionBg.classList.add('active');
   });
   document.getElementById('connectionCancelBtn').addEventListener('click', () => connectionBg.classList.remove('active'));
   document.getElementById('connectionSaveBtn').addEventListener('click', () => {
-    setBackendUrl(document.getElementById('backendUrlInput').value);
+    const backendUrlValue = document.getElementById('backendUrlInput').value.trim();
+    if (backendUrlValue && !/^https:\/\//i.test(backendUrlValue)) {
+      alert('バックエンドURLは「https://」から始まるURLを入力してください。');
+      return;
+    }
+    setBackendUrl(backendUrlValue);
     setAccessToken(document.getElementById('accessTokenInput').value.trim());
-    setAnthropicApiKey(document.getElementById('anthropicApiKeyInput').value);
     setAutoRefreshMode(document.getElementById('autoRefreshModeSelect').value);
     connectionBg.classList.remove('active');
   });
@@ -2547,7 +3677,7 @@ ${metricLines}
     if (!themes.length) { el.innerHTML = '<div class="hint" style="margin-top:0;">テーマがまだありません</div>'; return; }
     el.innerHTML = themes.map(t => {
       const count = allStocks.filter(s => s.theme === t).length;
-      return `<span class="theme-manage-item">${t}${count ? ` (${count})` : ''}<button type="button" data-theme="${t}" title="削除">✕</button></span>`;
+      return `<span class="theme-manage-item">${escapeHtml(t)}${count ? ` (${count})` : ''}<button type="button" data-theme="${escapeHtml(t)}" title="削除">✕</button></span>`;
     }).join('');
     el.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2558,6 +3688,7 @@ ${metricLines}
           : `「${t}」を削除しますか?`;
         if (!confirm(msg)) return;
         setThemes(getThemes().filter(x => x !== t));
+        removeThemeFromAnalysisData(t); // 市場テーマ分析側の代表銘柄設定・直近表示からも取り除く(過去の履歴は残す)
         renderThemeManageList();
         refreshThemeFilterOptions();
         renderAll();
@@ -2685,18 +3816,32 @@ ${metricLines}
         `[キャンセル] 今のデータを全て消してこのファイルの内容に置き換える`
       );
 
+      // 1件ずつ検証・補正する。ticker が無い・不正な形式のものは読み込めないため除外する。
+      const sanitized = [];
+      let skipped = 0;
+      imported.forEach(item => {
+        const s = sanitizeImportedStock(item);
+        if (s) sanitized.push(s); else skipped++;
+      });
+
+      if (!sanitized.length) {
+        alert('読み込めるデータが見つかりませんでした。ファイルの中身を確認してください。');
+        e.target.value = '';
+        return;
+      }
+
       if (mode) {
-        imported.forEach(item => {
+        sanitized.forEach(item => {
           const idx = allStocks.findIndex(s => s.id === item.id);
           if (idx >= 0) allStocks[idx] = item; else allStocks.push(item);
         });
       } else {
-        allStocks = imported;
+        allStocks = sanitized;
       }
 
       saveStocks(allStocks);
       renderAll();
-      alert('データを読み込みました。');
+      alert(`データを読み込みました(${sanitized.length}件)。` + (skipped ? `\n※${skipped}件は形式が不正だったため読み込めませんでした。` : ''));
       e.target.value = '';
     };
     reader.readAsText(file);
@@ -2753,6 +3898,11 @@ ${metricLines}
       if (!silent) alert('現在、更新処理を実行中です。完了までお待ちください。');
       return;
     }
+    // テーマ分析の更新(同じバックエンドのレート制限を共有する)と同時に走らせない
+    if (typeof isRefreshingThemeAnalysis !== 'undefined' && isRefreshingThemeAnalysis) {
+      if (!silent) alert('現在、テーマ分析を更新中です。完了までお待ちください。');
+      return;
+    }
     if (!targets.length) { if (!silent) alert('更新対象の銘柄がありません'); return; }
     if (!isBackendConfigured()) { if (!silent) alert('先に「接続設定」からバックエンドURLとアクセストークンを登録してください'); return; }
 
@@ -2783,8 +3933,8 @@ ${metricLines}
       }
     } finally {
       isRefreshingAll = false;
-      if (allBtn) { allBtn.disabled = false; allBtn.textContent = '全銘柄の現在値を更新'; }
-      if (selBtn) { selBtn.disabled = false; selBtn.textContent = 'チェックした銘柄だけ更新'; }
+      if (allBtn) { allBtn.disabled = false; allBtn.textContent = '監視対象'; }
+      if (selBtn) { selBtn.disabled = false; selBtn.textContent = '選択銘柄'; }
       showEditStatus('');
       renderAll();
     }
@@ -2795,10 +3945,13 @@ ${metricLines}
     await runPriceRefreshLoop(targets, silent, 'refreshAllBtn');
   }
 
-  async function refreshSelectedPrices() {
+  async function refreshSelectedPrices(silent) {
     const targets = allStocks.filter(s => selectedForUpdate.has(s.id));
-    if (!targets.length) { alert('更新したい銘柄のチェックボックスを入れてください'); return; }
-    await runPriceRefreshLoop(targets, false, 'refreshSelectedBtn');
+    if (!targets.length) {
+      if (!silent) alert('更新したい銘柄のチェックボックスを入れてください');
+      return;
+    }
+    await runPriceRefreshLoop(targets, !!silent, 'refreshSelectedBtn');
   }
 
   // ========== 銘柄分析(チャート・テクニカル指標・ローソク足パターン検出) ==========
@@ -3361,7 +4514,7 @@ ${metricLines}
             </div>
             <div class="stamp-right">
               <div class="date-chips">
-                ${g.dates.map(d => `<span class="date-chip ${d === chartHighlightedDate ? 'active-highlight' : ''}" data-date="${d}" data-name="${g.name}">${d}</span>`).join('')}
+                ${g.dates.map(d => `<span class="date-chip ${d === chartHighlightedDate ? 'active-highlight' : ''}" data-date="${escapeHtml(d)}" data-name="${escapeHtml(g.name)}">${escapeHtml(d)}</span>`).join('')}
               </div>
             </div>
           </div>
@@ -3397,8 +4550,8 @@ ${metricLines}
     const spanDays = Math.round((endD - startD) / (1000 * 60 * 60 * 24));
     const spanMonths = Math.round(spanDays / 30.4);
     const spanLabel = spanMonths < 1 ? `約${spanDays}日間` : `約${spanMonths}ヶ月間`;
-    const periodLabel = `${chartCurrentCandles[0].date}〜${chartCurrentCandles[chartCurrentCandles.length - 1].date}(${spanLabel})`;
-    const escName = String(patternName).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const periodLabel = escapeHtml(`${chartCurrentCandles[0].date}〜${chartCurrentCandles[chartCurrentCandles.length - 1].date}(${spanLabel})`);
+    const escName = escapeHtml(patternName);
     if (stats.occurrences === 0) {
       area.innerHTML = `<b>${escName}</b>: 読み込み中の期間(${periodLabel})では、他に同パターンの発生例が見つかりませんでした。`;
       return;
@@ -3485,10 +4638,1067 @@ ${metricLines}
     if (chartLastBacktestPattern) showChartBacktest(chartLastBacktestPattern);
   });
 
+  // ========================================================================
+  // テーマ分析(「テーマ」タブの「市場テーマ分析」サブタブ)
+  // ------------------------------------------------------------------------
+  // 既存の銘柄データ(STORAGE_KEY / allStocks)や、「保有テーマ分析」サブタブの機能
+  // (保有株数編集・保有割合・財務指標比較)には一切手を加えていない。
+  // ここで使うデータはすべて専用のlocalStorageキーで独立して管理する。
+  // 株価履歴の取得は既存のfetchHistoryCandles()(action:'history')、
+  // AI生成は既存のpostToBackend({action:'ai-analysis'})をそのまま流用しており、
+  // 通信方式・認証方式・PriceProxy_Code.gs側のレート制限はいずれも変更していない。
+  // ========================================================================
+
+  const THEME_REPS_STORAGE = 'stockapp_theme_reps';                           // テーマごとの代表銘柄(ティッカー配列)
+  const THEME_ANALYSIS_SNAPSHOT_STORAGE = 'stockapp_theme_analysis_snapshot'; // 直近1回分の計算結果(詳細つき)
+  const THEME_ANALYSIS_HISTORY_STORAGE = 'stockapp_theme_analysis_history';   // 日付付きの強度・浮上度・順位の履歴(軽量)
+  const THEME_AI_HISTORY_STORAGE = 'stockapp_theme_ai_history';               // テーマ別AIレビューの生成履歴
+
+  const THEME_MARKET_TICKER = 'QQQ'; // 市場平均の比較対象(ひとまず固定。変更したい場合はここを書き換える)
+  const THEME_MAX_REPS = 5;          // テーマ1つあたりの代表銘柄の上限(API消費を抑えるため)
+  const THEME_HISTORY_FETCH_DAYS = 220; // 6か月リターン・SMA75の算出に十分な日数(カレンダー日数。既存fetchHistoryCandlesの引数と同じ単位)
+
+  // --- テーマ強度・浮上度の配点(ここを変えるだけで重み付けを調整できる。合計が100でなくても比率で計算されるため動作する) ---
+  const THEME_STRENGTH_WEIGHTS = {
+    momentum1m: 30,     // 1か月リターン(モメンタム)
+    relStrength1m: 25,  // 市場平均(QQQ)に対する1か月の相対強度
+    pctUp1m: 20,        // テーマ内で1か月上昇している銘柄の割合
+    aboveSma25: 15,     // SMA25より上にいる銘柄の割合
+    aboveSma75: 10      // SMA75より上にいる銘柄の割合
+  };
+  const THEME_EMERGENCE_WEIGHTS = {
+    momentumDelta: 30,    // 直近1か月リターンの改善(前回計測比)
+    relStrengthDelta: 25, // 相対強度の改善
+    aboveSma25Delta: 20,  // SMA25より上の銘柄比率の増加
+    rankDelta: 15,        // テーマ順位の上昇
+    strengthDelta: 10     // テーマ強度そのものの伸び
+  };
+  // 各要素を0〜100点に正規化する際の(最小値, 最大値)。範囲外は0点または100点にクリップされる
+  const THEME_NORM_RANGES = {
+    momentum1m: [-20, 20],
+    relStrength1m: [-15, 15],
+    momentumDelta: [-10, 10],
+    relStrengthDelta: [-10, 10],
+    aboveSma25Delta: [-40, 40],
+    strengthDelta: [-25, 25]
+  };
+  // テーマ分類(主役/拡大中/浮上中/中立/失速中)のしきい値
+  const THEME_CLASSIFY = {
+    fadeEmergenceMax: 35,   // 浮上度がこれ以下は「失速中」(強度に関わらず優先判定)
+    leadStrengthMin: 75,    // 「主役」に必要な強度の下限
+    leadEmergenceMax: 55,   // 「主役」はこれ未満の浮上度(すでに強く、伸びは緩やか)
+    expandStrengthMin: 70,  // 「拡大中」に必要な強度の下限
+    expandEmergenceMin: 55, // 「拡大中」に必要な浮上度の下限
+    emergeEmergenceMin: 60  // 「浮上中」に必要な浮上度の下限(強度は問わない)
+  };
+  const THEME_RETURN_PERIODS = { m1: 21, m3: 63, m6: 126, d5: 5, d20: 20 }; // 1か月≒21営業日として近似(3か月≒63、6か月≒126)。加速度用に5営業日・20営業日も追加
+  const THEME_CATEGORY_COLOR = {
+    '主役': '#FFD700', '拡大中': '#FF8C1A', '浮上中': '#4caf7d', '初動候補': '#4FC3F7', '中立': '#8c8d92', '失速中': '#e6685f', '判定不可': '#8c8d92'
+  };
+
+  // --- 「加速度」(初動候補の発見用)の配点・しきい値。強度・浮上度とは独立に、直近の値動き・出来高だけから毎回同じ条件で計算する ---
+  const THEME_ACCELERATION_WEIGHTS = {
+    priceAcceleration: 35,     // 値動きの加速度合い(直近5営業日のペース − 直近20営業日のペース)
+    relativeAcceleration: 30,  // 市場平均に対する相対強度の加速度合い(同様の考え方)
+    volumeAcceleration: 20,    // 出来高倍率(直近5日平均出来高 ÷ 直近20日平均出来高)
+    breadth5d: 15              // 直近5営業日で上昇している代表銘柄の割合
+  };
+  // 加速度の各要素を0〜100点に正規化する際の(最小値, 最大値)
+  const THEME_ACCEL_NORM_RANGES = {
+    priceAcceleration: [-8, 8],     // 日次ペースの差(%pt/日)
+    relativeAcceleration: [-6, 6],  // 同上(市場平均比)
+    volumeAcceleration: [0.8, 1.8]  // 出来高倍率そのもの(1.0倍=変化なし)
+  };
+  // 出来高倍率の表示に使う目安のしきい値(あくまで参考値。断定的な判断根拠ではない)
+  const THEME_VOLUME_BADGE_THRESHOLDS = {
+    increase: 1.3,      // このあたりから「増加傾向」の目安
+    clearIncrease: 1.5  // このあたりから「明確な増加」の目安
+  };
+  // 「初動候補」判定のしきい値(まだ主役級ではないが、加速度が高いテーマを拾う)
+  const THEME_EARLY_CANDIDATE = {
+    strengthMin: 40,     // 強度がこれ以上
+    strengthMax: 70,     // かつこれ以下(すでに強すぎる=主役級は対象外)
+    accelerationMin: 75, // 加速度がこれ以上
+    breadth5dMin: 60     // 直近5営業日の代表銘柄の上昇割合(%)がこれ以上(単一銘柄だけの急騰による誤検知を抑える)
+  };
+
+  // --- テーマ代表銘柄の保存・取得 ---
+  function getThemeReps() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(THEME_REPS_STORAGE)) || {};
+      return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+    } catch (e) { return {}; }
+  }
+  function setThemeReps(obj) {
+    localStorage.setItem(THEME_REPS_STORAGE, JSON.stringify(obj));
+  }
+  // 削除済みの銘柄・上限超過分・削除済みテーマの設定を取り除いて保存し直す(銘柄削除・テーマ削除後の整合性維持用)。
+  // テーマ削除時は別途removeThemeFromAnalysisData()で即座に取り除くが、それより前に保存された古いlocalStorage
+  // データが残っているケースに備えて、ここでも現在のgetThemes()に存在しないテーマは除外する(安全策)。
+  function sanitizeThemeReps() {
+    const reps = getThemeReps();
+    const validTickers = new Set(allStocks.map(s => s.ticker));
+    const validThemes = new Set(getThemes());
+    let changed = false;
+    Object.keys(reps).forEach(theme => {
+      if (!validThemes.has(theme)) { delete reps[theme]; changed = true; return; }
+      const before = Array.isArray(reps[theme]) ? reps[theme] : [];
+      const after = before.filter(tk => typeof tk === 'string' && validTickers.has(tk)).slice(0, THEME_MAX_REPS);
+      if (after.length !== before.length) changed = true;
+      if (after.length) reps[theme] = after; else { delete reps[theme]; changed = true; }
+    });
+    if (changed) setThemeReps(reps);
+    return reps;
+  }
+  function addThemeRep(theme, ticker) {
+    const reps = getThemeReps();
+    const list = Array.isArray(reps[theme]) ? reps[theme].slice() : [];
+    if (!ticker || list.includes(ticker) || list.length >= THEME_MAX_REPS) return false;
+    list.push(ticker);
+    reps[theme] = list;
+    setThemeReps(reps);
+    return true;
+  }
+  function removeThemeRep(theme, ticker) {
+    const reps = getThemeReps();
+    const list = Array.isArray(reps[theme]) ? reps[theme].filter(tk => tk !== ticker) : [];
+    if (list.length) reps[theme] = list; else delete reps[theme];
+    setThemeReps(reps);
+  }
+
+  // --- 直近の計算結果(詳細つき)の保存・取得 ---
+  function getThemeAnalysisSnapshot() {
+    try { return JSON.parse(localStorage.getItem(THEME_ANALYSIS_SNAPSHOT_STORAGE)) || null; }
+    catch (e) { return null; }
+  }
+  function setThemeAnalysisSnapshot(snap) {
+    localStorage.setItem(THEME_ANALYSIS_SNAPSHOT_STORAGE, JSON.stringify(snap));
+  }
+
+  // テーマ削除時に、代表銘柄設定と直近スナップショットの表示対象から当該テーマを取り除く。
+  // 過去の分析履歴(THEME_ANALYSIS_HISTORY_STORAGE)・AIレビュー履歴までは削除しない(過去記録として残す)。
+  function removeThemeFromAnalysisData(theme) {
+    const reps = getThemeReps();
+    if (Object.prototype.hasOwnProperty.call(reps, theme)) {
+      delete reps[theme];
+      setThemeReps(reps);
+    }
+    const snap = getThemeAnalysisSnapshot();
+    if (snap && snap.themes && Object.prototype.hasOwnProperty.call(snap.themes, theme)) {
+      delete snap.themes[theme];
+      if (Array.isArray(snap.rankOrder)) snap.rankOrder = snap.rankOrder.filter(t => t !== theme);
+      setThemeAnalysisSnapshot(snap);
+    }
+  }
+
+  // --- 日付付きの軽量な履歴(強度・浮上度・順位など)の保存・取得 ---
+  function getThemeAnalysisHistory() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(THEME_ANALYSIS_HISTORY_STORAGE));
+      return Array.isArray(raw) ? raw : [];
+    } catch (e) { return []; }
+  }
+  function setThemeAnalysisHistory(list) {
+    localStorage.setItem(THEME_ANALYSIS_HISTORY_STORAGE, JSON.stringify(list));
+  }
+  // 指定テーマの最新の履歴エントリを返す(今回分を書き込む「前」に呼ぶことで、前回値との比較に使う)
+  function getLatestThemeHistoryEntry(theme) {
+    const list = getThemeAnalysisHistory().filter(e => e && e.theme === theme);
+    if (!list.length) return null;
+    return list.slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)).pop();
+  }
+  // 同じ日付・同じテーマのエントリは上書きする(1日に何度更新しても履歴が際限なく増えないようにする)
+  function upsertThemeHistoryEntries(entries) {
+    const list = getThemeAnalysisHistory();
+    entries.forEach(entry => {
+      const idx = list.findIndex(e => e.theme === entry.theme && e.date === entry.date);
+      if (idx >= 0) list[idx] = entry; else list.push(entry);
+    });
+    setThemeAnalysisHistory(list.slice(-2000)); // 念のため保持件数の上限を設ける
+  }
+
+  // --- テーマ別AIレビューの生成履歴 ---
+  function getThemeAiHistory() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(THEME_AI_HISTORY_STORAGE));
+      return Array.isArray(raw) ? raw : [];
+    } catch (e) { return []; }
+  }
+  function setThemeAiHistory(list) {
+    localStorage.setItem(THEME_AI_HISTORY_STORAGE, JSON.stringify(list));
+  }
+
+  function themeTodayDateStr() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  // --- スコア計算用の数値ユーティリティ ---
+  function themeClamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function themeNormalize(v, range) {
+    if (v == null || isNaN(v)) return null;
+    return themeClamp((v - range[0]) / (range[1] - range[0]) * 100, 0, 100);
+  }
+  // 値がnullの項目は無視して、残りの項目だけで加重平均する(データ欠損に強くするため)
+  function themeWeightedAvg(parts, weights) {
+    let sum = 0, wsum = 0;
+    Object.keys(weights).forEach(k => {
+      const v = parts[k];
+      if (v == null || isNaN(v)) return;
+      sum += v * weights[k];
+      wsum += weights[k];
+    });
+    return wsum > 0 ? sum / wsum : null;
+  }
+  function themeReturnPct(closes, periodTradingDays) {
+    if (!closes || closes.length <= periodTradingDays) return null;
+    const base = closes[closes.length - 1 - periodTradingDays];
+    const last = closes[closes.length - 1];
+    if (!base) return null;
+    return (last - base) / base * 100;
+  }
+  function avgSkipNull(arr) {
+    const v = arr.filter(x => x != null && !isNaN(x));
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  }
+  function pctTrueSkipNull(arr) {
+    const v = arr.filter(x => x === true || x === false);
+    return v.length ? (v.filter(x => x === true).length / v.length * 100) : null;
+  }
+  // 平均値だけだと単一銘柄の急騰・急落に引っ張られやすいため、平均と中央値を組み合わせて外れ値の影響を弱める
+  // (軽量な対策として、加速度に関わる集計(5日/20日リターン・出来高倍率)にのみ使用。既存の強度・浮上度の計算方法は変更しない)
+  function robustAvg(arr) {
+    const v = arr.filter(x => x != null && !isNaN(x));
+    if (!v.length) return null;
+    const mean = v.reduce((a, b) => a + b, 0) / v.length;
+    const sorted = v.slice().sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    const median = sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    return (mean + median) / 2;
+  }
+  // 直近n本の平均出来高。出来高データが欠けている(0またはnull)本は除外し、1本もなければ「不明」(null)を返す(0点にはしない)
+  function themeAvgVolume(candles, n) {
+    if (!candles || candles.length < n) return null;
+    const slice = candles.slice(candles.length - n);
+    const vols = slice.map(c => c.volume).filter(v => v != null && !isNaN(v) && v > 0);
+    if (!vols.length) return null;
+    return vols.reduce((a, b) => a + b, 0) / vols.length;
+  }
+
+  // 1銘柄分の株価履歴(candles)から、テーマ分析で使う指標だけを抜き出す。
+  // 移動平均線の計算は既存のchartSma()(銘柄分析タブと同じ関数)をそのまま流用する。
+  function computeTickerThemeMetrics(candles) {
+    if (!candles || candles.length < 20) return null;
+    const closes = candles.map(c => c.close);
+    const sma25 = chartSma(closes, 25);
+    const sma75 = chartSma(closes, 75);
+    const lastClose = closes[closes.length - 1];
+    const lastSma25 = sma25[sma25.length - 1];
+    const lastSma75 = sma75[sma75.length - 1];
+    return {
+      return1m: themeReturnPct(closes, THEME_RETURN_PERIODS.m1),
+      return3m: themeReturnPct(closes, THEME_RETURN_PERIODS.m3),
+      return6m: themeReturnPct(closes, THEME_RETURN_PERIODS.m6),
+      return5d: themeReturnPct(closes, THEME_RETURN_PERIODS.d5),
+      return20d: themeReturnPct(closes, THEME_RETURN_PERIODS.d20),
+      avgVolume5: themeAvgVolume(candles, THEME_RETURN_PERIODS.d5),
+      avgVolume20: themeAvgVolume(candles, THEME_RETURN_PERIODS.d20),
+      aboveSma25: lastSma25 != null ? lastClose > lastSma25 : null,
+      aboveSma75: lastSma75 != null ? lastClose > lastSma75 : null
+    };
+  }
+
+  // 「加速度」(0〜100)。過去の実行間隔に依存せず、直近の株価履歴だけから毎回同じ条件で計算する。
+  // 「短期(5営業日)のペース」と「中期(20営業日)のペース」の差が大きいほど、値動きが加速していると判定する。
+  function computeThemeAccelerationScore(agg) {
+    const priceAcceleration = (agg.return5d != null && agg.return20d != null)
+      ? (agg.return5d / THEME_RETURN_PERIODS.d5) - (agg.return20d / THEME_RETURN_PERIODS.d20) : null;
+    const relativeAcceleration = (agg.relReturn5d != null && agg.relReturn20d != null)
+      ? (agg.relReturn5d / THEME_RETURN_PERIODS.d5) - (agg.relReturn20d / THEME_RETURN_PERIODS.d20) : null;
+    const parts = {
+      priceAcceleration: themeNormalize(priceAcceleration, THEME_ACCEL_NORM_RANGES.priceAcceleration),
+      relativeAcceleration: themeNormalize(relativeAcceleration, THEME_ACCEL_NORM_RANGES.relativeAcceleration),
+      volumeAcceleration: themeNormalize(agg.volumeRatio, THEME_ACCEL_NORM_RANGES.volumeAcceleration),
+      breadth5d: agg.pctUp5d
+    };
+    const score = themeWeightedAvg(parts, THEME_ACCELERATION_WEIGHTS);
+    return score == null ? null : Math.round(themeClamp(score, 0, 100));
+  }
+
+  // 代表銘柄の構成を比較するための正規化済み配列(重複除去・ソート済み)。
+  // 並び順が違うだけで「別の構成」と誤判定しないよう、常にこの関数を通してから比較する。
+  function themeRepsSignature(tickers) {
+    return Array.from(new Set((Array.isArray(tickers) ? tickers : []).filter(tk => typeof tk === 'string'))).sort();
+  }
+  function themeRepsSignatureEqual(a, b) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    return a.every((tk, i) => tk === b[i]);
+  }
+
+  // 出来高倍率(直近5日平均出来高 ÷ 直近20日平均出来高)の表示用テキスト。データが無ければ「-」を返す
+  function themeVolumeBadgeHtml(ratio) {
+    if (ratio == null || isNaN(ratio)) return '出来高倍率 -';
+    const th = THEME_VOLUME_BADGE_THRESHOLDS;
+    const label = ratio >= th.clearIncrease ? '明確な増加' : (ratio >= th.increase ? '増加傾向' : '');
+    const cls = ratio >= th.increase ? 'theme-up' : '';
+    return `<span class="${cls}">出来高倍率 ${ratio.toFixed(2)}x${label ? '(' + label + ')' : ''}</span>`;
+  }
+
+  // テーマ強度(0〜100)。THEME_STRENGTH_WEIGHTSの配点で計算する
+  function computeThemeStrengthScore(agg) {
+    const parts = {
+      momentum1m: themeNormalize(agg.return1m, THEME_NORM_RANGES.momentum1m),
+      relStrength1m: themeNormalize(agg.relStrength1m, THEME_NORM_RANGES.relStrength1m),
+      pctUp1m: agg.pctUp1m,
+      aboveSma25: agg.pctAboveSma25,
+      aboveSma75: agg.pctAboveSma75
+    };
+    const score = themeWeightedAvg(parts, THEME_STRENGTH_WEIGHTS);
+    return score == null ? null : Math.round(themeClamp(score, 0, 100));
+  }
+
+  // テーマ浮上度(0〜100)。前回の履歴エントリ(prev)との比較で計算する。prevが無ければ算出しない(初回)
+  function computeThemeEmergenceScore(curr, prev, themeCount) {
+    if (!prev) return null;
+    const momentumDelta = (curr.return1m != null && prev.return1m != null) ? curr.return1m - prev.return1m : null;
+    const relStrengthDelta = (curr.relStrength1m != null && prev.relStrength1m != null) ? curr.relStrength1m - prev.relStrength1m : null;
+    const aboveSma25Delta = (curr.pctAboveSma25 != null && prev.pctAboveSma25 != null) ? curr.pctAboveSma25 - prev.pctAboveSma25 : null;
+    const strengthDelta = (curr.strength != null && prev.strength != null) ? curr.strength - prev.strength : null;
+    let rankDelta = null;
+    if (curr.rank != null && prev.rank != null && themeCount > 1) {
+      // 順位が上がった(数字が小さくなった)ほど高得点。変化なしは50点
+      rankDelta = themeClamp(50 + (prev.rank - curr.rank) * (50 / (themeCount - 1)), 0, 100);
+    }
+    const parts = {
+      momentumDelta: themeNormalize(momentumDelta, THEME_NORM_RANGES.momentumDelta),
+      relStrengthDelta: themeNormalize(relStrengthDelta, THEME_NORM_RANGES.relStrengthDelta),
+      aboveSma25Delta: themeNormalize(aboveSma25Delta, THEME_NORM_RANGES.aboveSma25Delta),
+      rankDelta: rankDelta,
+      strengthDelta: themeNormalize(strengthDelta, THEME_NORM_RANGES.strengthDelta)
+    };
+    const score = themeWeightedAvg(parts, THEME_EMERGENCE_WEIGHTS);
+    return score == null ? null : Math.round(themeClamp(score, 0, 100));
+  }
+
+  // strength/emergenceは従来通り(しきい値・意味は維持)。acceleration/pctUp5dは「初動候補」の判定にのみ使う。
+  // 判定優先順位: 主役/拡大中 → 初動候補 → 失速中 → 浮上中 → 中立
+  // (「前回比較ではまだ弱いが、直近5営業日で急速に反転・加速している」ケースを、浮上度が低いという理由だけで
+  //  先に「失速中」と判定してしまわないよう、初動候補の判定を失速中より先に行う)
+  function classifyThemeCategory(strength, emergence, acceleration, pctUp5d) {
+    if (strength == null) return '判定不可';
+    const c = THEME_CLASSIFY;
+    const e = THEME_EARLY_CANDIDATE;
+    // まだ主役級ではないが、直近の値動き・出来高から見て加速している(単一銘柄の急騰だけではない)テーマ
+    const isEarlyCandidate = acceleration != null && acceleration >= e.accelerationMin &&
+      strength >= e.strengthMin && strength <= e.strengthMax &&
+      (pctUp5d == null || pctUp5d >= e.breadth5dMin);
+
+    if (emergence == null) {
+      // 初回実行等で浮上度が未算出でも、加速度は株価履歴だけから算出できるため「初動候補」は判定可能
+      return isEarlyCandidate ? '初動候補' : '中立';
+    }
+    if (strength >= c.leadStrengthMin && emergence < c.leadEmergenceMax) return '主役';
+    if (strength >= c.expandStrengthMin && emergence >= c.expandEmergenceMin) return '拡大中';
+    if (isEarlyCandidate) return '初動候補';
+    if (emergence <= c.fadeEmergenceMax) return '失速中';
+    if (emergence >= c.emergeEmergenceMin) return '浮上中';
+    return '中立';
+  }
+
+  // テーマ一覧・代表銘柄・取得済みcandles・前回履歴から、テーマ分析の計算結果一式を組み立てる(純粋関数)
+  function computeThemeAnalysisResult(themeNames, repsMap, candlesByTicker, prevEntryByTheme) {
+    const marketCandles = candlesByTicker[THEME_MARKET_TICKER];
+    const marketMetrics = marketCandles ? computeTickerThemeMetrics(marketCandles) : null;
+
+    const perTheme = {};
+    themeNames.forEach(theme => {
+      const tickers = repsMap[theme] || [];
+      const repDetails = tickers.map(ticker => {
+        const candles = candlesByTicker[ticker];
+        const m = candles ? computeTickerThemeMetrics(candles) : null;
+        if (!m) return { ticker, ok: false };
+        const volumeRatio = (m.avgVolume5 != null && m.avgVolume20 != null && m.avgVolume20 > 0) ? m.avgVolume5 / m.avgVolume20 : null;
+        return {
+          ticker, ok: true,
+          return1m: m.return1m, return3m: m.return3m, return6m: m.return6m,
+          return5d: m.return5d, return20d: m.return20d, volumeRatio,
+          aboveSma25: m.aboveSma25, aboveSma75: m.aboveSma75
+        };
+      });
+      const ok = repDetails.filter(r => r.ok);
+      const return1m = avgSkipNull(ok.map(r => r.return1m));
+      const return3m = avgSkipNull(ok.map(r => r.return3m));
+      const return6m = avgSkipNull(ok.map(r => r.return6m));
+      const pctUp1m = pctTrueSkipNull(ok.map(r => r.return1m != null ? r.return1m > 0 : null));
+      const pctAboveSma25 = pctTrueSkipNull(ok.map(r => r.aboveSma25));
+      const pctAboveSma75 = pctTrueSkipNull(ok.map(r => r.aboveSma75));
+      const relStrength1m = (return1m != null && marketMetrics && marketMetrics.return1m != null) ? return1m - marketMetrics.return1m : null;
+
+      // 加速度に関わる集計のみ、平均と中央値を組み合わせたrobustAvg()を使用する(単一銘柄の急騰による誤検知を抑えるため。既存の強度・浮上度の集計方法は変更しない)
+      const return5d = robustAvg(ok.map(r => r.return5d));
+      const return20d = robustAvg(ok.map(r => r.return20d));
+      const volumeRatio = robustAvg(ok.map(r => r.volumeRatio));
+      const pctUp5d = pctTrueSkipNull(ok.map(r => r.return5d != null ? r.return5d > 0 : null));
+      const relReturn5d = (return5d != null && marketMetrics && marketMetrics.return5d != null) ? return5d - marketMetrics.return5d : null;
+      const relReturn20d = (return20d != null && marketMetrics && marketMetrics.return20d != null) ? return20d - marketMetrics.return20d : null;
+      const acceleration = computeThemeAccelerationScore({ return5d, return20d, relReturn5d, relReturn20d, volumeRatio, pctUp5d });
+
+      perTheme[theme] = {
+        reps: tickers, repDetails, return1m, return3m, return6m,
+        relStrength1m, pctUp1m, pctAboveSma25, pctAboveSma75,
+        return5d, return20d, relReturn5d, relReturn20d, volumeRatio, pctUp5d, acceleration,
+        strength: computeThemeStrengthScore({ return1m, relStrength1m, pctUp1m, pctAboveSma25, pctAboveSma75 })
+      };
+    });
+
+    // 強度の高い順に順位付け(強度が算出できないテーマは末尾)
+    const ranked = Object.keys(perTheme).sort((a, b) => {
+      const sa = perTheme[a].strength, sb = perTheme[b].strength;
+      if (sa == null && sb == null) return 0;
+      if (sa == null) return 1;
+      if (sb == null) return -1;
+      return sb - sa;
+    });
+    ranked.forEach((theme, i) => { perTheme[theme].rank = i + 1; });
+
+    // 浮上度は前回履歴との比較で算出するため、順位確定後に計算する
+    const themeCount = ranked.length;
+    ranked.forEach(theme => {
+      const rawPrev = prevEntryByTheme[theme] || null;
+      const currSignature = themeRepsSignature(repsMap[theme]);
+      // 代表銘柄の構成が前回と一致する場合のみ、前回値を比較に使う。構成情報(repTickers)が無い旧履歴や、
+      // 構成が変わっている場合は「別の分析対象」とみなし、前回比較(浮上度・前回順位・強度の前回比)は行わない
+      // (今回から新しい構成での比較を開始する。強度・加速度は今回分の値動きだけから算出するため通常通り計算する)
+      const prevMatches = !!(rawPrev && themeRepsSignatureEqual(currSignature, themeRepsSignature(rawPrev.repTickers)));
+      const prev = prevMatches ? rawPrev : null;
+      const curr = perTheme[theme];
+      curr.repTickers = currSignature;
+      curr.prevRank = prev ? prev.rank : null;
+      curr.prevStrength = prev ? prev.strength : null;
+      curr.emergence = computeThemeEmergenceScore(
+        { return1m: curr.return1m, relStrength1m: curr.relStrength1m, pctAboveSma25: curr.pctAboveSma25, strength: curr.strength, rank: curr.rank },
+        prev ? { return1m: prev.return1m, relStrength1m: prev.relStrength1m, pctAboveSma25: prev.pctAboveSma25, strength: prev.strength, rank: prev.rank } : null,
+        themeCount
+      );
+      curr.category = classifyThemeCategory(curr.strength, curr.emergence, curr.acceleration, curr.pctUp5d);
+      curr.strengthDeltaFromPrev = (prev && prev.strength != null && curr.strength != null) ? curr.strength - prev.strength : null;
+    });
+
+    return {
+      updatedAt: new Date().toISOString(),
+      marketTicker: THEME_MARKET_TICKER,
+      market: marketMetrics ? { return1m: marketMetrics.return1m, return3m: marketMetrics.return3m, return6m: marketMetrics.return6m, return5d: marketMetrics.return5d, return20d: marketMetrics.return20d } : null,
+      themes: perTheme,
+      rankOrder: ranked
+    };
+  }
+
+  // --- 「テーマ分析を更新」の実行(株価履歴の取得〜計算〜保存まで。ユーザーがボタンを押した時だけ動く) ---
+  let isRefreshingThemeAnalysis = false;
+
+  function themeAnalysisEstimateSeconds(tickerCount) {
+    return Math.max(0, tickerCount - 1) * UPDATE_INTERVAL_SEC;
+  }
+  function showThemeAnalysisStatus(text) {
+    const el = document.getElementById('themeAnalysisStatusMsg');
+    if (el) el.textContent = text;
+  }
+
+  async function runThemeAnalysisUpdate() {
+    if (isRefreshingThemeAnalysis) { alert('現在、テーマ分析の更新中です。完了までお待ちください。'); return; }
+    if (isRefreshingAll) { alert('現在、現在値の更新処理を実行中です。完了してからお試しください。'); return; }
+    if (!isBackendConfigured()) { alert('先に「接続設定」からバックエンドURLとアクセストークンを登録してください'); return; }
+
+    const reps = sanitizeThemeReps();
+    const themeNames = Object.keys(reps).filter(t => reps[t] && reps[t].length);
+    if (!themeNames.length) {
+      alert('代表銘柄が設定されているテーマがありません。まず「代表銘柄の設定」からテーマごとに3〜5銘柄を選んでください。');
+      return;
+    }
+
+    // 同じ銘柄が複数テーマにまたがっていても、1回の更新で株価履歴を取得するのは銘柄ごとに1回だけ
+    const allTickers = Array.from(new Set([THEME_MARKET_TICKER, ...themeNames.flatMap(t => reps[t])]));
+
+    // 今回分を書き込む前に、比較用として現時点の最新履歴を確保しておく
+    const prevEntryByTheme = {};
+    themeNames.forEach(t => { prevEntryByTheme[t] = getLatestThemeHistoryEntry(t); });
+
+    isRefreshingThemeAnalysis = true;
+    const btn = document.getElementById('themeAnalysisUpdateBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '更新中...'; }
+
+    const candlesByTicker = {};
+    try {
+      for (let i = 0; i < allTickers.length; i++) {
+        showThemeAnalysisStatus(`株価履歴を取得中... (${i + 1}/${allTickers.length}) ${allTickers[i]}`);
+        try {
+          candlesByTicker[allTickers[i]] = await fetchHistoryCandles(allTickers[i], THEME_HISTORY_FETCH_DAYS);
+        } catch (e) {
+          candlesByTicker[allTickers[i]] = null; // 個別銘柄の失敗は継続し、その銘柄だけ評価対象から除外する
+        }
+        // Twelve Data無料枠(1分8回)の制限対策として、既存の現在値更新と同じ間隔を空ける
+        if (i < allTickers.length - 1) await new Promise(r => setTimeout(r, UPDATE_INTERVAL_SEC * 1000));
+      }
+
+      showThemeAnalysisStatus('計算中...');
+      const result = computeThemeAnalysisResult(themeNames, reps, candlesByTicker, prevEntryByTheme);
+      setThemeAnalysisSnapshot(result);
+
+      const historyEntries = themeNames.map(theme => {
+        const t = result.themes[theme];
+        return {
+          date: themeTodayDateStr(), theme,
+          strength: t.strength, emergence: t.emergence, rank: t.rank,
+          return1m: t.return1m, relStrength1m: t.relStrength1m, pctAboveSma25: t.pctAboveSma25,
+          acceleration: t.acceleration, category: t.category, // 追加分(既存項目・既存の並びはそのまま維持し、後方互換性を保つ)
+          repTickers: t.repTickers // 代表銘柄構成(重複除去・ソート済み)。次回実行時に構成が変わっていないか判定するために使う
+        };
+      });
+      upsertThemeHistoryEntries(historyEntries);
+
+      showThemeAnalysisStatus('');
+      renderThemeAnalysisSection();
+    } finally {
+      isRefreshingThemeAnalysis = false;
+      if (btn) { btn.disabled = false; btn.textContent = 'テーマ分析を更新'; }
+    }
+  }
+
+  // --- 代表銘柄エディタの描画 ---
+  function toggleThemeRepsEditor() {
+    const section = document.getElementById('themeRepsSection');
+    const caret = document.getElementById('themeRepsCaret');
+    const nowCollapsed = section.classList.toggle('collapsed');
+    if (caret) caret.textContent = nowCollapsed ? '▸ 開く' : '▾ 閉じる';
+  }
+
+  function themeAnalysisRepsHtml() {
+    const themes = getThemes();
+    const reps = sanitizeThemeReps();
+    if (!themes.length) return '<div class="hint" style="margin-top:0;">テーマがまだ登録されていません。「データ管理」からテーマを追加してください。</div>';
+    return themes.map(theme => {
+      const list = reps[theme] || [];
+      const chips = list.map(tk => `<span class="theme-rep-chip">${escapeHtml(tk)}<button type="button" class="theme-rep-remove" data-theme="${escapeHtml(theme)}" data-ticker="${escapeHtml(tk)}" title="削除">✕</button></span>`).join('');
+      // 「+追加」の候補は、銘柄編集で設定済みのテーマ(s.theme)がこのテーマ分析の行と一致する銘柄を優先表示する
+      // (登録銘柄が多いと目的の銘柄を探しにくいため)。一致する銘柄が無い/それ以外を選びたい場合のために、
+      // 一致しない銘柄も「その他の銘柄」として下にまとめて残しておく(選択肢自体は減らさない)。
+      const availableStocks = allStocks.filter(s => !list.includes(s.ticker));
+      const dedupTickers = arr => Array.from(new Set(arr)).sort();
+      const matchedTickers = dedupTickers(availableStocks.filter(s => s.theme === theme).map(s => s.ticker));
+      const otherTickers = dedupTickers(availableStocks.filter(s => s.theme !== theme).map(s => s.ticker)).filter(tk => !matchedTickers.includes(tk));
+      const candidateCount = matchedTickers.length + otherTickers.length;
+      const optionHtml = tk => `<option value="${escapeHtml(tk)}">${escapeHtml(tk)}</option>`;
+      const optionsHtml = matchedTickers.length
+        ? `<optgroup label="設定テーマ: ${escapeHtml(theme)}">${matchedTickers.map(optionHtml).join('')}</optgroup>` +
+          (otherTickers.length ? `<optgroup label="その他の銘柄">${otherTickers.map(optionHtml).join('')}</optgroup>` : '')
+        : otherTickers.map(optionHtml).join('');
+      const canAdd = list.length < THEME_MAX_REPS && candidateCount;
+      const addHtml = canAdd
+        ? `<select class="theme-rep-add-select" data-theme="${escapeHtml(theme)}">
+             <option value="">+追加</option>
+             ${optionsHtml}
+           </select>`
+        : (list.length >= THEME_MAX_REPS ? `<span class="hint" style="margin:0; display:inline;">上限${THEME_MAX_REPS}銘柄</span>` : '<span class="hint" style="margin:0; display:inline;">登録銘柄がありません</span>');
+      return `<div class="theme-rep-row">
+        <div class="theme-rep-name">${escapeHtml(theme)}</div>
+        <div class="theme-rep-chips">${chips}${addHtml}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderThemeRepsEditor() {
+    const el = document.getElementById('themeRepsEditorBox');
+    if (!el) return;
+    el.innerHTML = themeAnalysisRepsHtml();
+    el.querySelectorAll('.theme-rep-remove').forEach(btn => {
+      btn.onclick = () => {
+        removeThemeRep(btn.dataset.theme, btn.dataset.ticker);
+        renderThemeRepsEditor();
+        renderThemeAnalysisUpdateHint();
+      };
+    });
+    el.querySelectorAll('.theme-rep-add-select').forEach(sel => {
+      sel.onchange = () => {
+        if (sel.value) addThemeRep(sel.dataset.theme, sel.value);
+        renderThemeRepsEditor();
+        renderThemeAnalysisUpdateHint();
+      };
+    });
+  }
+
+  function renderThemeAnalysisUpdateHint() {
+    const el = document.getElementById('themeAnalysisUpdateHint');
+    if (!el) return;
+    const reps = getThemeReps();
+    const themeNames = Object.keys(reps).filter(t => reps[t] && reps[t].length);
+    if (!themeNames.length) {
+      el.textContent = '代表銘柄を設定すると、テーマ分析を実行できます。';
+      return;
+    }
+    const tickerCount = new Set([THEME_MARKET_TICKER, ...themeNames.flatMap(t => reps[t])]).size;
+    const estMin = Math.round(themeAnalysisEstimateSeconds(tickerCount) / 60 * 10) / 10;
+    el.textContent = `対象: ${themeNames.length}テーマ・${tickerCount}銘柄(所要時間の目安: 約${estMin}分)`;
+  }
+
+  // --- 「❓ 用語・算出方法」セクション(閉じた状態が初期状態)。実装中の定数(配点・しきい値)から説明文を組み立てるため、
+  //     ロジックを変更した場合はこの説明も自動的に追随する(説明文をロジックと別々に手直しする必要がない) ---
+  function toggleThemeHelpSection() {
+    const section = document.getElementById('themeHelpSection');
+    const caret = document.getElementById('themeHelpCaret');
+    if (!section) return;
+    const nowCollapsed = section.classList.toggle('collapsed');
+    if (caret) caret.textContent = nowCollapsed ? '▸ 開く' : '▾ 閉じる';
+  }
+  function buildThemeHelpHtml() {
+    const sw = THEME_STRENGTH_WEIGHTS, ew = THEME_EMERGENCE_WEIGHTS, aw = THEME_ACCELERATION_WEIGHTS;
+    const c = THEME_CLASSIFY, ec = THEME_EARLY_CANDIDATE, vt = THEME_VOLUME_BADGE_THRESHOLDS;
+    return `
+      <p style="margin-top:0;"><b>これらのスコアは何か</b><br>
+      「テーマ強度」「浮上度」「加速度」は、いずれもこのアプリが代表銘柄の株価履歴(始値・終値・出来高)だけから機械的に計算する0〜100点の指標です。<b>将来の値動きを予測するものでも、確率を表すものでもありません。</b>あくまで「今の状態を数値ですばやく把握するための参考指標」であり、どの銘柄を代表銘柄に選ぶかによって数値は変わるため、テーマの実態を完全に代表しているとは限りません。</p>
+
+      <p><b>テーマ強度(0〜100点)</b> ー 今どれだけ強いか<br>
+      1か月リターン ${sw.momentum1m}点・市場平均(${THEME_MARKET_TICKER})に対する1か月の相対強度 ${sw.relStrength1m}点・1か月上昇銘柄の割合 ${sw.pctUp1m}点・SMA25超え銘柄の割合 ${sw.aboveSma25}点・SMA75超え銘柄の割合 ${sw.aboveSma75}点、の加重平均です。</p>
+
+      <p><b>浮上度(0〜100点)</b> ー 前回の更新から勢いが増しているか(初回実行時は算出されません)<br>
+      1か月リターンの改善 ${ew.momentumDelta}点・相対強度の改善 ${ew.relStrengthDelta}点・SMA25超え比率の増加 ${ew.aboveSma25Delta}点・順位の上昇 ${ew.rankDelta}点・強度そのものの伸び ${ew.strengthDelta}点、の加重平均です。</p>
+
+      <p><b>加速度(0〜100点)</b> ー 直近の値動き・出来高が加速しているか(更新間隔に関係なく、直近の株価履歴だけから毎回同じ条件で計算します)<br>
+      値動きの加速度合い(直近5営業日のペース − 直近20営業日のペース) ${aw.priceAcceleration}点・市場平均に対する相対強度の加速度合い ${aw.relativeAcceleration}点・出来高倍率(直近5日平均出来高 ÷ 直近20日平均出来高) ${aw.volumeAcceleration}点・直近5営業日で上昇している代表銘柄の割合 ${aw.breadth5d}点、の加重平均です。単一銘柄の急騰・急落だけに引っ張られすぎないよう、これらの値動き・出来高の集計には平均値と中央値を組み合わせた値を使っています。</p>
+
+      <p><b>出来高倍率の目安</b><br>
+      ${vt.increase}倍以上で「増加傾向」、${vt.clearIncrease}倍以上で「明確な増加」の目安として表示します(しきい値はあくまで目安であり、断定的な判断根拠ではありません)。出来高データが取得できない銘柄は、その銘柄の出来高倍率のみ計算対象から除外されます(0点として扱われることはありません)。</p>
+
+      <p><b>分類(6種類・判定は次の優先順で行います)</b><br>
+      ・主役: 強度${c.leadStrengthMin}点以上 かつ 浮上度${c.leadEmergenceMax}点未満<br>
+      ・拡大中: 強度${c.expandStrengthMin}点以上 かつ 浮上度${c.expandEmergenceMin}点以上<br>
+      ・⚡ 初動候補: まだ主役級ではないが加速度が高い(強度${ec.strengthMin}〜${ec.strengthMax}点 かつ 加速度${ec.accelerationMin}点以上 かつ 直近5営業日の代表銘柄の上昇割合${ec.breadth5dMin}%以上)。前回比較ではまだ弱く見えても、直近の値動き・出来高が急速に加速していれば、この条件を優先して判定します(浮上度が低いという理由だけで「失速中」と判定されることはありません)<br>
+      ・失速中: 上記(主役・拡大中・初動候補)のいずれにも該当せず、浮上度が${c.fadeEmergenceMax}点以下<br>
+      ・浮上中: 上記のいずれにも該当せず、浮上度が${c.emergeEmergenceMin}点以上<br>
+      ・中立: 上記のいずれにも該当しない場合<br>
+      ※ 初回実行など浮上度が未算出の場合は、加速度の条件のみで「初動候補」または「中立」のどちらかに判定します。<br>
+      ※ 代表銘柄の構成(選んだ銘柄の組み合わせ)を変更した回は、前回までの履歴と分析対象そのものが異なるため、浮上度は算出されません(「-」表示)。次に同じ構成で分析した時から、その構成どうしでの比較が始まります。強度・加速度は構成変更後も通常通り算出されます。</p>
+
+      <p style="color:var(--text);"><b>注意</b><br>
+      これらはすべてアプリ内で完結する機械的な計算結果であり、ニュース・決算・需給などアプリが把握していない情報は一切反映されていません。将来の株価を保証・予測するものではなく、投資判断は他の情報と合わせてご自身の判断で行ってください。</p>`;
+  }
+  function renderThemeHelpBody() {
+    const el = document.getElementById('themeHelpBody');
+    if (el) el.innerHTML = buildThemeHelpHtml();
+  }
+
+  // --- 表示用フォーマットヘルパー ---
+  function themeChangeArrow(delta) {
+    if (delta == null) return '';
+    if (delta >= 10) return ' ↑';
+    if (delta <= -10) return ' ↓';
+    return '';
+  }
+  function fmtSignedNum(v, digits) {
+    if (v == null || isNaN(v)) return '-';
+    const d = digits == null ? 0 : digits;
+    return (v >= 0 ? '+' : '') + v.toFixed(d);
+  }
+  function fmtSignedPct(v, digits) {
+    if (v == null || isNaN(v)) return '-';
+    return fmtSignedNum(v, digits == null ? 1 : digits) + '%';
+  }
+  function themeReturnColorClass(v) {
+    if (v == null) return '';
+    return v >= 0 ? 'theme-up' : 'theme-down';
+  }
+  function themeCategoryBadgeHtml(category) {
+    const color = THEME_CATEGORY_COLOR[category] || '#8c8d92';
+    return `<span class="theme-cat-badge" style="color:${color}; border-color:${color};">${escapeHtml(category)}</span>`;
+  }
+
+  // --- ランキング表・サマリーの描画 ---
+  function renderThemeAnalysisRanking(result) {
+    const box = document.getElementById('themeAnalysisRankingBox');
+    if (!box) return;
+    if (!result || !result.rankOrder.length) { box.innerHTML = ''; return; }
+
+    const byCategory = { '主役': [], '拡大中': [], '浮上中': [], '初動候補': [], '失速中': [] };
+    result.rankOrder.forEach(theme => {
+      const c = result.themes[theme].category;
+      if (byCategory[c]) byCategory[c].push(theme);
+    });
+    const summaryHtml = `
+      <div class="theme-summary-row">
+        <div class="theme-summary-cell"><div class="theme-summary-label">現在の主役</div><div class="theme-summary-value">${byCategory['主役'].slice(0, 2).map(escapeHtml).join('・') || '-'}</div></div>
+        <div class="theme-summary-cell"><div class="theme-summary-label">浮上中</div><div class="theme-summary-value">${byCategory['浮上中'].slice(0, 2).map(escapeHtml).join('・') || '-'}</div></div>
+        <div class="theme-summary-cell"><div class="theme-summary-label">⚡ 初動候補</div><div class="theme-summary-value">${byCategory['初動候補'].slice(0, 2).map(escapeHtml).join('・') || '-'}</div></div>
+        <div class="theme-summary-cell"><div class="theme-summary-label">失速中</div><div class="theme-summary-value">${byCategory['失速中'].slice(0, 2).map(escapeHtml).join('・') || '-'}</div></div>
+      </div>`;
+
+    const rows = result.rankOrder.map(theme => {
+      const t = result.themes[theme];
+      const delta = t.strengthDeltaFromPrev;
+      const isEarly = t.category === '初動候補';
+      return `<tr>
+        <td>${isEarly ? '⚡ ' : ''}${escapeHtml(theme)}</td>
+        <td>${t.strength != null ? t.strength : '-'}</td>
+        <td>${t.emergence != null ? t.emergence : '-'}</td>
+        <td>${t.acceleration != null ? t.acceleration : '-'}</td>
+        <td class="${themeReturnColorClass(delta)}">${delta != null ? fmtSignedNum(delta) + themeChangeArrow(delta) : '-'}</td>
+        <td>${themeCategoryBadgeHtml(t.category)}</td>
+      </tr>`;
+    }).join('');
+
+    box.innerHTML = `${summaryHtml}
+      <div style="overflow-x:auto; margin-top:10px;">
+        <table class="metric-table theme-rank-table">
+          <thead><tr><th>テーマ</th><th>強度</th><th>浮上度</th><th>加速度</th><th>前回比</th><th>分類</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  // --- テーマごとのカード一覧の描画 ---
+  function renderThemeAnalysisCards(result) {
+    const box = document.getElementById('themeAnalysisCardsBox');
+    if (!box) return;
+    if (!result || !result.rankOrder.length) {
+      box.innerHTML = '<div class="hint" style="margin-top:0;">まだテーマ分析を実行していません。上の「代表銘柄の設定」でテーマごとに3〜5銘柄を選び、「テーマ分析を更新」を押してください。</div>';
+      return;
+    }
+    box.innerHTML = result.rankOrder.map(theme => {
+      const t = result.themes[theme];
+      const rankText = t.prevRank != null ? `${t.prevRank}位 → ${t.rank}位` : `${t.rank}位(初回)`;
+      return `<div class="theme-analysis-card">
+        <div class="theme-analysis-card-top">
+          <div class="theme-analysis-card-name">${t.category === '初動候補' ? '⚡ ' : ''}${escapeHtml(theme)}</div>
+          ${themeCategoryBadgeHtml(t.category)}
+        </div>
+        <div class="theme-analysis-card-scores">
+          <span>強度 <b>${t.strength != null ? t.strength : '-'}</b></span>
+          <span>浮上度 <b>${t.emergence != null ? t.emergence : '-'}</b></span>
+          <span>加速度 <b>${t.acceleration != null ? t.acceleration : '-'}</b></span>
+        </div>
+        <div class="theme-analysis-card-returns">
+          <span class="${themeReturnColorClass(t.return1m)}">1か月 ${fmtSignedPct(t.return1m)}</span>
+          <span class="${themeReturnColorClass(t.return5d)}">5日 ${fmtSignedPct(t.return5d)}</span>
+          <span class="${themeReturnColorClass(t.relStrength1m)}">市場平均比 ${fmtSignedPct(t.relStrength1m)}</span>
+          <span>${themeVolumeBadgeHtml(t.volumeRatio)}</span>
+        </div>
+        <div class="theme-analysis-card-rank">順位 ${rankText}</div>
+        <div class="theme-analysis-card-actions">
+          <button type="button" class="btn btn-secondary theme-detail-btn" data-theme="${escapeHtml(theme)}" style="margin-top:0;">詳細</button>
+          <button type="button" class="btn btn-secondary theme-ai-review-btn" data-theme="${escapeHtml(theme)}" style="margin-top:0;">🧠 AIレビュー</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    box.querySelectorAll('.theme-detail-btn').forEach(btn => {
+      btn.onclick = () => openThemeDetailModal(btn.dataset.theme);
+    });
+    box.querySelectorAll('.theme-ai-review-btn').forEach(btn => {
+      btn.onclick = () => openThemeAiReviewModal(btn.dataset.theme);
+    });
+  }
+
+  function renderThemeAnalysisMeta(result) {
+    const el = document.getElementById('themeAnalysisMeta');
+    if (!el) return;
+    if (!result) { el.textContent = ''; return; }
+    const d = new Date(result.updatedAt);
+    el.textContent = `最終更新: ${isNaN(d.getTime()) ? result.updatedAt : d.toLocaleString('ja-JP')}(市場平均の比較対象: ${result.marketTicker})`;
+  }
+
+  // 「テーマ分析」セクション全体の再描画(APIは呼ばない。localStorageのキャッシュを表示するだけの軽量処理)
+  function renderThemeAnalysisSection() {
+    if (!document.getElementById('themeAnalysisRankingBox')) return; // 未初期化(念のためのガード)
+    renderThemeRepsEditor();
+    renderThemeAnalysisUpdateHint();
+    renderThemeHelpBody();
+    const result = getThemeAnalysisSnapshot();
+    renderThemeAnalysisMeta(result);
+    renderThemeAnalysisRanking(result);
+    renderThemeAnalysisCards(result);
+  }
+
+  // --- テーマ詳細モーダル ---
+  let themeDetailCurrentTheme = null;
+
+  function openThemeDetailModal(theme) {
+    themeDetailCurrentTheme = theme;
+    const result = getThemeAnalysisSnapshot();
+    const t = result && result.themes[theme];
+    document.getElementById('themeDetailModalTitle').textContent = `${theme} の詳細`;
+    const box = document.getElementById('themeDetailBody');
+    if (!t) {
+      box.innerHTML = '<div class="hint" style="margin-top:0;">このテーマはまだ分析結果がありません。「テーマ分析を更新」を実行してください。</div>';
+    } else {
+      const okReps = t.repDetails.filter(r => r.ok);
+      const cnt5d = { up: okReps.filter(r => r.return5d != null && r.return5d > 0).length, total: okReps.filter(r => r.return5d != null).length };
+      const cnt1m = { up: okReps.filter(r => r.return1m != null && r.return1m > 0).length, total: okReps.filter(r => r.return1m != null).length };
+      const cntSma25 = { up: okReps.filter(r => r.aboveSma25 === true).length, total: okReps.filter(r => r.aboveSma25 != null).length };
+      const cntSma75 = { up: okReps.filter(r => r.aboveSma75 === true).length, total: okReps.filter(r => r.aboveSma75 != null).length };
+
+      const repRows = t.repDetails.map(r => {
+        if (!r.ok) return `<tr><td>${escapeHtml(r.ticker)}</td><td colspan="4" style="color:var(--muted);">データ取得できず</td></tr>`;
+        return `<tr>
+          <td>${escapeHtml(r.ticker)}</td>
+          <td class="${themeReturnColorClass(r.return5d)}">${fmtSignedPct(r.return5d)}</td>
+          <td class="${themeReturnColorClass(r.return1m)}">${fmtSignedPct(r.return1m)}</td>
+          <td>${r.aboveSma25 == null ? '-' : (r.aboveSma25 ? 'SMA25上' : 'SMA25下')}</td>
+          <td>${r.aboveSma75 == null ? '-' : (r.aboveSma75 ? 'SMA75上' : 'SMA75下')}</td>
+        </tr>`;
+      }).join('');
+
+      const history = getThemeAnalysisHistory().filter(e => e.theme === theme).sort((a, b) => a.date < b.date ? -1 : 1);
+      const historyRows = history.map(e => `<tr><td>${escapeHtml(e.date)}</td><td>${e.strength != null ? e.strength : '-'}</td><td>${e.emergence != null ? e.emergence : '-'}</td><td>${e.acceleration != null ? e.acceleration : '-'}</td><td>${e.rank != null ? e.rank + '位' : '-'}</td></tr>`).join('');
+
+      box.innerHTML = `
+        <div class="theme-analysis-card-top" style="margin-bottom:10px;">
+          ${t.category === '初動候補' ? '⚡ ' : ''}${themeCategoryBadgeHtml(t.category)}
+        </div>
+
+        <p class="section-title" style="margin-top:0;">【現在】</p>
+        <div class="hint" style="margin-top:0;">
+          強度 ${t.strength != null ? t.strength : '-'}/100 ・ 浮上度 ${t.emergence != null ? t.emergence : '-'}/100 ・ 加速度 ${t.acceleration != null ? t.acceleration : '-'}/100<br>
+          順位 ${t.rank}位${t.prevRank != null ? `(前回 ${t.prevRank}位)` : '(初回)'}
+        </div>
+
+        <p class="section-title">【値動き】</p>
+        <div class="theme-analysis-card-returns" style="margin-bottom:4px;">
+          <span class="${themeReturnColorClass(t.return5d)}">5営業日 ${fmtSignedPct(t.return5d)}</span>
+          <span class="${themeReturnColorClass(t.return1m)}">1か月 ${fmtSignedPct(t.return1m)}</span>
+          <span class="${themeReturnColorClass(t.return3m)}">3か月 ${fmtSignedPct(t.return3m)}</span>
+          <span class="${themeReturnColorClass(t.return6m)}">6か月 ${fmtSignedPct(t.return6m)}</span>
+        </div>
+
+        <p class="section-title">【相対強度】(対 ${result.marketTicker})</p>
+        <div class="theme-analysis-card-returns" style="margin-bottom:4px;">
+          <span class="${themeReturnColorClass(t.relReturn5d)}">5営業日 ${fmtSignedPct(t.relReturn5d)}</span>
+          <span class="${themeReturnColorClass(t.relStrength1m)}">1か月 ${fmtSignedPct(t.relStrength1m)}</span>
+        </div>
+
+        <p class="section-title">【広がり】</p>
+        <div class="hint" style="margin-top:0;">
+          5営業日上昇 ${cnt5d.total}中${cnt5d.up}銘柄 ・ 1か月上昇 ${cnt1m.total}中${cnt1m.up}銘柄<br>
+          SMA25超え ${cntSma25.total}中${cntSma25.up}銘柄 ・ SMA75超え ${cntSma75.total}中${cntSma75.up}銘柄
+        </div>
+
+        <p class="section-title">【出来高】</p>
+        <div class="hint" style="margin-top:0;">${themeVolumeBadgeHtml(t.volumeRatio)}(代表銘柄ごとの「直近5日平均÷直近20日平均」を集計した値)</div>
+
+        <p class="section-title">■ 代表銘柄</p>
+        <div style="overflow-x:auto;">
+          <table class="metric-table"><thead><tr><th>銘柄</th><th>5日</th><th>1か月リターン</th><th>SMA25</th><th>SMA75</th></tr></thead><tbody>${repRows}</tbody></table>
+        </div>
+
+        <p class="section-title">■ スコア推移(実行するたびに記録)</p>
+        <div style="overflow-x:auto;">
+          <table class="metric-table"><thead><tr><th>日付</th><th>強度</th><th>浮上度</th><th>加速度</th><th>順位</th></tr></thead><tbody>${historyRows || '<tr><td colspan="5" class="hint">まだ履歴がありません</td></tr>'}</tbody></table>
+        </div>`;
+    }
+    document.getElementById('themeDetailModalBg').classList.add('active');
+  }
+  document.getElementById('themeDetailCloseBtn').addEventListener('click', () => document.getElementById('themeDetailModalBg').classList.remove('active'));
+  document.getElementById('themeDetailAiReviewBtn').addEventListener('click', () => {
+    if (!themeDetailCurrentTheme) return;
+    document.getElementById('themeDetailModalBg').classList.remove('active');
+    openThemeAiReviewModal(themeDetailCurrentTheme);
+  });
+
+  // --- テーマ別AIレビュー ---
+  // アプリ側で計算済みの数値だけをテキスト化してAIへ渡し、数値の意味づけ・解説だけをさせる(新しい数値は作らせない)。
+  function buildThemeAiPrompt(theme, t) {
+    const okReps = t.repDetails.filter(r => r.ok);
+    const repLines = t.repDetails.map(r => r.ok ? `${r.ticker} 5日${fmtSignedPct(r.return5d)}/1か月${fmtSignedPct(r.return1m)}` : `${r.ticker} データ取得エラー`).join('\n');
+    const dataSection = [
+      `テーマ:${theme}`,
+      '',
+      `テーマ強度:${t.strength != null ? t.strength : '不明'}/100`,
+      `浮上度:${t.emergence != null ? t.emergence : '不明(初回のため比較対象なし)'}/100`,
+      `加速度:${t.acceleration != null ? t.acceleration : '不明'}/100(直近の値動き・出来高だけから毎回同じ条件で計算。更新間隔には依存しません)`,
+      `アプリによる分類:${t.category}`,
+      `現在順位:${t.rank}位`,
+      `前回順位:${t.prevRank != null ? t.prevRank + '位' : '不明(初回)'}`,
+      `前回からの強度変化:${t.strengthDeltaFromPrev != null ? fmtSignedNum(t.strengthDeltaFromPrev) : '不明(初回)'}`,
+      '',
+      `5営業日リターン:${fmtSignedPct(t.return5d)}`,
+      `1か月リターン:${fmtSignedPct(t.return1m)}`,
+      `3か月リターン:${fmtSignedPct(t.return3m)}`,
+      `6か月リターン:${fmtSignedPct(t.return6m)}`,
+      `市場平均(${THEME_MARKET_TICKER})比(1か月):${fmtSignedPct(t.relStrength1m)}`,
+      `市場平均(${THEME_MARKET_TICKER})比(5営業日):${fmtSignedPct(t.relReturn5d)}`,
+      '',
+      `出来高倍率(直近5日平均÷直近20日平均):${t.volumeRatio != null ? t.volumeRatio.toFixed(2) + 'x' : '不明'}`,
+      `直近5営業日で上昇している代表銘柄の割合:${t.pctUp5d != null ? t.pctUp5d.toFixed(0) + '%' : '不明'}`,
+      `SMA25超え:${okReps.filter(r => r.aboveSma25).length}/${okReps.length}銘柄`,
+      `SMA75超え:${okReps.filter(r => r.aboveSma75).length}/${okReps.length}銘柄`,
+      '',
+      '代表銘柄:',
+      repLines
+    ].join('\n');
+
+    return dataSection + `
+
+上記は、このアプリが株価履歴・出来高から計算した数値です。新しい数値を作らず、この数値が何を意味するかの解説に徹してください。これらは機械的な参考指標であり、将来の株価を予測・保証するものではないことを踏まえて解説してください。この実行環境ではWeb検索ができないため、与えられていない最新のニュース・決算を確認済みであるかのように断定しないでください。また、代表銘柄の選び方次第でこれらの数値は変わりうる点にも留意してください。
+
+以下の見出し・順番を守り、日本語で700字程度を目安に簡潔に回答してください。
+
+【現在の状態】
+(主役 / 拡大中 / 浮上中 / 初動候補 / 中立 / 失速中 のいずれか1つを、上記の数値から選んでください。アプリによる分類と見解が異なる場合は理由も一言添えてください)
+
+【強さの理由】
+
+【勢い・加速の兆候】
+(加速度・出来高倍率・5営業日の値動きから読み取れる、短期的な勢いの変化について)
+
+【過熱・失速の兆候】
+
+【今後確認するポイント】
+
+【関連して波及する可能性のあるテーマ】`;
+  }
+
+  let themeAiCurrentTheme = null;
+
+  // 実行方法(アプリ内AI/他のAI)は、既存の各銘柄向けAI機能と同じ設定(getAiExecMode/setAiExecMode)を共有する
+  function refreshThemeAiModeUi() {
+    const mode = getAiExecMode();
+    document.getElementById('themeAiExecModeSelect').value = mode;
+    const btn = document.getElementById('themeAiRunBtn');
+    btn.textContent = mode === 'inapp' ? '🧠 AIレビューを生成する' : '📋 相談文をコピーする';
+    document.getElementById('themeAiHintInapp').style.display = mode === 'inapp' ? 'block' : 'none';
+    document.getElementById('themeAiHintExternal').style.display = mode === 'external' ? 'block' : 'none';
+  }
+  document.getElementById('themeAiExecModeSelect').addEventListener('change', (e) => {
+    setAiExecMode(e.target.value);
+    refreshThemeAiModeUi();
+  });
+
+  function themeAiHistoryHtml(theme) {
+    const list = getThemeAiHistory().filter(e => e.theme === theme);
+    if (!list.length) return '<div class="hint" style="margin-top:0;">まだ生成履歴がありません。</div>';
+    return list.map((entry, idx) => ({ entry, idx })).slice().reverse().map(({ entry, idx }) => {
+      const d = new Date(entry.date);
+      const dateTxt = isNaN(d.getTime()) ? entry.date : d.toLocaleString('ja-JP');
+      const escaped = escapeHtml(entry.text || '').replace(/\n/g, '<br>');
+      return `<div class="judgment-log-entry">
+        <button type="button" class="judgment-log-toggle">${escapeHtml(dateTxt)}</button>
+        <div class="judgment-log-body" style="display:none;">${escaped}</div>
+        <button type="button" class="btn btn-danger theme-ai-history-delete-btn" data-idx="${idx}" style="margin-top:4px; font-size:11px; padding:3px 8px; width:auto;">🗑 この履歴を削除</button>
+      </div>`;
+    }).join('');
+  }
+
+  function renderThemeAiHistory(theme) {
+    const el = document.getElementById('themeAiHistoryList');
+    el.innerHTML = themeAiHistoryHtml(theme);
+    attachJudgmentLogToggles(el);
+    el.querySelectorAll('.theme-ai-history-delete-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const globalList = getThemeAiHistory();
+        const themeList = globalList.filter(x => x.theme === theme);
+        const target = themeList[Number(btn.dataset.idx)];
+        if (!target) return;
+        if (!confirm('この分析結果を削除しますか?(この操作は元に戻せません)')) return;
+        const idxInAll = globalList.indexOf(target);
+        if (idxInAll >= 0) globalList.splice(idxInAll, 1);
+        setThemeAiHistory(globalList);
+        renderThemeAiHistory(theme);
+      };
+    });
+  }
+
+  function openThemeAiReviewModal(theme) {
+    const result = getThemeAnalysisSnapshot();
+    const t = result && result.themes[theme];
+    themeAiCurrentTheme = theme;
+    document.getElementById('themeAiModalTitle').textContent = `${theme} のAIレビュー`;
+    document.getElementById('themeAiStatusMsg').textContent = '';
+    document.getElementById('themeAiResultArea').style.display = 'none';
+    document.getElementById('themeAiResultArea').innerHTML = '';
+    document.getElementById('themeAiRunBtn').disabled = !t;
+    document.getElementById('themeAiNoDataHint').style.display = t ? 'none' : 'block';
+    refreshThemeAiModeUi();
+    renderThemeAiHistory(theme);
+    document.getElementById('themeAiModalBg').classList.add('active');
+  }
+  document.getElementById('themeAiCloseBtn').addEventListener('click', () => document.getElementById('themeAiModalBg').classList.remove('active'));
+
+  document.getElementById('themeAiRunBtn').addEventListener('click', async () => {
+    const theme = themeAiCurrentTheme;
+    if (!theme) return;
+    const result = getThemeAnalysisSnapshot();
+    const t = result && result.themes[theme];
+    if (!t) { alert('先に「テーマ分析を更新」を実行してください。'); return; }
+
+    const prompt = buildThemeAiPrompt(theme, t);
+    const mode = getAiExecMode();
+
+    if (mode === 'external') {
+      copyToClipboard(prompt)
+        .then(() => alert(`${theme} の情報をコピーしました。ChatGPTやGeminiなどに貼り付けてご利用ください。`))
+        .catch(() => alert('コピーに失敗しました。お使いのブラウザがクリップボード機能に対応していない可能性があります。'));
+      return;
+    }
+
+    if (!isBackendConfigured()) {
+      alert('先に「接続設定」からバックエンドURLとアクセストークンを登録してください');
+      return;
+    }
+
+    const btn = document.getElementById('themeAiRunBtn');
+    const statusEl = document.getElementById('themeAiStatusMsg');
+    const resultEl = document.getElementById('themeAiResultArea');
+    btn.disabled = true;
+    resultEl.style.display = 'none';
+    statusEl.textContent = '生成中...(数秒〜十数秒かかることがあります)';
+    try {
+      // 既存の各銘柄向けAI機能と全く同じ通信方式(postToBackend / action:'ai-analysis')・認証方式(アクセストークン)を利用する
+      const json = await postToBackend({ action: 'ai-analysis', token: getAccessToken(), prompt });
+      statusEl.textContent = '';
+      resultEl.textContent = json.text;
+      resultEl.style.display = 'block';
+
+      const list = getThemeAiHistory();
+      list.push({ date: new Date().toISOString(), theme, text: json.text });
+      setThemeAiHistory(list);
+      renderThemeAiHistory(theme);
+    } catch (e) {
+      statusEl.textContent = 'エラー: ' + e.message + (e.code ? `(${e.code})` : '');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('themeAnalysisUpdateBtn').addEventListener('click', runThemeAnalysisUpdate);
+
+  // --- 「テーマ」タブのサブタブ(保有テーマ分析 / 市場テーマ分析)の切替 ---
+  const THEME_SUBTAB_STORAGE = 'stockapp_theme_subtab';
+  function getThemeSubtab() {
+    const v = localStorage.getItem(THEME_SUBTAB_STORAGE);
+    return v === 'market' ? 'market' : 'holdings'; // 既定は従来の「保有テーマ分析」
+  }
+  function setThemeSubtab(v) {
+    localStorage.setItem(THEME_SUBTAB_STORAGE, v === 'market' ? 'market' : 'holdings');
+  }
+  function applyThemeSubtab(tab) {
+    setThemeSubtab(tab);
+    document.querySelectorAll('.theme-subtab').forEach(el => {
+      el.classList.toggle('active', el.dataset.themeSubtab === tab);
+    });
+    const holdingsEl = document.getElementById('themeSubpanel-holdings');
+    const marketEl = document.getElementById('themeSubpanel-market');
+    if (holdingsEl) holdingsEl.classList.toggle('active', tab === 'holdings');
+    if (marketEl) marketEl.classList.toggle('active', tab === 'market');
+  }
+  document.querySelectorAll('.theme-subtab').forEach(el => {
+    el.addEventListener('click', () => applyThemeSubtab(el.dataset.themeSubtab));
+  });
+  applyThemeSubtab(getThemeSubtab());
+
   renderAll();
   // アプリを開いた時にウォッチ対象銘柄の現在値を自動取得(バックエンド未設定・選択モードの場合は何もしない)
-  if (isBackendConfigured() && getAutoRefreshMode() === 'auto') {
-    refreshAllPrices(true);
+  if (isBackendConfigured()) {
+    const mode = getAutoRefreshMode();
+    if (mode === 'auto') refreshAllPrices(true);
+    else if (mode === 'selected') refreshSelectedPrices(true);
   }
 </script>
 </body>
