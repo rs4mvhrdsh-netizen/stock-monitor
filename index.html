@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -5703,4 +5703,15 @@ ${metricLines}
   document.querySelectorAll('.theme-subtab').forEach(el => {
     el.addEventListener('click', () => applyThemeSubtab(el.dataset.themeSubtab));
   });
-  applyThemeSubtab(getThemeSubt
+  applyThemeSubtab(getThemeSubtab());
+
+  renderAll();
+  // アプリを開いた時にウォッチ対象銘柄の現在値を自動取得(バックエンド未設定・選択モードの場合は何もしない)
+  if (isBackendConfigured()) {
+    const mode = getAutoRefreshMode();
+    if (mode === 'auto') refreshAllPrices(true);
+    else if (mode === 'selected') refreshSelectedPrices(true);
+  }
+</script>
+</body>
+</html>
