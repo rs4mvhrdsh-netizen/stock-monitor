@@ -318,14 +318,20 @@
   /* --- 「銘柄編集」一覧表示(カード表示に加えて追加。銘柄数が多い時に横スクロールなしで
      監視・単体更新しやすくするための表示方式。列構成はスマホ幅(360px前後)を最優先に固定している)。
      テーマは専用の列にして、銘柄ごとに文字の開始位置がそろうようにしている(先頭4文字までの表示)。
-     現在値〜売り差%の間はgapを広めにして、数値が詰まって見えないようにしている */
+     ティッカー列は「1fr(残り幅を全部使う)」だと短いティッカーの行で無駄な余白ができてしまうため、
+     固定幅にしてテーマ列の開始位置を左に詰め、浮いた分は現在値〜売り差%の余白に回している。
+     GOOGL・BRK.Bのような5文字ティッカーでも欠けない最小限の幅に、ティッカーの文字サイズを
+     少し小さくすることで対応している(すべての行で同じ列幅を使うため、行ごとの文字の開始位置は揃ったまま) */
   .stock-list-header, .stock-list-row {
     display: grid;
-    grid-template-columns: 16px 1fr 44px 46px 32px 40px 40px 22px 26px;
+    grid-template-columns: 16px 44px 46px 46px 34px 42px 42px 22px 26px;
     align-items: center;
     column-gap: 2px;
     row-gap: 1px;
     padding: 7px 3px;
+    /* 列幅はすべて固定pxのため、PCなど画面(パネル)が360pxより広い場合に列の右側が
+       空白のまま伸びてしまうのを防ぐ目的で、列構成が必要とする幅までで頭打ちにしている */
+    max-width: 340px;
   }
   .stock-list-header {
     font-size: 10px; color: var(--muted); font-weight: 700; white-space: nowrap;
@@ -343,7 +349,7 @@
   }
   .stock-list-row:hover { border-color: var(--accent); }
   .stock-list-ticker {
-    min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 700; font-size: 12.5px; white-space: nowrap;
+    min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 700; font-size: 11px; white-space: nowrap;
   }
   /* テーマ専用列。先頭4文字まで(JS側で切り詰め済み)を左詰めで表示し、行の開始位置をそろえる */
   .stock-list-theme {
@@ -674,7 +680,7 @@
 <header>
   <div>
     <h1>米国株 売買ライン監視</h1>
-    <div class="app-version">v2.46.4</div>
+    <div class="app-version">v2.46.6</div>
   </div>
   <div class="actions">
     <button class="icon-btn" id="helpBtn">使い方・免責事項</button>
@@ -1285,7 +1291,7 @@
 
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ バージョン</p>
     <div class="hint" style="margin-top:0;">
-      v2.46.4
+      v2.46.6
     </div>
 
     <div class="modal-actions">
