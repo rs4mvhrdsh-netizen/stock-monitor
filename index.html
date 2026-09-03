@@ -329,9 +329,13 @@
     column-gap: 2px;
     row-gap: 1px;
     padding: 7px 3px;
-    /* 列幅はすべて固定pxのため、PCなど画面(パネル)が360pxより広い場合に列の右側が
-       空白のまま伸びてしまうのを防ぐ目的で、列構成が必要とする幅までで頭打ちにしている */
-    max-width: 340px;
+    /* 列幅はすべて固定pxのため、機種によって画面(パネル)幅が360〜430px程度まで
+       ばらつくスマホや、パネル自体が640pxまで広がるPCで、列の右側が空白のまま
+       残ってしまわないようにしている。max-widthで際限のない間延びだけは防ぎつつ、
+       justify-content: space-betweenで実際に余った横幅を列と列の間隔として
+       活用することで、機種ごとに個別の幅を指定しなくても空白ができないようにしている */
+    max-width: 460px;
+    justify-content: space-between;
   }
   .stock-list-header {
     font-size: 10px; color: var(--muted); font-weight: 700; white-space: nowrap;
@@ -680,7 +684,7 @@
 <header>
   <div>
     <h1>米国株 売買ライン監視</h1>
-    <div class="app-version">v2.46.6</div>
+    <div class="app-version">v2.46.7</div>
   </div>
   <div class="actions">
     <button class="icon-btn" id="helpBtn">使い方・免責事項</button>
@@ -1291,7 +1295,7 @@
 
     <p style="font-size:12.5px; font-weight:700; color:var(--accent); margin:16px 0 4px;">■ バージョン</p>
     <div class="hint" style="margin-top:0;">
-      v2.46.6
+      v2.46.7
     </div>
 
     <div class="modal-actions">
@@ -4137,7 +4141,9 @@ ${metricLines}
     document.getElementById('f_status').value = s ? s.status : '非保有';
     document.getElementById('f_buy').value = s && s.buyLine != null ? s.buyLine : '';
     document.getElementById('f_sell').value = s && s.sellLine != null ? s.sellLine : '';
-    document.getElementById('f_watch').checked = s ? !!s.watch : true;
+    // 新規追加時は、現在表示中がサブタブならサブ、それ以外(メイン)ならメインを初期値にする
+    // (既存銘柄の編集時はs.watchをそのまま使うため、この変更の影響を受けない)
+    document.getElementById('f_watch').checked = s ? !!s.watch : (mainSubMode !== 'sub');
     updateMainSubFieldToggle();
     document.getElementById('deleteBtn').style.display = s ? 'block' : 'none';
     modalBg.classList.add('active');
